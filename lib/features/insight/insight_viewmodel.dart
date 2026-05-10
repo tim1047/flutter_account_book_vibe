@@ -1,4 +1,5 @@
 // lib/features/insight/insight_viewmodel.dart
+import 'package:account_book_vibe/core/constants/division.dart';
 import 'package:account_book_vibe/core/network/app_exception.dart';
 import 'package:account_book_vibe/data/models/account_model.dart';
 import 'package:account_book_vibe/data/models/category_model.dart';
@@ -11,7 +12,6 @@ const double kCategoryAnomalyThreshold = 0.20;
 const double kTransactionAnomalyMultiple = 3.0;
 const int kMaxAnomalyItems = 5;
 const int kComparisonMonths = 3;
-const String _expenseDivisionId = '3'; // Division.expense
 
 class CategoryAnomalyItem {
   const CategoryAnomalyItem({
@@ -64,12 +64,12 @@ class InsightViewModel extends ChangeNotifier {
       // 카테고리 합계: 현재 월 + 직전 3개월 병렬
       final catFuture = Future.wait<List<CategorySumResponse>>([
         CategoryService.instance.getCategorySum(
-          divisionId: _expenseDivisionId,
+          divisionId: Division.expense,
           strtDt: strtDt,
           endDt: endDt,
         ),
         ...pastRanges.map((r) => CategoryService.instance.getCategorySum(
-              divisionId: _expenseDivisionId,
+              divisionId: Division.expense,
               strtDt: r.strtDt,
               endDt: r.endDt,
             )),
@@ -78,19 +78,21 @@ class InsightViewModel extends ChangeNotifier {
       // 거래 목록: 현재 월 + 직전 3개월 병렬
       final txFuture = Future.wait<List<AccountListResponse>>([
         AccountService.instance.getAccounts(
-          divisionId: _expenseDivisionId,
+          divisionId: Division.expense,
           strtDt: strtDt,
           endDt: endDt,
         ),
         ...pastRanges.map((r) => AccountService.instance.getAccounts(
-              divisionId: _expenseDivisionId,
+              divisionId: Division.expense,
               strtDt: r.strtDt,
               endDt: r.endDt,
             )),
       ]);
 
-      final catResults = await catFuture;
-      final txResults = await txFuture;
+      // 8개 요청 모두 진정한 병렬 실행
+      final results = await Future.wait([catFuture, txFuture]);
+      final catResults = results[0] as List<List<CategorySumResponse>>;
+      final txResults = results[1] as List<List<AccountListResponse>>;
 
       final currentCatSums = catResults[0];
       final pastCatSums = catResults.sublist(1);
