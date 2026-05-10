@@ -14,6 +14,7 @@ import 'package:account_book_vibe/features/home/home_screen.dart';
 import 'package:account_book_vibe/features/income/income_category_screen.dart';
 import 'package:account_book_vibe/features/income/income_monthly_chart_screen.dart';
 import 'package:account_book_vibe/features/invest/invest_category_screen.dart';
+import 'package:account_book_vibe/features/insight/insight_screen.dart';
 import 'package:account_book_vibe/features/invest/invest_monthly_chart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -47,6 +48,10 @@ final appRouter = GoRouter(
       path: '/accountList',
       pageBuilder: (c, s) =>
           _slidePage(AccountListScreen(extra: s.extra as AccountListExtra?), s),
+    ),
+    GoRoute(
+      path: '/insight',
+      pageBuilder: (c, s) => _slidePage(const InsightScreen(), s),
     ),
     GoRoute(
       path: '/account',
