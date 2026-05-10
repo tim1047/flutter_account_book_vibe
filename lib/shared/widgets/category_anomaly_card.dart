@@ -26,16 +26,17 @@ class CategoryAnomalyCard extends StatelessWidget {
         ? '+${FormatUtil.formatPrice(diffAmount)}원'
         : '−${FormatUtil.formatPrice(diffAmount.abs())}원';
 
-    // 진행률 바: 현재 금액 / (평균 × 2), 최대 1.0
-    final barValue =
-        (item.currentPrice / (item.avgPrice * 2)).clamp(0.0, 1.0);
+    // 진행률 바: 현재 금액 / (평균 × 2), 최대 1.0 (평균 0일 때 0 처리)
+    final barValue = item.avgPrice == 0
+        ? 0.0
+        : (item.currentPrice / (item.avgPrice * 2)).clamp(0.0, 1.0);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: _isIncrease
-            ? const Color(0xFF1A0808)
-            : const Color(0xFF081508),
+            ? AppColors.colorBgAnomalyIncrease
+            : AppColors.colorBgAnomalyDecrease,
         borderRadius: BorderRadius.circular(8),
         border: Border(
           left: BorderSide(color: _accentColor, width: 3),
