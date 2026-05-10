@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>가계부 앱 디자인 미리보기</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0a;
+    font-family: -apple-system, 'Noto Sans KR', sans-serif;
+    color: #E6EDF3;
+    padding: 40px 20px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 22px;
+    color: #2DD4BF;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #8B949E;
+    margin-bottom: 48px;
+  }
+  .screens-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    justify-content: center;
+  }
+  .screen-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .screen-label {
+    font-size: 13px;
+    color: #8B949E;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .phone {
+    width: 360px;
+    background: #0D1117;
+    border-radius: 32px;
+    overflow: hidden;
+    border: 1.5px solid #21262D;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px #161B22;
+    position: relative;
+  }
+
+  /* AppBar */
+  .app-bar {
+    background: #0D1117;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid #21262D;
+  }
+  .app-bar .hamburger {
+    width: 24px; height: 24px;
+    display: flex; flex-direction: column; justify-content: space-around;
+    cursor: pointer;
+  }
+  .app-bar .hamburger span {
+    display: block; height: 2px; background: #E6EDF3; border-radius: 2px;
+  }
+  .app-bar .title {
+    flex: 1;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #E6EDF3;
+  }
+  .app-bar .actions { width: 24px; }
+
+  /* Date Filter Bar */
+  .date-filter {
+    background: #161B22;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 16px;
+  }
+  .date-filter .arrow-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: #21262D;
+    display: flex; align-items: center; justify-content: center;
+    color: #2DD4BF;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .date-filter .dropdown {
+    background: #21262D;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: #E6EDF3;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .date-filter .dropdown .chevron { color: #2DD4BF; font-size: 10px; }
+  .date-filter .refresh-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: #21262D;
+    display: flex; align-items: center; justify-content: center;
+    color: #8B949E;
+    font-size: 14px;
+  }
+
+  /* Screen body */
+  .screen-body {
+    background: #0D1117;
+    padding: 12px 16px;
+    min-height: 520px;
+    overflow-y: hidden;
+  }
+
+  /* Summary Cards */
+  .summary-card {
+    background: #161B22;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .summary-card:active { background: #21262D; }
+  .icon-circle {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .icon-circle.income { background: rgba(45,212,191,0.12); }
+  .icon-circle.expense { background: rgba(248,113,113,0.12); }
+  .icon-circle.invest { background: rgba(251,146,60,0.12); }
+  .icon-circle.profit { background: rgba(74,222,128,0.12); }
+  .icon-circle.rate { background: rgba(250,204,21,0.12); }
+  .card-info { flex: 1; }
+  .card-amount {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    font-feature-settings: "tnum";
+  }
+  .card-amount.income { color: #2DD4BF; }
+  .card-amount.expense { color: #F87171; }
+  .card-amount.invest { color: #FB923C; }
+  .card-amount.profit { color: #4ADE80; }
+  .card-amount.rate { color: #FACC15; }
+  .card-label {
+    font-size: 12px;
+    color: #8B949E;
+    margin-top: 2px;
+  }
+  .card-chevron { color: #30363D; font-size: 16px; }
+
+  /* Section header */
+  .section-header {
+    font-size: 12px;
+    color: #8B949E;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 16px 0 8px;
+  }
+
+  /* Transaction List */
+  .date-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #161B22;
+    border-radius: 10px;
+    padding: 8px 14px;
+    margin-bottom: 6px;
+    margin-top: 8px;
+  }
+  .date-group-header .date-text {
+    font-size: 12px;
+    color: #8B949E;
+    font-weight: 600;
+  }
+  .sort-toggle {
+    font-size: 11px;
+    color: #2DD4BF;
+    background: rgba(45,212,191,0.08);
+    border-radius: 6px;
+    padding: 3px 8px;
+  }
+  .tx-card {
+    background: #161B22;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .avatar.kw { background: rgba(45,212,191,0.15); color: #2DD4BF; font-size: 14px; font-weight: 700; }
+  .avatar.jy { background: rgba(244,114,182,0.15); color: #F472B6; font-size: 14px; font-weight: 700; }
+  .tx-info { flex: 1; }
+  .tx-amount {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    font-feature-settings: "tnum";
+  }
+  .tx-amount.expense { color: #F87171; }
+  .tx-amount.income { color: #2DD4BF; }
+  .tx-meta {
+    font-size: 12px;
+    color: #8B949E;
+    margin-top: 2px;
+  }
+  .badge-row { display: flex; gap: 4px; margin-top: 5px; }
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .badge.expense-badge { background: rgba(248,113,113,0.15); color: #F87171; }
+  .badge.seoul { background: #21262D; color: #E6EDF3; }
+  .badge.impulse { background: rgba(167,139,250,0.15); color: #A78BFA; }
+
+  /* FAB */
+  .fab-area {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  .fab {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, #2DD4BF, #818CF8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 8px 24px rgba(45,212,191,0.35);
+  }
+  .fab-sm {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #161B22;
+    border: 1px solid #21262D;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    color: #8B949E;
+  }
+
+  /* Progress Row */
+  .progress-row {
+    margin-bottom: 4px;
+  }
+  .progress-row-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .progress-label {
+    font-size: 13px;
+    color: #E6EDF3;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .progress-label .cat-icon { font-size: 14px; }
+  .progress-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #F87171;
+    font-feature-settings: "tnum";
+  }
+  .progress-track {
+    height: 4px;
+    background: #21262D;
+    border-radius: 100px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 100px;
+  }
+  .progress-fill.expense-fill {
+    background: linear-gradient(90deg, #F87171, #FB923C);
+  }
+  .progress-fill.income-fill {
+    background: linear-gradient(90deg, #2DD4BF, #4ADE80);
+  }
+
+  /* Expansion Tile */
+  .expansion-tile {
+    background: #161B22;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .tile-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tile-icon { font-size: 18px; }
+  .tile-title { flex: 1; font-size: 14px; font-weight: 600; }
+  .tile-right { text-align: right; }
+  .tile-amount { font-size: 14px; font-weight: 700; color: #F87171; font-feature-settings: "tnum"; }
+  .tile-percent { font-size: 11px; color: #8B949E; }
+  .tile-chevron { color: #30363D; font-size: 12px; margin-left: 8px; }
+  .tile-body {
+    background: #21262D;
+    padding: 8px 16px 12px;
+  }
+  .subtile {
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #30363D;
+  }
+  .subtile:last-child { border-bottom: none; }
+  .subtile-icon { font-size: 14px; color: #8B949E; }
+  .subtile-name { flex: 1; font-size: 13px; color: #C9D1D9; }
+  .subtile-right { text-align: right; }
+  .subtile-amount { font-size: 13px; font-weight: 600; color: #FB923C; font-feature-settings: "tnum"; }
+  .subtile-percent { font-size: 11px; color: #8B949E; }
+
+  /* Chart screen */
+  .chart-card {
+    background: #161B22;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+  }
+  .chart-card-title { font-size: 12px; color: #8B949E; margin-bottom: 4px; }
+  .chart-card-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2DD4BF;
+    font-feature-settings: "tnum";
+  }
+  .bar-chart-area {
+    background: #161B22;
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 8px;
+  }
+  .bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 140px;
+    padding-bottom: 24px;
+    position: relative;
+  }
+  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; }
+  .bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+  }
+  .bar.normal {
+    background: linear-gradient(180deg, #818CF8 0%, #2DD4BF 100%);
+  }
+  .bar.current {
+    background: #F87171;
+    box-shadow: 0 0 12px rgba(248,113,113,0.4);
+  }
+  .bar.avg {
+    background: #8B949E;
+    opacity: 0.6;
+  }
+  .bar-label { font-size: 9px; color: #8B949E; }
+  .grid-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 1px;
+    background: #21262D;
+  }
+
+  /* Asset screen */
+  .asset-stat-row {
+    background: #161B22;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+  }
+  .asset-stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .asset-stat-item { text-align: center; }
+  .asset-stat-label { font-size: 10px; color: #8B949E; margin-bottom: 3px; }
+  .asset-stat-value { font-size: 13px; font-weight: 700; color: #E6EDF3; font-feature-settings: "tnum"; }
+
+  .asset-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 2px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+  .asset-group-name { font-size: 12px; color: #8B949E; font-weight: 600; }
+  .asset-group-total { font-size: 13px; font-weight: 700; color: #2DD4BF; font-feature-settings: "tnum"; }
+
+  .asset-tile {
+    background: #161B22;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .asset-icon { font-size: 18px; }
+  .asset-info { flex: 1; }
+  .asset-name { font-size: 13px; font-weight: 600; }
+  .asset-qty { font-size: 11px; color: #8B949E; margin-top: 1px; }
+  .asset-value { font-size: 14px; font-weight: 700; color: #E6EDF3; font-feature-settings: "tnum"; }
+
+  /* Drawer overlay mockup */
+  .drawer-mockup {
+    background: #161B22;
+    padding: 0;
+    overflow: hidden;
+  }
+  .drawer-header {
+    height: 180px;
+    background: linear-gradient(180deg, #0D1117 0%, #21262D 60%, #161B22 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+  }
+  .drawer-header-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(13,17,23,0.3) 0%, rgba(45,212,191,0.08) 100%);
+  }
+  .drawer-header-text {
+    position: relative;
+    z-index: 1;
+  }
+  .drawer-header-title { font-size: 16px; font-weight: 700; color: #E6EDF3; }
+  .drawer-header-sub { font-size: 12px; color: #8B949E; margin-top: 2px; }
+  .drawer-item {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    color: #C9D1D9;
+    border-bottom: 1px solid rgba(48,54,61,0.4);
+  }
+  .drawer-item.active {
+    background: rgba(45,212,191,0.06);
+    color: #2DD4BF;
+    border-left: 3px solid #2DD4BF;
+    padding-left: 17px;
+  }
+  .drawer-item-icon { font-size: 18px; width: 24px; text-align: center; }
+  .drawer-sub-item {
+    padding: 11px 20px 11px 56px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #8B949E;
+    background: rgba(13,17,23,0.4);
+  }
+
+  /* Form screen */
+  .form-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid #21262D;
+    gap: 12px;
+  }
+  .form-icon { font-size: 18px; color: #8B949E; width: 24px; text-align: center; flex-shrink: 0; }
+  .form-label { font-size: 13px; color: #8B949E; width: 64px; flex-shrink: 0; }
+  .form-value { flex: 1; font-size: 14px; color: #E6EDF3; font-feature-settings: "tnum"; }
+  .form-value.placeholder { color: #30363D; }
+  .form-field {
+    flex: 1;
+    background: #21262D;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #E6EDF3;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .form-field .chevron { color: #2DD4BF; font-size: 12px; }
+
+  .gradient-btn {
+    margin: 16px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #2DD4BF, #818CF8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0D1117;
+    box-shadow: 0 8px 24px rgba(45,212,191,0.3);
+  }
+  .destructive-btn {
+    margin: 0 16px 16px;
+    height: 52px;
+    border-radius: 14px;
+    background: rgba(248,113,113,0.1);
+    border: 1px solid rgba(248,113,113,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: #F87171;
+  }
+
+  /* Member bar chart */
+  .member-item {
+    background: #161B22;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+  }
+  .member-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .member-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .member-name { flex: 1; font-size: 14px; font-weight: 600; }
+  .member-amount { font-size: 15px; font-weight: 700; font-feature-settings: "tnum"; color: #F87171; }
+  .member-percent { font-size: 12px; color: #8B949E; }
+
+  /* Toast notification */
+  .toast {
+    position: absolute;
+    bottom: 20px;
+    left: 16px; right: 16px;
+    background: #21262D;
+    border: 1px solid #30363D;
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #E6EDF3;
+  }
+  .toast-icon { font-size: 16px; color: #2DD4BF; }
+</style>
+</head>
+<body>
+
+<h1>강원 🧡 정윤 가계부 — 디자인 미리보기</h1>
+<p class="subtitle">Stage 4~6 완료 후 예상 화면 (Teal Fusion 다크 테마)</p>
+
+<div class="screens-grid">
+
+  <!-- Screen 1: Home Dashboard -->
+  <div class="screen-wrapper">
+    <div class="screen-label">홈 대시보드</div>
+    <div class="phone">
+      <div class="app-bar">
+        <div class="hamburger"><span></span><span></span><span></span></div>
+        <div class="title">강원 🧡 정윤 가계부</div>
+        <div class="actions"></div>
+      </div>
+      <div class="date-filter">
+        <div class="arrow-btn">‹</div>
+        <div class="dropdown">2026년 <span class="chevron">▾</span></div>
+        <div class="dropdown">05월 <span class="chevron">▾</span></div>
+        <div class="arrow-btn">›</div>
+        <div class="refresh-btn">↺</div>
+      </div>
+      <div class="screen-body">
+        <div class="section-header">이번 달 요약</div>
+        <div class="summary-card">
+          <div class="icon-circle income">💰</div>
+          <div class="card-info">
+            <div class="card-amount income">4,520,000</div>
+            <div class="card-label">소득</div>
+          </div>
+          <div class="card-chevron">›</div>
+        </div>
+        <div class="summary-card">
+          <div class="icon-circle expense">🛒</div>
+          <div class="card-info">
+            <div class="card-amount expense">1,834,500</div>
+            <div class="card-label">지출</div>
+          </div>
+          <div class="card-chevron">›</div>
+        </div>
+        <div class="summary-card">
+          <div class="icon-circle invest">₿</div>
+          <div class="card-info">
+            <div class="card-amount invest">800,000</div>
+            <div class="card-label">투자</div>
+          </div>
+          <div class="card-chevron">›</div>
+        </div>
+        <div class="summary-card">
+          <div class="icon-circle profit">👛</div>
+          <div class="card-info">
+            <div class="card-amount profit">1,885,500</div>
+            <div class="card-label">순수익</div>
+          </div>
+          <div class="card-chevron">›</div>
+        </div>
+        <div class="summary-card">
+          <div class="icon-circle rate">%</div>
+          <div class="card-info">
+            <div class="card-amount rate">17.7%</div>
+            <div class="card-label">투자율</div>
+          </div>
+          <div class="card-chevron">›</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 2: Account List -->
+  <div class="screen-wrapper">
+    <div class="screen-label">가계부 목록</div>
+    <div class="phone" style="position:relative; min-height: 680px;">
+      <div class="app-bar">
+        <div class="hamburger"><span></span><span></span><span></span></div>
+        <div class="title">강원 🧡 정윤 가계부</div>
+        <div class="actions"></div>
+      </div>
+      <div class="date-filter">
+        <div class="arrow-btn">‹</div>
+        <div class="dropdown">2026년 <span class="chevron">▾</span></div>
+        <div class="dropdown">05월 <span class="chevron">▾</span></div>
+        <div class="arrow-btn">›</div>
+        <div class="refresh-btn">↺</div>
+      </div>
+      <div class="screen-body">
+        <div class="date-group-header">
+          <div class="date-text">2026.05.03 (일)</div>
+          <div class="sort-toggle">↕ 최신순</div>
+        </div>
+        <div class="tx-card">
+          <div class="avatar kw">강원</div>
+          <div class="tx-info">
+            <div class="tx-amount expense">-24,000</div>
+            <div class="tx-meta">식비 | 점심 (김밥천국)</div>
+            <div class="badge-row">
+              <span class="badge expense-badge">지출</span>
+            </div>
+          </div>
+        </div>
+        <div class="tx-card">
+          <div class="avatar jy">정윤</div>
+          <div class="tx-info">
+            <div class="tx-amount expense">-15,900</div>
+            <div class="tx-meta">쇼핑 | 올리브영</div>
+            <div class="badge-row">
+              <span class="badge expense-badge">지출</span>
+              <span class="badge impulse">충동</span>
+            </div>
+          </div>
+        </div>
+        <div class="date-group-header" style="margin-top:8px;">
+          <div class="date-text">2026.05.02 (토)</div>
+          <div class="sort-toggle">↕ 최신순</div>
+        </div>
+        <div class="tx-card">
+          <div class="avatar kw">강원</div>
+          <div class="tx-info">
+            <div class="tx-amount income">+2,300,000</div>
+            <div class="tx-meta">급여 | 5월 월급</div>
+            <div class="badge-row">
+              <span class="badge" style="background:rgba(45,212,191,0.12);color:#2DD4BF;">소득</span>
+            </div>
+          </div>
+        </div>
+        <div class="tx-card">
+          <div class="avatar jy">정윤</div>
+          <div class="tx-info">
+            <div class="tx-amount expense">-38,000</div>
+            <div class="tx-meta">외식 | 저녁 (이탈리안)</div>
+            <div class="badge-row">
+              <span class="badge expense-badge">지출</span>
+              <span class="badge seoul">서울사랑</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="fab-area">
+        <div class="fab-sm">↑</div>
+        <div class="fab">+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 3: Drawer -->
+  <div class="screen-wrapper">
+    <div class="screen-label">사이드 드로어</div>
+    <div class="phone drawer-mockup">
+      <div class="drawer-header">
+        <div class="drawer-header-overlay"></div>
+        <div class="drawer-header-text">
+          <div class="drawer-header-title">강원 🧡 정윤 가계부</div>
+          <div class="drawer-header-sub">함께 만드는 우리의 기록</div>
+        </div>
+      </div>
+      <div class="drawer-item active">
+        <div class="drawer-item-icon">🏠</div>
+        <span>가계부 홈</span>
+      </div>
+      <div class="drawer-item">
+        <div class="drawer-item-icon">📋</div>
+        <span>가계부 목록</span>
+      </div>
+      <div class="drawer-item">
+        <div class="drawer-item-icon">🛒</div>
+        <span>지출</span>
+        <span style="margin-left:auto;color:#30363D;font-size:12px;">▾</span>
+      </div>
+      <div class="drawer-sub-item"><span>🛒</span><span>지출</span></div>
+      <div class="drawer-sub-item"><span>📊</span><span>지출 상세</span></div>
+      <div class="drawer-sub-item"><span>👤</span><span>주체별 지출</span></div>
+      <div class="drawer-sub-item"><span>📈</span><span>지출 추이</span></div>
+      <div class="drawer-item">
+        <div class="drawer-item-icon">💼</div>
+        <span>수입</span>
+        <span style="margin-left:auto;color:#30363D;font-size:12px;">›</span>
+      </div>
+      <div class="drawer-item">
+        <div class="drawer-item-icon">🏢</div>
+        <span>투자</span>
+        <span style="margin-left:auto;color:#30363D;font-size:12px;">›</span>
+      </div>
+      <div class="drawer-item">
+        <div class="drawer-item-icon">📅</div>
+        <span>캘린더 보기</span>
+      </div>
+      <div class="drawer-item">
+        <div class="drawer-item-icon">🏦</div>
+        <span>자산</span>
+        <span style="margin-left:auto;color:#30363D;font-size:12px;">›</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 4: Expense Category -->
+  <div class="screen-wrapper">
+    <div class="screen-label">지출 카테고리</div>
+    <div class="phone">
+      <div class="app-bar">
+        <div class="hamburger"><span></span><span></span><span></span></div>
+        <div class="title">강원 🧡 정윤 가계부</div>
+        <div class="actions"></div>
+      </div>
+      <div class="date-filter">
+        <div class="arrow-btn">‹</div>
+        <div class="dropdown">2026년 <span class="chevron">▾</span></div>
+        <div class="dropdown">05월 <span class="chevron">▾</span></div>
+        <div class="arrow-btn">›</div>
+        <div class="refresh-btn">↺</div>
+      </div>
+      <div class="screen-body">
+        <div class="expansion-tile">
+          <div class="tile-header">
+            <div class="tile-icon">🍽️</div>
+            <div class="tile-title">식비</div>
+            <div class="tile-right">
+              <div class="tile-amount">486,000</div>
+              <div class="tile-percent">26.5%</div>
+            </div>
+            <div class="tile-chevron">▾</div>
+          </div>
+          <div class="progress-track" style="margin: 0 16px 12px;"><div class="progress-fill expense-fill" style="width:65%"></div></div>
+          <div class="tile-body">
+            <div class="subtile">
+              <div class="subtile-icon">🍜</div>
+              <div class="subtile-name">점심</div>
+              <div class="subtile-right">
+                <div class="subtile-amount">182,000</div>
+                <div class="subtile-percent">37.4%</div>
+              </div>
+            </div>
+            <div class="progress-track" style="margin: 4px 0 8px;"><div class="progress-fill" style="width:37%;background:linear-gradient(90deg,#FB923C,#FACC15);"></div></div>
+            <div class="subtile">
+              <div class="subtile-icon">🍖</div>
+              <div class="subtile-name">외식</div>
+              <div class="subtile-right">
+                <div class="subtile-amount">156,000</div>
+                <div class="subtile-percent">32.1%</div>
+              </div>
+            </div>
+            <div class="progress-track" style="margin: 4px 0 0;"><div class="progress-fill" style="width:32%;background:linear-gradient(90deg,#FB923C,#FACC15);"></div></div>
+          </div>
+        </div>
+        <div class="expansion-tile">
+          <div class="tile-header">
+            <div class="tile-icon">🚗</div>
+            <div class="tile-title">교통</div>
+            <div class="tile-right">
+              <div class="tile-amount">234,000</div>
+              <div class="tile-percent">12.8%</div>
+            </div>
+            <div class="tile-chevron">›</div>
+          </div>
+          <div class="progress-track" style="margin: 0 16px 12px;"><div class="progress-fill expense-fill" style="width:32%"></div></div>
+        </div>
+        <div class="expansion-tile">
+          <div class="tile-header">
+            <div class="tile-icon">🛍️</div>
+            <div class="tile-title">쇼핑</div>
+            <div class="tile-right">
+              <div class="tile-amount">318,500</div>
+              <div class="tile-percent">17.4%</div>
+            </div>
+            <div class="tile-chevron">›</div>
+          </div>
+          <div class="progress-track" style="margin: 0 16px 12px;"><div class="progress-fill expense-fill" style="width:44%"></div></div>
+        </div>
+        <div class="expansion-tile">
+          <div class="tile-header">
+            <div class="tile-icon">🏠</div>
+            <div class="tile-title">주거</div>
+            <div class="tile-right">
+              <div class="tile-amount">600,000</div>
+              <div class="tile-percent">32.7%</div>
+            </div>
+            <div class="tile-chevron">›</div>
+          </div>
+          <div class="progress-track" style="margin: 0 16px 12px;"><div class="progress-fill expense-fill" style="width:83%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 5: Monthly Chart -->
+  <div class="screen-wrapper">
+    <div class="screen-label">지출 월별 추이</div>
+    <div class="phone">
+      <div class="app-bar">
+        <div class="hamburger"><span></span><span></span><span></span></div>
+        <div class="title">강원 🧡 정윤 가계부</div>
+        <div class="actions"></div>
+      </div>
+      <div class="date-filter">
+        <div class="arrow-btn">‹</div>
+        <div class="dropdown">2026년 <span class="chevron">▾</span></div>
+        <div class="dropdown">05월 <span class="chevron">▾</span></div>
+        <div class="arrow-btn">›</div>
+        <div class="refresh-btn">↺</div>
+      </div>
+      <div class="screen-body">
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <div class="chart-card" style="flex:1;">
+            <div class="chart-card-title">저번달 대비</div>
+            <div class="chart-card-value" style="color:#F87171;font-size:14px;">+124,000 더 씀</div>
+          </div>
+          <div class="chart-card" style="flex:1;">
+            <div class="chart-card-title">월 평균</div>
+            <div class="chart-card-value" style="font-size:14px;">1,710,500</div>
+          </div>
+        </div>
+        <div class="bar-chart-area">
+          <div style="font-size:11px;color:#8B949E;margin-bottom:8px;">최근 12개월 지출 추이</div>
+          <div class="bars">
+            <div style="position:absolute;bottom:24px;left:0;right:0;height:1px;background:#21262D;"></div>
+            <div style="position:absolute;bottom:64px;left:0;right:0;height:1px;background:#21262D;"></div>
+            <div style="position:absolute;bottom:104px;left:0;right:0;height:1px;background:#21262D;"></div>
+            <div class="bar-wrap"><div class="bar normal" style="height:55px;"></div><div class="bar-label">6</div></div>
+            <div class="bar-wrap"><div class="bar normal" style="height:72px;"></div><div class="bar-label">7</div></div>
+            <div class="bar-wrap"><div class="bar normal" style="height:48px;"></div><div class="bar-label">8</div></div>
+            <div class="bar-wrap"><div class="bar normal" style="height:80px;"></div><div class="bar-label">9</div></div>
+            <div class="bar-wrap"><div class="bar normal" style="height:63px;"></div><div class="bar-label">10</div></div>
+            <div class="bar-wrap"><div class="bar normal" style="height:95px;"></div><div class="bar-label">11</div></div>
+            <div class="bar-wrap"><div class="bar normal" style="height:88px;"></div><div class="bar-label">12</div></div>
+            <div class="bar-wrap"><div class="bar normal" style="height:70px;"></div><div class="bar-label">1</div></div>
+            <div class="bar-wrap"><div class="bar normal" style="height:58px;"></div><div class="bar-label">2</div></div>
+            <div class="bar-wrap"><div class="bar normal" style="height:75px;"></div><div class="bar-label">3</div></div>
+            <div class="bar-wrap"><div class="bar normal" style="height:68px;"></div><div class="bar-label">4</div></div>
+            <div class="bar-wrap"><div class="bar current" style="height:82px;"></div><div class="bar-label" style="color:#F87171;">5</div></div>
+            <div class="bar-wrap"><div class="bar avg" style="height:69px;"></div><div class="bar-label">평균</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 6: Account Form -->
+  <div class="screen-wrapper">
+    <div class="screen-label">가계부 추가/수정</div>
+    <div class="phone">
+      <div class="app-bar">
+        <div class="hamburger"><span></span><span></span><span></span></div>
+        <div class="title">가계부 수정</div>
+        <div class="actions"></div>
+      </div>
+      <div class="screen-body" style="padding:0;">
+        <div class="form-row">
+          <div class="form-icon">📅</div>
+          <div class="form-label">날짜</div>
+          <div class="form-value">2026.05.03</div>
+        </div>
+        <div class="form-row">
+          <div class="form-icon">🏷️</div>
+          <div class="form-label">구분</div>
+          <div class="form-field">지출 <span class="chevron">▾</span></div>
+        </div>
+        <div class="form-row">
+          <div class="form-icon">👤</div>
+          <div class="form-label">주체</div>
+          <div class="form-field">강원 <span class="chevron">▾</span></div>
+        </div>
+        <div class="form-row">
+          <div class="form-icon">💳</div>
+          <div class="form-label">결제수단</div>
+          <div class="form-field">신용카드 <span class="chevron">▾</span></div>
+        </div>
+        <div class="form-row">
+          <div class="form-icon">📂</div>
+          <div class="form-label">대분류</div>
+          <div class="form-field">식비 <span class="chevron">▾</span></div>
+        </div>
+        <div class="form-row">
+          <div class="form-icon">📁</div>
+          <div class="form-label">소분류</div>
+          <div class="form-field">점심 <span class="chevron">▾</span></div>
+        </div>
+        <div class="form-row">
+          <div class="form-icon">💰</div>
+          <div class="form-label">가격</div>
+          <div class="form-value">24,000</div>
+        </div>
+        <div class="form-row">
+          <div class="form-icon">📝</div>
+          <div class="form-label">비고</div>
+          <div class="form-value">김밥천국</div>
+        </div>
+        <div class="form-row">
+          <div class="form-icon">⚠️</div>
+          <div class="form-label">충동지출</div>
+          <div class="form-field">N <span class="chevron">▾</span></div>
+        </div>
+      </div>
+      <div class="gradient-btn">수정하기</div>
+      <div class="destructive-btn">삭제하기</div>
+    </div>
+  </div>
+
+  <!-- Screen 7: Member Expense -->
+  <div class="screen-wrapper">
+    <div class="screen-label">주체별 지출</div>
+    <div class="phone">
+      <div class="app-bar">
+        <div class="hamburger"><span></span><span></span><span></span></div>
+        <div class="title">강원 🧡 정윤 가계부</div>
+        <div class="actions"></div>
+      </div>
+      <div class="date-filter">
+        <div class="arrow-btn">‹</div>
+        <div class="dropdown">2026년 <span class="chevron">▾</span></div>
+        <div class="dropdown">05월 <span class="chevron">▾</span></div>
+        <div class="arrow-btn">›</div>
+        <div class="refresh-btn">↺</div>
+      </div>
+      <div class="screen-body">
+        <div class="member-item">
+          <div class="member-row">
+            <div class="member-avatar" style="background:rgba(45,212,191,0.15);color:#2DD4BF;">강원</div>
+            <div>
+              <div class="member-name">강원</div>
+              <div class="member-percent">62.4% (전체 중)</div>
+            </div>
+            <div class="member-amount">1,144,500</div>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="width:62%;background:linear-gradient(90deg,#2DD4BF,#818CF8);"></div></div>
+        </div>
+        <div class="member-item">
+          <div class="member-row">
+            <div class="member-avatar" style="background:rgba(244,114,182,0.15);color:#F472B6;">정윤</div>
+            <div>
+              <div class="member-name">정윤</div>
+              <div class="member-percent">37.6% (전체 중)</div>
+            </div>
+            <div class="member-amount">690,000</div>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="width:38%;background:linear-gradient(90deg,#F472B6,#FB923C);"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 8: Asset List -->
+  <div class="screen-wrapper">
+    <div class="screen-label">자산 목록</div>
+    <div class="phone" style="position:relative;">
+      <div class="app-bar">
+        <div class="hamburger"><span></span><span></span><span></span></div>
+        <div class="title">강원 🧡 정윤 가계부</div>
+        <div class="actions"></div>
+      </div>
+      <div class="date-filter">
+        <div class="arrow-btn">‹</div>
+        <div class="dropdown">2026년 <span class="chevron">▾</span></div>
+        <div class="dropdown">05월 <span class="chevron">▾</span></div>
+        <div class="arrow-btn">›</div>
+        <div class="refresh-btn">↺</div>
+      </div>
+      <div class="screen-body">
+        <div class="asset-stat-row">
+          <div class="asset-stat-grid">
+            <div class="asset-stat-item">
+              <div class="asset-stat-label">총 자산</div>
+              <div class="asset-stat-value" style="color:#2DD4BF;font-size:12px;">₩52,340만</div>
+            </div>
+            <div class="asset-stat-item">
+              <div class="asset-stat-label">순자산</div>
+              <div class="asset-stat-value" style="color:#4ADE80;font-size:12px;">₩48,200만</div>
+            </div>
+            <div class="asset-stat-item">
+              <div class="asset-stat-label">현금성</div>
+              <div class="asset-stat-value" style="font-size:12px;">₩8,500만</div>
+            </div>
+          </div>
+          <div style="height:1px;background:#21262D;margin:12px 0;"></div>
+          <div class="asset-stat-grid">
+            <div class="asset-stat-item">
+              <div class="asset-stat-label">USD/KRW</div>
+              <div class="asset-stat-value" style="font-size:12px;">1,372.50</div>
+            </div>
+            <div class="asset-stat-item">
+              <div class="asset-stat-label">JPY/KRW</div>
+              <div class="asset-stat-value" style="font-size:12px;">9.18</div>
+            </div>
+            <div class="asset-stat-item">
+              <div class="asset-stat-label">기준일</div>
+              <div class="asset-stat-value" style="font-size:11px;color:#8B949E;">05.03</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="asset-group-header">
+          <div class="asset-group-name">주식</div>
+          <div class="asset-group-total">28,400,000</div>
+        </div>
+        <div class="asset-tile">
+          <div class="asset-icon">📈</div>
+          <div class="asset-info">
+            <div class="asset-name">삼성전자</div>
+            <div class="asset-qty">100주</div>
+          </div>
+          <div class="asset-value">8,200,000</div>
+        </div>
+        <div class="asset-tile">
+          <div class="asset-icon">🇺🇸</div>
+          <div class="asset-info">
+            <div class="asset-name">AAPL</div>
+            <div class="asset-qty">15주</div>
+          </div>
+          <div class="asset-value">20,200,000</div>
+        </div>
+
+        <div class="asset-group-header">
+          <div class="asset-group-name">예금/적금</div>
+          <div class="asset-group-total">15,000,000</div>
+        </div>
+        <div class="asset-tile">
+          <div class="asset-icon">🏦</div>
+          <div class="asset-info">
+            <div class="asset-name">카카오뱅크 정기예금</div>
+            <div class="asset-qty" style="display:flex;align-items:center;gap:4px;">
+              <span style="background:rgba(250,204,21,0.12);color:#FACC15;font-size:10px;padding:1px 5px;border-radius:4px;">현금성</span>
+            </div>
+          </div>
+          <div class="asset-value">15,000,000</div>
+        </div>
+      </div>
+      <div class="fab-area">
+        <div class="fab">+</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center;margin-top:48px;padding-bottom:40px;">
+  <div style="display:inline-flex;gap:24px;align-items:center;background:#161B22;border-radius:12px;padding:16px 24px;border:1px solid #21262D;">
+    <div style="text-align:center;">
+      <div style="width:16px;height:16px;border-radius:50%;background:#2DD4BF;margin:0 auto 4px;"></div>
+      <div style="font-size:10px;color:#8B949E;">Teal<br>Accent</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:16px;height:16px;border-radius:50%;background:#818CF8;margin:0 auto 4px;"></div>
+      <div style="font-size:10px;color:#8B949E;">Indigo<br>Accent</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:16px;height:16px;border-radius:50%;background:#F87171;margin:0 auto 4px;"></div>
+      <div style="font-size:10px;color:#8B949E;">지출</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:16px;height:16px;border-radius:50%;background:#4ADE80;margin:0 auto 4px;"></div>
+      <div style="font-size:10px;color:#8B949E;">순수익</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:16px;height:16px;border-radius:50%;background:#FB923C;margin:0 auto 4px;"></div>
+      <div style="font-size:10px;color:#8B949E;">투자</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:16px;height:16px;border-radius:50%;background:#FACC15;margin:0 auto 4px;"></div>
+      <div style="font-size:10px;color:#8B949E;">투자율</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#2DD4BF,#818CF8);margin:0 auto 4px;"></div>
+      <div style="font-size:10px;color:#8B949E;">그래디언트<br>버튼/FAB</div>
+    </div>
+  </div>
+  <div style="font-size:12px;color:#8B949E;margin-top:16px;">
+    Teal Fusion Dark Theme · #0D1117 배경 · Pretendard 폰트 (적용 후)
+  </div>
+</div>
+
+</body>
+</html>

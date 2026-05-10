@@ -1,0 +1,235 @@
+import 'package:flutter/material.dart';
+
+class CategoryIcons {
+  CategoryIcons._();
+
+  static IconData getIcon(String name) {
+    // ── 식음료 ────────────────────────────────────────────────────
+    if (_has(name, ['식비', '외식', '점심', '저녁', '아침', '밥', '음식', '식당', '한식', '중식', '일식', '양식'])) {
+      return Icons.restaurant;
+    }
+    if (_has(name, ['카페', '커피', '음료', '스타벅스', '이디야'])) {
+      return Icons.local_cafe;
+    }
+    if (_has(name, ['배달', '배민', '쿠팡이츠', '요기요'])) {
+      return Icons.delivery_dining;
+    }
+    if (_has(name, ['간식', '디저트', '베이커리', '빵', '과자', '아이스크림'])) {
+      return Icons.icecream;
+    }
+    if (_has(name, ['술', '유흥', '주점', '포차', '맥주', '와인', '소주'])) {
+      return Icons.sports_bar;
+    }
+    if (_has(name, ['편의점', 'GS25', 'CU', 'gs', '세븐일레븐'])) {
+      return Icons.storefront;
+    }
+    if (_has(name, ['마트', '슈퍼', '이마트', '홈플러스', '롯데마트', '쿠팡', '장보기'])) {
+      return Icons.shopping_cart;
+    }
+
+    // ── 교통 ─────────────────────────────────────────────────────
+    if (_has(name, ['택시', '카카오T', '우버'])) {
+      return Icons.local_taxi;
+    }
+    if (_has(name, ['대중교통', '버스', '지하철', '전철', 'T머니'])) {
+      return Icons.commute;
+    }
+    if (_has(name, ['주유', '기름', '휘발유', '경유', '주유소'])) {
+      return Icons.local_gas_station;
+    }
+    if (_has(name, ['자동차', '차량', '차', '수리', '정비', '세차'])) {
+      return Icons.directions_car;
+    }
+    if (_has(name, ['주차'])) {
+      return Icons.local_parking;
+    }
+    if (_has(name, ['항공', '비행기', '비행'])) {
+      return Icons.flight;
+    }
+    if (_has(name, ['KTX', 'ktx', '기차', '고속버스', '시외버스'])) {
+      return Icons.train;
+    }
+    if (_has(name, ['교통', '이동'])) {
+      return Icons.directions;
+    }
+
+    // ── 쇼핑 ─────────────────────────────────────────────────────
+    if (_has(name, ['의류', '옷', '패션', '신발', '가방', '악세서리', '액세서리'])) {
+      return Icons.checkroom;
+    }
+    if (_has(name, ['쇼핑', '구매', '온라인쇼핑', '이커머스'])) {
+      return Icons.shopping_bag;
+    }
+    if (_has(name, ['전자', '가전', '컴퓨터', '노트북', '스마트폰', '폰', '핸드폰', '애플', '삼성'])) {
+      return Icons.devices;
+    }
+
+    // ── 주거/생활 ─────────────────────────────────────────────────
+    if (_has(name, ['월세', '관리비', '아파트', '임대', '전세'])) {
+      return Icons.home;
+    }
+    if (_has(name, ['공과금', '전기', '가스', '수도', '난방', '도시가스'])) {
+      return Icons.electrical_services;
+    }
+    if (_has(name, ['인터넷', '통신', '휴대폰', '이동통신', 'SKT', 'KT', 'LG U+'])) {
+      return Icons.smartphone;
+    }
+    if (_has(name, ['가구', '인테리어', '생활용품', '주방', '침구'])) {
+      return Icons.chair;
+    }
+    if (_has(name, ['주거', '집'])) {
+      return Icons.home_outlined;
+    }
+
+    // ── 문화/여가 ─────────────────────────────────────────────────
+    if (_has(name, ['영화', '공연', '뮤지컬', '콘서트', '연극', '문화'])) {
+      return Icons.theaters;
+    }
+    if (_has(name, ['게임', '취미', '보드게임'])) {
+      return Icons.sports_esports;
+    }
+    if (_has(name, ['여행', '숙박', '호텔', '펜션', '에어비앤비'])) {
+      return Icons.luggage;
+    }
+    if (_has(name, ['스포츠', '헬스', '피트니스', '운동', '수영', '골프', '테니스'])) {
+      return Icons.fitness_center;
+    }
+    if (_has(name, ['OTT', 'ott', '넷플릭스', '유튜브', '왓챠', '티빙', '웨이브', '디즈니'])) {
+      return Icons.tv;
+    }
+    if (_has(name, ['구독', '정기결제', '멤버십', '스포티파이', '멜론'])) {
+      return Icons.subscriptions;
+    }
+    if (_has(name, ['여가', '레저', '오락', '놀이'])) {
+      return Icons.beach_access;
+    }
+
+    // ── 의료/건강 ─────────────────────────────────────────────────
+    if (_has(name, ['병원', '의원', '진료', '치과', '안과', '한의원'])) {
+      return Icons.local_hospital;
+    }
+    if (_has(name, ['약', '약국', '의약품'])) {
+      return Icons.medication;
+    }
+    if (_has(name, ['의료', '건강', '건강검진'])) {
+      return Icons.health_and_safety;
+    }
+    if (_has(name, ['미용', '뷰티', '헤어', '네일', '피부', '화장품', '코스메틱'])) {
+      return Icons.spa;
+    }
+
+    // ── 교육 ──────────────────────────────────────────────────────
+    if (_has(name, ['학원', '과외', '교습', '인강', '온라인강의'])) {
+      return Icons.menu_book;
+    }
+    if (_has(name, ['책', '도서', '교재', '참고서'])) {
+      return Icons.auto_stories;
+    }
+    if (_has(name, ['교육', '학교', '등록금', '수업료'])) {
+      return Icons.school;
+    }
+
+    // ── 육아 ──────────────────────────────────────────────────────
+    if (_has(name, ['육아', '아이', '유아', '어린이집', '유치원', '기저귀', '분유'])) {
+      return Icons.child_care;
+    }
+
+    // ── 경조사/선물 ───────────────────────────────────────────────
+    if (_has(name, ['결혼', '장례', '축의', '부의', '조의'])) {
+      return Icons.celebration;
+    }
+    if (_has(name, ['선물', '기프트', '생일', '기념일'])) {
+      return Icons.card_giftcard;
+    }
+    if (_has(name, ['경조사', '경조'])) {
+      return Icons.favorite;
+    }
+
+    // ── 금융/보험/세금 ────────────────────────────────────────────
+    if (_has(name, ['보험', '실손', '생명보험', '자동차보험'])) {
+      return Icons.security;
+    }
+    if (_has(name, ['세금', '부가세', '소득세', '재산세', '납부'])) {
+      return Icons.account_balance;
+    }
+    if (_has(name, ['대출', '이자납부', '원금'])) {
+      return Icons.money_off;
+    }
+
+    // ── 반려동물 ──────────────────────────────────────────────────
+    if (_has(name, ['반려', '강아지', '고양이', '펫', '동물병원', '사료'])) {
+      return Icons.pets;
+    }
+
+    // ── 수입 ──────────────────────────────────────────────────────
+    if (_has(name, ['급여', '월급', '연봉', '임금', '보수'])) {
+      return Icons.payments;
+    }
+    if (_has(name, ['부업', '프리랜서', '알바', '아르바이트', '외주'])) {
+      return Icons.work_outlined;
+    }
+    if (_has(name, ['이자', '배당', '분배금'])) {
+      return Icons.percent;
+    }
+    if (_has(name, ['용돈', '지원금'])) {
+      return Icons.savings;
+    }
+    if (_has(name, ['환급', '환불', '캐시백', '리워드', '포인트'])) {
+      return Icons.replay;
+    }
+    if (_has(name, ['판매', '중고', '매출'])) {
+      return Icons.sell;
+    }
+    if (_has(name, ['상여', '보너스', '인센티브'])) {
+      return Icons.emoji_events;
+    }
+
+    // ── 투자 ──────────────────────────────────────────────────────
+    if (_has(name, ['국내주식', '국내 주식', '한국주식', '코스피', '코스닥'])) {
+      return Icons.bar_chart;
+    }
+    if (_has(name, ['미국주식', '미국 주식', '해외주식', '해외 주식'])) {
+      return Icons.public;
+    }
+    if (_has(name, ['일본주식', '일본 주식'])) {
+      return Icons.language;
+    }
+    if (_has(name, ['주식', 'ETF', 'etf', '상장지수'])) {
+      return Icons.show_chart;
+    }
+    if (_has(name, ['코인', '가상화폐', '암호화폐', '비트코인', 'BTC', 'ETH'])) {
+      return Icons.currency_bitcoin;
+    }
+    if (_has(name, ['부동산', '아파트', '건물', '토지'])) {
+      return Icons.apartment;
+    }
+    if (_has(name, ['펀드', '뮤추얼펀드'])) {
+      return Icons.pie_chart;
+    }
+    if (_has(name, ['채권', '국채', '회사채'])) {
+      return Icons.receipt_long;
+    }
+    if (_has(name, ['적금', '예금', '저축', '청약'])) {
+      return Icons.account_balance_wallet;
+    }
+    if (_has(name, ['IRP', 'irp', '연금', '퇴직연금', '개인연금'])) {
+      return Icons.elderly;
+    }
+    if (_has(name, ['현금', 'cash'])) {
+      return Icons.wallet;
+    }
+    if (_has(name, ['대출', '부채', '빚'])) {
+      return Icons.money_off;
+    }
+
+    // ── 기타 ──────────────────────────────────────────────────────
+    if (_has(name, ['기타', '잡비', '기타지출', '기타수입'])) {
+      return Icons.more_horiz;
+    }
+
+    return Icons.label_outline;
+  }
+
+  static bool _has(String name, List<String> keywords) =>
+      keywords.any((k) => name.contains(k));
+}
