@@ -151,6 +151,7 @@ class AppColors {
   // 10-1. 이상 지출 카드 배경색
   static const Color colorBgAnomalyIncrease = Color(0xFF1A0808);
   static const Color colorBgAnomalyDecrease = Color(0xFF081508);
+  static const Color colorBgAnomalyTransaction = Color(0xFF1A1008);
 
   // 11. Division 매핑 (ViewModel 호환 — 키 변경 금지)
   static const Map<String, Color> divisionColor = <String, Color>{
