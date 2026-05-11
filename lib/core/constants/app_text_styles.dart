@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -106,6 +104,23 @@ class AppTextStyles {
     fontSize: 10,
     fontWeight: FontWeight.w400,
     height: 1.6,
+    color: AppColors.colorTextPrimary,
+  );
+
+  static const TextStyle textBodyXs = TextStyle(
+    fontFamily: _fontFamily,
+    fontSize: 11,
+    fontWeight: FontWeight.w400,
+    height: 1.6,
+    color: AppColors.colorTextPrimary,
+  );
+
+  static const TextStyle textHeadingLg = TextStyle(
+    fontFamily: _fontFamily,
+    fontSize: 28,
+    fontWeight: FontWeight.w700,
+    height: 1.2,
+    letterSpacing: -0.3,
     color: AppColors.colorTextPrimary,
   );
 
