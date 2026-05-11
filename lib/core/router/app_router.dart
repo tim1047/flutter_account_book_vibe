@@ -10,6 +10,7 @@ import 'package:account_book_vibe/features/expense/expense_daily_chart_screen.da
 import 'package:account_book_vibe/features/expense/expense_dtl_screen.dart';
 import 'package:account_book_vibe/features/expense/expense_member_screen.dart';
 import 'package:account_book_vibe/features/expense/expense_monthly_chart_screen.dart';
+import 'package:account_book_vibe/features/dashboard/dashboard_screen.dart';
 import 'package:account_book_vibe/features/home/home_screen.dart';
 import 'package:account_book_vibe/features/income/income_category_screen.dart';
 import 'package:account_book_vibe/features/income/income_monthly_chart_screen.dart';
@@ -52,6 +53,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/insight',
       pageBuilder: (c, s) => _slidePage(const InsightScreen(), s),
+    ),
+    GoRoute(
+      path: '/dashboard',
+      pageBuilder: (c, s) => _slidePage(const DashboardScreen(), s),
     ),
     GoRoute(
       path: '/account',

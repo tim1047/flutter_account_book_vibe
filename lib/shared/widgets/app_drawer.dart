@@ -38,6 +38,12 @@ class AppDrawer extends StatelessWidget {
                   path: '/insight',
                   currentPath: currentPath,
                 ),
+                _NavTile(
+                  emoji: '📊',
+                  label: '대시보드',
+                  path: '/dashboard',
+                  currentPath: currentPath,
+                ),
                 _AccordionSection(
                   emoji: '🛒',
                   label: '지출',

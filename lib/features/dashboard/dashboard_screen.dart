@@ -1,0 +1,101 @@
+import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/app_text_styles.dart';
+import 'package:account_book_vibe/features/dashboard/dashboard_period_viewmodel.dart';
+import 'package:account_book_vibe/features/dashboard/tabs/asset_tab.dart';
+import 'package:account_book_vibe/features/dashboard/tabs/expense_tab.dart';
+import 'package:account_book_vibe/features/dashboard/tabs/overview_tab.dart';
+import 'package:account_book_vibe/features/dashboard/viewmodels/asset_viewmodel.dart';
+import 'package:account_book_vibe/features/dashboard/viewmodels/expense_viewmodel.dart';
+import 'package:account_book_vibe/features/dashboard/viewmodels/overview_viewmodel.dart';
+import 'package:account_book_vibe/features/dashboard/widgets/period_selector.dart';
+import 'package:account_book_vibe/shared/widgets/app_drawer.dart';
+import 'package:flutter/material.dart';
+
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen>
+    with SingleTickerProviderStateMixin {
+  late final DashboardPeriodViewModel _period;
+  late final DashboardOverviewViewModel _overviewVm;
+  late final DashboardExpenseViewModel _expenseVm;
+  late final DashboardAssetViewModel _assetVm;
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _period = DashboardPeriodViewModel();
+    _overviewVm = DashboardOverviewViewModel(_period)..load();
+    _expenseVm = DashboardExpenseViewModel(_period)..load();
+    _assetVm = DashboardAssetViewModel(_period)..load();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _period.dispose();
+    _overviewVm.dispose();
+    _expenseVm.dispose();
+    _assetVm.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.colorBgMain,
+      drawer: const AppDrawer(),
+      appBar: AppBar(
+        backgroundColor: AppColors.colorBgMain,
+        elevation: 0,
+        title: Text(
+          '📊 대시보드',
+          style: AppTextStyles.textBodyLg.copyWith(
+            color: AppColors.colorTextPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(88),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: PeriodSelector(vm: _period),
+              ),
+              TabBar(
+                controller: _tabController,
+                indicatorColor: AppColors.colorAccentTeal,
+                labelColor: AppColors.colorAccentTeal,
+                unselectedLabelColor: AppColors.colorTextSecondary,
+                labelStyle: AppTextStyles.textBodySm.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                unselectedLabelStyle: AppTextStyles.textBodySm,
+                tabs: const [
+                  Tab(text: '개요'),
+                  Tab(text: '지출'),
+                  Tab(text: '자산'),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          OverviewTab(vm: _overviewVm),
+          ExpenseTab(vm: _expenseVm),
+          AssetTab(vm: _assetVm),
+        ],
+      ),
+    );
+  }
+}
