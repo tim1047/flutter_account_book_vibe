@@ -114,6 +114,8 @@ class CategoryEmojis {
     return '🏷️';
   }
 
+  static String forCategory(String categoryNm) => getEmoji(categoryNm);
+
   static bool _has(String name, List<String> keywords) =>
       keywords.any((k) => name.contains(k));
 }
