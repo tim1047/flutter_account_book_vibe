@@ -161,7 +161,12 @@ class InsightViewModel extends ChangeNotifier {
       }
     }
 
-    results.sort((a, b) => b.diffRate.abs().compareTo(a.diffRate.abs()));
+    results.sort((a, b) {
+      final aIncreasing = a.diffRate > 0;
+      final bIncreasing = b.diffRate > 0;
+      if (aIncreasing != bIncreasing) return aIncreasing ? -1 : 1;
+      return b.diffRate.abs().compareTo(a.diffRate.abs());
+    });
     return results.take(kMaxCategoryAnomalyItems).toList();
   }
 
