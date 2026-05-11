@@ -31,8 +31,7 @@ class _InsightScreenState extends State<InsightScreen> {
     _load();
   }
 
-  void _load() =>
-      _vm.load(_dateFilter.selectedYear, _dateFilter.selectedMonth);
+  void _load() => _vm.load(_dateFilter.selectedYear, _dateFilter.selectedMonth);
 
   @override
   void dispose() {
@@ -101,7 +100,7 @@ class _InsightScreenState extends State<InsightScreen> {
           child: Divider(color: AppColors.colorDivider),
         ),
         const _SectionHeader(
-          title: '🔍 단일 이상 거래',
+          title: '🔍 단일 이상 거래 TOP 10',
           subtitle: '카테고리 평균 단가 대비',
         ),
         if (_vm.transactionAnomalies.isEmpty)

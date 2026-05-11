@@ -17,9 +17,7 @@ class TransactionAnomalyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tx = item.account;
-    final dateStr = tx.accountDt.length >= 10
-        ? '${tx.accountDt.substring(5, 7)}.${tx.accountDt.substring(8, 10)}'
-        : tx.accountDt;
+    final dateStr = FormatUtil.formatDateKorean(tx.accountDt);
     final desc =
         tx.remark?.isNotEmpty == true ? tx.remark! : tx.categorySeqNm;
 
@@ -43,7 +41,7 @@ class TransactionAnomalyCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${tx.categoryNm}  ·  $dateStr',
+                    '${tx.categorySeqNm}  ·  $dateStr',
                     style: AppTextStyles.textBodyMd.copyWith(
                       color: _accentColor,
                       fontWeight: FontWeight.w700,
@@ -58,7 +56,7 @@ class TransactionAnomalyCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    '카테고리 평균 단가 ${FormatUtil.formatPrice(item.categoryAvgPrice)}원',
+                    '카테고리 상세 평균 단가 ${FormatUtil.formatPrice(item.categoryAvgPrice)}원',
                     style: AppTextStyles.textLabelSm.copyWith(
                       color: AppColors.colorTextDisabled,
                     ),

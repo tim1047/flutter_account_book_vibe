@@ -10,20 +10,23 @@ import 'package:flutter/foundation.dart';
 
 const double kCategoryAnomalyThreshold = 0.20;
 const double kTransactionAnomalyMultiple = 3.0;
-const int kMaxAnomalyItems = 5;
+const int kMaxCategoryAnomalyItems = 5;
+const int kMaxTransactionAnomalyItems = 10;
 const int kComparisonMonths = 3;
 
 class CategoryAnomalyItem {
   const CategoryAnomalyItem({
     required this.categoryId,
-    required this.categoryNm,
+    required this.categorySeq,
+    required this.categorySeqNm,
     required this.currentPrice,
     required this.avgPrice,
     required this.diffRate,
   });
 
   final String categoryId;
-  final String categoryNm;
+  final String categorySeq;
+  final String categorySeqNm;
   final int currentPrice;
   final int avgPrice;
   final double diffRate; // 양수=증가, 음수=감소
@@ -115,15 +118,19 @@ class InsightViewModel extends ChangeNotifier {
     List<CategorySumResponse> current,
     List<List<CategorySumResponse>> pastMonths,
   ) {
-    // 카테고리별 과거 가격 누적
+    // (categoryId + categorySeq) 복합키로 과거 가격 누적
+    // categorySeq는 카테고리 내 로컬 ID이므로 단독 키 사용 시 다른 카테고리와 충돌
     final Map<String, List<int>> pastPrices = {};
     for (final monthData in pastMonths) {
       for (final cat in monthData) {
-        pastPrices.putIfAbsent(cat.categoryId, () => []).add(cat.sumPrice);
+        for (final seqItem in cat.data) {
+          final key = '${cat.categoryId}_${seqItem.categorySeq}';
+          pastPrices.putIfAbsent(key, () => []).add(seqItem.sumPrice);
+        }
       }
     }
 
-    // 카테고리별 평균 (0 제외)
+    // 복합키별 평균 (0 제외)
     final Map<String, double> avgPrices = {};
     for (final entry in pastPrices.entries) {
       final nonZero = entry.value.where((p) => p > 0).toList();
@@ -135,35 +142,41 @@ class InsightViewModel extends ChangeNotifier {
 
     final results = <CategoryAnomalyItem>[];
     for (final cat in current) {
-      final avg = avgPrices[cat.categoryId];
-      if (avg == null || avg == 0) continue;
-      final diffRate = (cat.sumPrice - avg) / avg;
-      if (diffRate.abs() > kCategoryAnomalyThreshold) {
-        results.add(CategoryAnomalyItem(
-          categoryId: cat.categoryId,
-          categoryNm: cat.categoryNm,
-          currentPrice: cat.sumPrice,
-          avgPrice: avg.round(),
-          diffRate: diffRate,
-        ));
+      for (final seqItem in cat.data) {
+        if (seqItem.sumPrice == 0) continue; // 이번달 금액이 0이면 제외
+        final key = '${cat.categoryId}_${seqItem.categorySeq}';
+        final avg = avgPrices[key];
+        if (avg == null || avg == 0) continue;
+        final diffRate = (seqItem.sumPrice - avg) / avg;
+        if (diffRate.abs() > kCategoryAnomalyThreshold) {
+          results.add(CategoryAnomalyItem(
+            categoryId: cat.categoryId,
+            categorySeq: seqItem.categorySeq,
+            categorySeqNm: seqItem.categorySeqNm,
+            currentPrice: seqItem.sumPrice,
+            avgPrice: avg.round(),
+            diffRate: diffRate,
+          ));
+        }
       }
     }
 
     results.sort((a, b) => b.diffRate.abs().compareTo(a.diffRate.abs()));
-    return results.take(kMaxAnomalyItems).toList();
+    return results.take(kMaxCategoryAnomalyItems).toList();
   }
 
   static List<TransactionAnomalyItem> computeTransactionAnomalies(
     List<AccountListResponse> currentTxs,
     List<AccountListResponse> pastTxs,
   ) {
-    // 카테고리별 과거 거래 금액 누적
+    // (categoryId + categorySeq) 복합키로 과거 거래 금액 누적
     final Map<String, List<int>> pastPricesByCategory = {};
     for (final tx in pastTxs) {
-      pastPricesByCategory.putIfAbsent(tx.categoryId, () => []).add(tx.price);
+      final key = '${tx.categoryId}_${tx.categorySeq}';
+      pastPricesByCategory.putIfAbsent(key, () => []).add(tx.price);
     }
 
-    // 카테고리별 평균 단가 (과거 거래 2건 이상인 경우만)
+    // 복합키별 평균 단가 (과거 거래 2건 이상인 경우만)
     final Map<String, double> categoryAvgPrices = {};
     for (final entry in pastPricesByCategory.entries) {
       if (entry.value.length >= 2) {
@@ -174,7 +187,7 @@ class InsightViewModel extends ChangeNotifier {
 
     final results = <TransactionAnomalyItem>[];
     for (final tx in currentTxs) {
-      final avg = categoryAvgPrices[tx.categoryId];
+      final avg = categoryAvgPrices['${tx.categoryId}_${tx.categorySeq}'];
       if (avg == null || avg == 0) continue;
       final multiple = tx.price / avg;
       if (multiple >= kTransactionAnomalyMultiple) {
@@ -187,7 +200,7 @@ class InsightViewModel extends ChangeNotifier {
     }
 
     results.sort((a, b) => b.multiple.compareTo(a.multiple));
-    return results.take(kMaxAnomalyItems).toList();
+    return results.take(kMaxTransactionAnomalyItems).toList();
   }
 
   // ── helpers ───────────────────────────────────────────────────────────────

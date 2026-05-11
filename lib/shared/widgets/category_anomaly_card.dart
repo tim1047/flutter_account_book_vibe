@@ -1,9 +1,12 @@
 // lib/shared/widgets/category_anomaly_card.dart
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
+import 'package:account_book_vibe/core/constants/division.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
+import 'package:account_book_vibe/features/account/account_list_extra.dart';
 import 'package:account_book_vibe/features/insight/insight_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class CategoryAnomalyCard extends StatelessWidget {
   const CategoryAnomalyCard({super.key, required this.item});
@@ -31,7 +34,16 @@ class CategoryAnomalyCard extends StatelessWidget {
         ? 0.0
         : (item.currentPrice / (item.avgPrice * 2)).clamp(0.0, 1.0);
 
-    return Container(
+    return GestureDetector(
+      onTap: () => context.push(
+        '/accountList',
+        extra: AccountListExtra(
+          divisionId: Division.expense,
+          categoryId: item.categoryId,
+          categorySeq: item.categorySeq,
+        ),
+      ),
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: _isIncrease
@@ -50,7 +62,7 @@ class CategoryAnomalyCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${_isIncrease ? '⚠' : '✓'} ${item.categoryNm} $diffLabel',
+                '${_isIncrease ? '⚠' : '✓'} ${item.categorySeqNm} $diffLabel',
                 style: AppTextStyles.textBodyMd.copyWith(
                   color: _accentColor,
                   fontWeight: FontWeight.w700,
@@ -95,6 +107,7 @@ class CategoryAnomalyCard extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

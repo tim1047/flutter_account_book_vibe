@@ -35,6 +35,18 @@ class FormatUtil {
     }
   }
 
+  static String formatDateKorean(String date) {
+    try {
+      final normalized = date.length == 8
+          ? '${date.substring(0, 4)}-${date.substring(4, 6)}-${date.substring(6, 8)}'
+          : date;
+      final dt = DateTime.parse(normalized);
+      return '${dt.year}년 ${_pad(dt.month)}월 ${_pad(dt.day)}일';
+    } catch (_) {
+      return date;
+    }
+  }
+
   static String formatMonthYear(int year, int month) {
     if (month == 0) return '$year년 전체';
     return '$year년 ${_pad(month)}월';
