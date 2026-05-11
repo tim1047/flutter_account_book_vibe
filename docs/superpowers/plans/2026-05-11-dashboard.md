@@ -546,12 +546,26 @@ class DashboardOverviewViewModel extends ChangeNotifier {
   static List<({String date, int amount})> _buildNetWorthHistory(
     List<MyAssetSumResponse> sums,
   ) {
-    final byDate = <String, int>{};
+    // assetId='0' 더미 제외, assetId='6' 는 부채 → 차감
+    final byDateAsset = <String, int>{};
+    final byDateDebt = <String, int>{};
     for (final s in sums) {
-      byDate[s.accumDt] = (byDate[s.accumDt] ?? 0) + s.sumPrice;
+      if (s.assetId == '0') continue;
+      if (s.assetId == '6') {
+        byDateDebt[s.accumDt] = (byDateDebt[s.accumDt] ?? 0) + s.sumPrice;
+      } else {
+        byDateAsset[s.accumDt] = (byDateAsset[s.accumDt] ?? 0) + s.sumPrice;
+      }
     }
-    final sorted = byDate.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
-    return sorted.map((e) => (date: e.key, amount: e.value)).toList();
+    final allDates = {
+      ...byDateAsset.keys,
+      ...byDateDebt.keys,
+    }.toList()..sort();
+    return allDates.map((date) {
+      final asset = byDateAsset[date] ?? 0;
+      final debt = byDateDebt[date] ?? 0;
+      return (date: date, amount: asset - debt);
+    }).toList();
   }
 
   @override
@@ -845,15 +859,26 @@ class DashboardAssetViewModel extends ChangeNotifier {
   static List<({String date, int amount})> _buildNetWorthHistory(
     List<MyAssetSumResponse> sums,
   ) {
-    final byDate = <String, int>{};
+    // assetId='0' 더미 제외, assetId='6' 는 부채 → 차감
+    final byDateAsset = <String, int>{};
+    final byDateDebt = <String, int>{};
     for (final s in sums) {
-      if (s.assetId != '0') {
-        byDate[s.accumDt] = (byDate[s.accumDt] ?? 0) + s.sumPrice;
+      if (s.assetId == '0') continue;
+      if (s.assetId == '6') {
+        byDateDebt[s.accumDt] = (byDateDebt[s.accumDt] ?? 0) + s.sumPrice;
+      } else {
+        byDateAsset[s.accumDt] = (byDateAsset[s.accumDt] ?? 0) + s.sumPrice;
       }
     }
-    return (byDate.entries.toList()..sort((a, b) => a.key.compareTo(b.key)))
-        .map((e) => (date: e.key, amount: e.value))
-        .toList();
+    final allDates = {
+      ...byDateAsset.keys,
+      ...byDateDebt.keys,
+    }.toList()..sort();
+    return allDates.map((date) {
+      final asset = byDateAsset[date] ?? 0;
+      final debt = byDateDebt[date] ?? 0;
+      return (date: date, amount: asset - debt);
+    }).toList();
   }
 
   @override

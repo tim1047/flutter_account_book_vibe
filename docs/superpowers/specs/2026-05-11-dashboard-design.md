@@ -85,19 +85,30 @@ Dashboard
 
 ## 필요한 백엔드 API
 
-기존 CRUD 데이터를 집계하는 API들이 필요하다. 새로운 데이터 모델 추가는 없고, 기존 트랜잭션 데이터를 집계·요약하는 엔드포인트를 추가한다.
+**신규 백엔드 API 없음.** 모든 데이터는 기존 API를 조합해 클라이언트에서 집계한다.
 
-| API | 설명 | 비고 |
-|-----|------|------|
-| `GET /dashboard/summary` | 기간별 수입/지출/저축/투자 요약 | 개요 탭 ③ |
-| `GET /dashboard/net-worth/history` | 월별 순자산 이력 | 개요 탭 ④, 자산 탭 ③ |
-| `GET /dashboard/expense/category-breakdown` | 기간별 카테고리별 지출 집계 | 지출 탭 ②④ |
-| `GET /dashboard/expense/monthly` | 월별 지출 합계 | 지출 탭 ③ |
-| `GET /dashboard/expense/top-transactions` | 최대 단건 지출 TOP N | 지출 탭 ⑤ |
-| `GET /dashboard/asset/composition` | 현재 자산 구성 (카테고리별 합계) | 자산 탭 ② |
-| `GET /transactions/recent` | 최근 거래 N건 | 개요 탭 ⑥ |
+| 대시보드 데이터 | 기존 API | 집계 방법 |
+|----------------|----------|-----------|
+| 수입/지출/투자 합계 | `AccountService.getAccounts(divisionId, strtDt, endDt)` × 3 병렬 | 클라이언트 price 합산 |
+| 카테고리별 지출 비중 | `CategoryService.getCategorySum(divisionId=3, strtDt, endDt)` | 그대로 사용 |
+| 월별 지출 추이 | `AccountService.getAccounts(divisionId=3, strtDt, endDt)` | `accountDt.substring(0,6)` 기준 월별 그룹핑 |
+| 최대 단건 지출 TOP5 | `AccountService.getAccounts(divisionId=3, strtDt, endDt)` | price 내림차순 정렬 후 take(5) |
+| 현재 자산 구성 | `MyAssetService.getMyAssets(strtDt=today, endDt=today)` | `data` 맵의 `assetTotSumPrice` 사용 |
+| 순자산 이력 | `MyAssetService.getMyAssetSum(strtDt, endDt)` | 날짜별로 총자산(`assetId != '0' && != '6'`) - 부채(`assetId == '6'`) |
+| 최근 거래 | `AccountService.getAccounts(strtDt, endDt)` | `accountDt` 내림차순 정렬 후 take(5) |
 
-모든 집계 API는 `from` / `to` 쿼리 파라미터로 기간 필터링을 지원한다.
+### assetId 규칙 (MyAssetSumResponse)
+
+| assetId | 의미 |
+|---------|------|
+| `'0'` | 더미 합계 행 — 무시 |
+| `'6'` | 부채 — 순자산 계산 시 차감 |
+| 그 외 | 실제 자산 항목 |
+
+순자산 이력 계산:
+```
+net_worth(date) = sum(sumPrice where assetId ∉ {'0','6'}) - sum(sumPrice where assetId == '6')
+```
 
 ---
 
