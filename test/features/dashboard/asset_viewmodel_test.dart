@@ -25,7 +25,13 @@ void main() {
       final vm = DashboardAssetViewModel();
       vm.selectHistoryPeriod(AssetHistoryPeriod.threeMonths);
       final now = DateTime.now();
-      final threeMonthsAgo = DateTime(now.year, now.month - 3, now.day);
+      final threeMonthsAgo = () {
+        final totalMonths = now.year * 12 + (now.month - 1) - 3;
+        final y = totalMonths ~/ 12;
+        final m = totalMonths % 12 + 1;
+        final lastDay = DateTime(y, m + 1, 0).day;
+        return DateTime(y, m, now.day.clamp(1, lastDay));
+      }();
       final expectedStart =
           '${threeMonthsAgo.year}${threeMonthsAgo.month.toString().padLeft(2, '0')}${threeMonthsAgo.day.toString().padLeft(2, '0')}';
       expect(vm.historyRange.strtDt, expectedStart);
@@ -35,7 +41,13 @@ void main() {
       final vm = DashboardAssetViewModel();
       vm.selectHistoryPeriod(AssetHistoryPeriod.sixMonths);
       final now = DateTime.now();
-      final sixMonthsAgo = DateTime(now.year, now.month - 6, now.day);
+      final sixMonthsAgo = () {
+        final totalMonths = now.year * 12 + (now.month - 1) - 6;
+        final y = totalMonths ~/ 12;
+        final m = totalMonths % 12 + 1;
+        final lastDay = DateTime(y, m + 1, 0).day;
+        return DateTime(y, m, now.day.clamp(1, lastDay));
+      }();
       final expectedStart =
           '${sixMonthsAgo.year}${sixMonthsAgo.month.toString().padLeft(2, '0')}${sixMonthsAgo.day.toString().padLeft(2, '0')}';
       expect(vm.historyRange.strtDt, expectedStart);
