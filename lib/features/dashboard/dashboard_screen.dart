@@ -1,3 +1,4 @@
+// lib/features/dashboard/dashboard_screen.dart
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/features/dashboard/dashboard_period_viewmodel.dart';
@@ -32,12 +33,18 @@ class _DashboardScreenState extends State<DashboardScreen>
     _period = DashboardPeriodViewModel();
     _overviewVm = DashboardOverviewViewModel(_period)..load();
     _expenseVm = DashboardExpenseViewModel(_period)..load();
-    _assetVm = DashboardAssetViewModel(_period)..load();
+    _assetVm = DashboardAssetViewModel()..load();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) setState(() {});
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _period.dispose();
     _overviewVm.dispose();
     _expenseVm.dispose();
@@ -45,6 +52,8 @@ class _DashboardScreenState extends State<DashboardScreen>
     _tabController.dispose();
     super.dispose();
   }
+
+  bool get _isAssetTab => _tabController.index == 2;
 
   @override
   Widget build(BuildContext context) {
@@ -62,13 +71,15 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(88),
+          preferredSize: Size.fromHeight(_isAssetTab ? 44 : 88),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: PeriodSelector(vm: _period),
-              ),
+              if (!_isAssetTab)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: PeriodSelector(vm: _period),
+                ),
               TabBar(
                 controller: _tabController,
                 indicatorColor: AppColors.colorAccentTeal,
