@@ -1,4 +1,3 @@
-// lib/features/dashboard/tabs/asset_tab.dart
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
@@ -136,46 +135,43 @@ class _HistoryPeriodPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: vm,
-      builder: (context, _) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: AssetHistoryPeriod.values.map((p) {
-          final isSelected = vm.historyPeriod == p;
-          return GestureDetector(
-            onTap: () => vm.selectHistoryPeriod(p),
-            child: Container(
-              margin: const EdgeInsets.only(left: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: AssetHistoryPeriod.values.map((p) {
+        final isSelected = vm.historyPeriod == p;
+        return GestureDetector(
+          onTap: () => vm.selectHistoryPeriod(p),
+          child: Container(
+            margin: const EdgeInsets.only(left: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? AppColors.colorAccentTeal
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
                 color: isSelected
                     ? AppColors.colorAccentTeal
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isSelected
-                      ? AppColors.colorAccentTeal
-                      : AppColors.colorDivider,
-                ),
-              ),
-              child: Text(
-                _label(p),
-                style: AppTextStyles.textBodyXs.copyWith(
-                  color: isSelected
-                      ? AppColors.colorBgMain
-                      : AppColors.colorTextSecondary,
-                  fontWeight:
-                      isSelected ? FontWeight.w600 : FontWeight.w400,
-                ),
+                    : AppColors.colorDivider,
               ),
             ),
-          );
-        }).toList(),
-      ),
+            child: Text(
+              _label(p),
+              style: AppTextStyles.textBodyXs.copyWith(
+                color: isSelected
+                    ? AppColors.colorBgMain
+                    : AppColors.colorTextSecondary,
+                fontWeight:
+                    isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
-  String _label(AssetHistoryPeriod p) => switch (p) {
+  static String _label(AssetHistoryPeriod p) => switch (p) {
         AssetHistoryPeriod.threeMonths => '3개월',
         AssetHistoryPeriod.sixMonths => '6개월',
         AssetHistoryPeriod.oneYear => '1년',
