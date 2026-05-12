@@ -49,16 +49,24 @@ class DashboardAssetViewModel extends ChangeNotifier {
 
   AssetHistoryPeriod get historyPeriod => _historyPeriod;
 
+  DateTime _subtractMonths(DateTime from, int months) {
+    final totalMonths = from.year * 12 + (from.month - 1) - months;
+    final year = totalMonths ~/ 12;
+    final month = totalMonths % 12 + 1;
+    final lastDay = DateTime(year, month + 1, 0).day;
+    return DateTime(year, month, from.day.clamp(1, lastDay));
+  }
+
   ({String strtDt, String endDt}) get historyRange {
     final now = DateTime.now();
     final endDt = _fmt(now);
     return switch (_historyPeriod) {
       AssetHistoryPeriod.threeMonths => (
-          strtDt: _fmt(DateTime(now.year, now.month - 3, now.day)),
+          strtDt: _fmt(_subtractMonths(now, 3)),
           endDt: endDt,
         ),
       AssetHistoryPeriod.sixMonths => (
-          strtDt: _fmt(DateTime(now.year, now.month - 6, now.day)),
+          strtDt: _fmt(_subtractMonths(now, 6)),
           endDt: endDt,
         ),
       AssetHistoryPeriod.oneYear => (
@@ -69,6 +77,7 @@ class DashboardAssetViewModel extends ChangeNotifier {
   }
 
   void selectHistoryPeriod(AssetHistoryPeriod period) {
+    if (_historyPeriod == period) return;
     _historyPeriod = period;
     notifyListeners();
     load();
