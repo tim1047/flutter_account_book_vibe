@@ -1,8 +1,10 @@
+// lib/features/dashboard/viewmodels/asset_viewmodel.dart
 import 'package:account_book_vibe/core/network/app_exception.dart';
 import 'package:account_book_vibe/data/models/my_asset_model.dart';
 import 'package:account_book_vibe/data/services/my_asset_service.dart';
-import 'package:account_book_vibe/features/dashboard/dashboard_period_viewmodel.dart';
 import 'package:flutter/foundation.dart';
+
+enum AssetHistoryPeriod { threeMonths, sixMonths, oneYear }
 
 class AssetCompositionItem {
   const AssetCompositionItem({
@@ -38,14 +40,39 @@ class DashboardAssetData {
 }
 
 class DashboardAssetViewModel extends ChangeNotifier {
-  DashboardAssetViewModel(this._period) {
-    _period.addListener(load);
-  }
+  DashboardAssetViewModel();
 
-  final DashboardPeriodViewModel _period;
+  AssetHistoryPeriod _historyPeriod = AssetHistoryPeriod.oneYear;
   bool isLoading = false;
   String? errorMessage;
   DashboardAssetData? data;
+
+  AssetHistoryPeriod get historyPeriod => _historyPeriod;
+
+  ({String strtDt, String endDt}) get historyRange {
+    final now = DateTime.now();
+    final endDt = _fmt(now);
+    return switch (_historyPeriod) {
+      AssetHistoryPeriod.threeMonths => (
+          strtDt: _fmt(DateTime(now.year, now.month - 3, now.day)),
+          endDt: endDt,
+        ),
+      AssetHistoryPeriod.sixMonths => (
+          strtDt: _fmt(DateTime(now.year, now.month - 6, now.day)),
+          endDt: endDt,
+        ),
+      AssetHistoryPeriod.oneYear => (
+          strtDt: _fmt(DateTime(now.year - 1, now.month, now.day)),
+          endDt: endDt,
+        ),
+    };
+  }
+
+  void selectHistoryPeriod(AssetHistoryPeriod period) {
+    _historyPeriod = period;
+    notifyListeners();
+    load();
+  }
 
   Future<void> load() async {
     isLoading = true;
@@ -54,11 +81,9 @@ class DashboardAssetViewModel extends ChangeNotifier {
 
     try {
       final now = DateTime.now();
-      final todayDt =
-          '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
-      final prevYearDt =
-          '${now.year - 1}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
-      final range = _period.range;
+      final todayDt = _fmt(now);
+      final prevYearDt = _fmt(DateTime(now.year - 1, now.month, now.day));
+      final range = historyRange;
 
       final results = await Future.wait([
         MyAssetService.instance.getMyAssets(strtDt: todayDt, endDt: todayDt),
@@ -130,9 +155,6 @@ class DashboardAssetViewModel extends ChangeNotifier {
     }).toList();
   }
 
-  @override
-  void dispose() {
-    _period.removeListener(load);
-    super.dispose();
-  }
+  String _fmt(DateTime dt) =>
+      '${dt.year}${dt.month.toString().padLeft(2, '0')}${dt.day.toString().padLeft(2, '0')}';
 }
