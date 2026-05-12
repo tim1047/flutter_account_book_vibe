@@ -1,4 +1,3 @@
-// lib/features/dashboard/dashboard_screen.dart
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/features/dashboard/dashboard_period_viewmodel.dart';
@@ -26,6 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   late final DashboardExpenseViewModel _expenseVm;
   late final DashboardAssetViewModel _assetVm;
   late final TabController _tabController;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -39,7 +39,10 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   void _onTabChanged() {
-    if (!_tabController.indexIsChanging) setState(() {});
+    if (_tabController.index != _currentIndex) {
+      _currentIndex = _tabController.index;
+      setState(() {});
+    }
   }
 
   @override
@@ -53,7 +56,8 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.dispose();
   }
 
-  bool get _isAssetTab => _tabController.index == 2;
+  static const int _assetTabIndex = 2;
+  bool get _isAssetTab => _tabController.index == _assetTabIndex;
 
   @override
   Widget build(BuildContext context) {
