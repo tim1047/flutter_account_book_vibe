@@ -108,7 +108,7 @@ void main() {
 
       final result = InsightViewModel.computeCategoryAnomalies(current, past);
 
-      expect(result.length, lessThanOrEqualTo(kMaxAnomalyItems));
+      expect(result.length, lessThanOrEqualTo(kMaxCategoryAnomalyItems));
     });
 
     test('|diffRate| 내림차순으로 정렬된다', () {
