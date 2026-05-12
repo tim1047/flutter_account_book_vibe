@@ -1,3 +1,4 @@
+// lib/features/dashboard/tabs/asset_tab.dart
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
@@ -28,15 +29,16 @@ class AssetTab extends StatelessWidget {
         }
         final data = vm.data;
         if (data == null) return const SizedBox.shrink();
-        return _AssetContent(data: data);
+        return _AssetContent(vm: vm, data: data);
       },
     );
   }
 }
 
 class _AssetContent extends StatelessWidget {
-  const _AssetContent({required this.data});
+  const _AssetContent({required this.vm, required this.data});
 
+  final DashboardAssetViewModel vm;
   final DashboardAssetData data;
 
   @override
@@ -44,20 +46,21 @@ class _AssetContent extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // ① 순자산 헤더
+        // ① 순자산 헤더 (항상 오늘 스냅샷)
         _AssetHeroCard(data: data),
         const SizedBox(height: 12),
 
-        // ② 자산 구성 도넛
+        // ② 자산 구성 도넛 (항상 오늘 스냅샷)
         _SectionCard(
           title: '자산 구성',
           child: _AssetDonutSection(data: data),
         ),
         const SizedBox(height: 12),
 
-        // ③ 순자산 장기 라인 차트
+        // ③ 순자산 추이 (히스토리 기간 선택 가능)
         _SectionCard(
-          title: '순자산 장기 추이',
+          title: '순자산 추이',
+          trailing: _HistoryPeriodPicker(vm: vm),
           child: NetWorthLineChart(
             history: data.netWorthHistory,
             height: 140,
@@ -65,7 +68,7 @@ class _AssetContent extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
-        // ④ 자산 항목별 리스트
+        // ④ 자산 항목별 리스트 (항상 오늘 스냅샷)
         _SectionCard(
           title: '자산 항목',
           child: Column(
@@ -96,7 +99,7 @@ class _AssetContent extends StatelessWidget {
           ),
         ),
 
-        // ⑤ 부채 현황 (부채 > 0 일 때만)
+        // ⑤ 부채 현황 (부채 > 0 일 때만, 항상 오늘 스냅샷)
         if (data.debt > 0) ...[
           const SizedBox(height: 12),
           _SectionCard(
@@ -124,6 +127,59 @@ class _AssetContent extends StatelessWidget {
       ],
     );
   }
+}
+
+class _HistoryPeriodPicker extends StatelessWidget {
+  const _HistoryPeriodPicker({required this.vm});
+
+  final DashboardAssetViewModel vm;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: vm,
+      builder: (context, _) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: AssetHistoryPeriod.values.map((p) {
+          final isSelected = vm.historyPeriod == p;
+          return GestureDetector(
+            onTap: () => vm.selectHistoryPeriod(p),
+            child: Container(
+              margin: const EdgeInsets.only(left: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.colorAccentTeal
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSelected
+                      ? AppColors.colorAccentTeal
+                      : AppColors.colorDivider,
+                ),
+              ),
+              child: Text(
+                _label(p),
+                style: AppTextStyles.textBodyXs.copyWith(
+                  color: isSelected
+                      ? AppColors.colorBgMain
+                      : AppColors.colorTextSecondary,
+                  fontWeight:
+                      isSelected ? FontWeight.w600 : FontWeight.w400,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  String _label(AssetHistoryPeriod p) => switch (p) {
+        AssetHistoryPeriod.threeMonths => '3개월',
+        AssetHistoryPeriod.sixMonths => '6개월',
+        AssetHistoryPeriod.oneYear => '1년',
+      };
 }
 
 class _AssetHeroCard extends StatelessWidget {
@@ -293,9 +349,14 @@ class _AssetDonutSection extends StatelessWidget {
 }
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child});
+  const _SectionCard({
+    required this.title,
+    required this.child,
+    this.trailing,
+  });
   final String title;
   final Widget child;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -308,11 +369,17 @@ class _SectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: AppTextStyles.textBodySm.copyWith(
-              color: AppColors.colorTextSecondary,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: AppTextStyles.textBodySm.copyWith(
+                  color: AppColors.colorTextSecondary,
+                ),
+              ),
+              if (trailing != null) trailing!,
+            ],
           ),
           const SizedBox(height: 12),
           child,
