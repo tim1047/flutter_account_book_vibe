@@ -24,8 +24,12 @@ class MiniBarRow extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 24,
-            child: Text(label, style: const TextStyle(fontSize: 14)),
+            width: 90,
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 13),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
