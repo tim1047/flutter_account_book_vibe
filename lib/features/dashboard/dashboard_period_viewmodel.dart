@@ -18,8 +18,10 @@ class DashboardPeriodViewModel extends ChangeNotifier {
       };
 
   String get customLabel {
-    if (_customStart == null || _customEnd == null) return '커스텀';
-    return '${_customStart!.month}/${_customStart!.day}~${_customEnd!.month}/${_customEnd!.day}';
+    final start = _customStart;
+    final end = _customEnd;
+    if (start == null || end == null) return '커스텀';
+    return '${start.month}/${start.day}~${end.month}/${end.day}';
   }
 
   ({String strtDt, String endDt}) get range {
