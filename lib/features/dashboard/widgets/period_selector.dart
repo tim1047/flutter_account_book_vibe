@@ -21,7 +21,7 @@ class PeriodSelector extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(right: 8),
               child: GestureDetector(
-                onTap: () => vm.select(p),
+                onTap: () => _onTap(context, p),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -54,10 +54,41 @@ class PeriodSelector extends StatelessWidget {
     );
   }
 
+  Future<void> _onTap(BuildContext context, DashboardPeriod p) async {
+    if (p != DashboardPeriod.custom) {
+      vm.select(p);
+      return;
+    }
+    final now = DateTime.now();
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(now.year - 5),
+      lastDate: now,
+      initialDateRange: DateTimeRange(
+        start: DateTime(now.year, now.month, 1),
+        end: now,
+      ),
+      builder: (context, child) => Theme(
+        data: ThemeData.dark().copyWith(
+          colorScheme: const ColorScheme.dark(
+            primary: AppColors.colorAccentTeal,
+            onPrimary: AppColors.colorBgMain,
+            surface: AppColors.colorBgCard,
+            onSurface: AppColors.colorTextPrimary,
+          ),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked != null) {
+      vm.setCustomRange(picked.start, picked.end);
+    }
+  }
+
   String _label(DashboardPeriod p) => switch (p) {
         DashboardPeriod.thisMonth => '이번 달',
         DashboardPeriod.thisQuarter => '이번 분기',
         DashboardPeriod.thisYear => '올해',
-        DashboardPeriod.custom => '커스텀',
+        DashboardPeriod.custom => vm.customLabel,
       };
 }
