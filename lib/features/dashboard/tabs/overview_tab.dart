@@ -1,12 +1,14 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/constants/category_emojis.dart';
+import 'package:account_book_vibe/core/constants/member_images.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/overview_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/hero_metric_card.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/mini_bar_row.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/net_worth_line_chart.dart';
 import 'package:account_book_vibe/shared/widgets/error_view.dart';
+import 'package:account_book_vibe/shared/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -132,6 +134,13 @@ class _OverviewContent extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: Row(
                   children: [
+                    UserAvatar(
+                      memberIndex: tx.memberId.codeUnits.fold(0, (a, b) => a + b) % AppColors.memberColors.length,
+                      imagePath: MemberImages.paths[tx.memberNm],
+                      name: tx.memberNm,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         FormatUtil.formatCategoryDesc(
