@@ -75,7 +75,7 @@ class DashboardOverviewViewModel extends ChangeNotifier {
 
       final results = await Future.wait([
         MyAssetService.instance.getMyAssets(strtDt: todayDt, endDt: todayDt),
-        MyAssetService.instance.getMyAssets(strtDt: prevDt, endDt: prevDt),
+        MyAssetService.instance.getMyAssetSum(strtDt: prevDt, endDt: prevDt),
         AccountService.instance.getAccounts(
           divisionId: Division.income,
           strtDt: range.strtDt,
@@ -107,7 +107,7 @@ class DashboardOverviewViewModel extends ChangeNotifier {
       ]);
 
       final currentAsset = results[0] as MyAssetListResponse;
-      final prevAsset = results[1] as MyAssetListResponse;
+      final prevSums = results[1] as List<MyAssetSumResponse>;
       final incomeList = results[2] as List<AccountListResponse>;
       final expenseList = results[3] as List<AccountListResponse>;
       final investList = results[4] as List<AccountListResponse>;
@@ -117,7 +117,7 @@ class DashboardOverviewViewModel extends ChangeNotifier {
 
       data = DashboardOverviewData(
         netWorth: currentAsset.totNetWorthSumPrice,
-        prevPeriodNetWorth: prevAsset.totNetWorthSumPrice,
+        prevPeriodNetWorth: _calcNetWorth(prevSums),
         changeLabel: _period.changeLabel,
         totalIncome: incomeList.fold(0, (s, e) => s + e.price),
         totalExpense: expenseList.fold(0, (s, e) => s + e.price),
@@ -135,6 +135,20 @@ class DashboardOverviewViewModel extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  static int _calcNetWorth(List<MyAssetSumResponse> sums) {
+    int assets = 0;
+    int debt = 0;
+    for (final s in sums) {
+      if (s.assetId == '0') continue;
+      if (s.assetId == '6') {
+        debt += s.sumPrice;
+      } else {
+        assets += s.sumPrice;
+      }
+    }
+    return assets - debt;
   }
 
   static List<CategoryExpenseItem> buildTopCategories(
