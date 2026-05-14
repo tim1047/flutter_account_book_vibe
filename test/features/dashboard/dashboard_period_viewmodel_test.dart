@@ -52,5 +52,16 @@ void main() {
       vm.select(DashboardPeriod.thisMonth);
       expect(notified, true);
     });
+
+    test('커스텀 날짜 미선택 시 customLabel은 커스텀', () {
+      final vm = DashboardPeriodViewModel();
+      expect(vm.customLabel, '커스텀');
+    });
+
+    test('setCustomRange 후 customLabel은 M/D~M/D 형식', () {
+      final vm = DashboardPeriodViewModel();
+      vm.setCustomRange(DateTime(2025, 3, 1), DateTime(2025, 5, 31));
+      expect(vm.customLabel, '3/1~5/31');
+    });
   });
 }
