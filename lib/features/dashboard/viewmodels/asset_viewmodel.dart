@@ -157,9 +157,7 @@ class DashboardAssetViewModel extends ChangeNotifier {
       ...byDateDebt.keys,
     }.toList()
       ..sort();
-    final now = DateTime.now();
-    final todayStr =
-        '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
+    final todayStr = _fmt(DateTime.now());
 
     final raw = allDates.map((date) {
       final asset = byDateAsset[date] ?? 0;
@@ -168,17 +166,22 @@ class DashboardAssetViewModel extends ChangeNotifier {
     }).toList();
 
     var lastKnown = 0;
-    return raw.map((e) {
-      if (e.date.compareTo(todayStr) <= 0 && e.amount != 0) {
-        lastKnown = e.amount;
+    final result = <({String date, int amount})>[];
+    for (final entry in raw) {
+      if (entry.date.compareTo(todayStr) <= 0 && entry.amount != 0) {
+        lastKnown = entry.amount;
+        result.add(entry);
+      } else if (entry.date.compareTo(todayStr) > 0 &&
+          entry.amount == 0 &&
+          lastKnown != 0) {
+        result.add((date: entry.date, amount: lastKnown));
+      } else {
+        result.add(entry);
       }
-      if (e.date.compareTo(todayStr) > 0 && e.amount == 0 && lastKnown != 0) {
-        return (date: e.date, amount: lastKnown);
-      }
-      return e;
-    }).toList();
+    }
+    return result;
   }
 
-  String _fmt(DateTime dt) =>
+  static String _fmt(DateTime dt) =>
       '${dt.year}${dt.month.toString().padLeft(2, '0')}${dt.day.toString().padLeft(2, '0')}';
 }
