@@ -84,9 +84,9 @@ class NetWorthLineChart extends StatelessWidget {
                 reservedSize: 58,
                 interval: yInterval,
                 getTitlesWidget: (value, _) {
-                  final inMan = (value / 10000).round();
+                  final inCheomMan = (value / 10000000).round();
                   return Text(
-                    '₩${FormatUtil.formatPrice(inMan)}만',
+                    '₩${FormatUtil.formatPrice(inCheomMan)}천만',
                     style: AppTextStyles.textBodyXs.copyWith(
                       color: AppColors.colorTextSecondary,
                     ),
