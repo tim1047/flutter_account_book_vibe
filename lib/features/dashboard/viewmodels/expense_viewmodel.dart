@@ -105,10 +105,9 @@ class DashboardExpenseViewModel extends ChangeNotifier {
       data = DashboardExpenseData(
         totalExpense: current.fold(0, (s, e) => s + e.price),
         prevPeriodExpense: prev.fold(0, (s, e) => s + e.price),
-        monthlyExpenses:
-            buildMonthlyTotals(current, range.strtDt, range.endDt),
+        monthlyExpenses: buildMonthlyTotals(current, range.strtDt, range.endDt),
         categoryBreakdown: buildCategoryBreakdown(currentCats, prevCats),
-        topTransactions: topTx.take(5).toList(),
+        topTransactions: topTx.take(10).toList(),
       );
     } on AppException catch (e) {
       errorMessage = e.message;
@@ -125,7 +124,8 @@ class DashboardExpenseViewModel extends ChangeNotifier {
     final total = current.fold(0, (s, e) => s + e.sumPrice);
     if (total == 0) return [];
     final prevMap = {for (final e in prev) e.categoryId: e.sumPrice};
-    final sorted = [...current]..sort((a, b) => b.sumPrice.compareTo(a.sumPrice));
+    final sorted = [...current]
+      ..sort((a, b) => b.sumPrice.compareTo(a.sumPrice));
     return sorted
         .map((e) => ExpenseCategoryItem(
               categoryId: e.categoryId,

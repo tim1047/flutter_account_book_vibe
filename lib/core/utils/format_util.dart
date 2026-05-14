@@ -75,6 +75,19 @@ class FormatUtil {
 
   static String formatPercentage(double value) => '${value.toStringAsFixed(1)}%';
 
+  static String formatCategoryDesc(
+    String categoryNm,
+    String categorySeqNm,
+    String? remark,
+  ) {
+    final hasSeq = categorySeqNm.isNotEmpty;
+    final hasRemark = remark != null && remark.isNotEmpty;
+    if (hasSeq && hasRemark) return '$categoryNm | $categorySeqNm ($remark)';
+    if (hasRemark) return '$categoryNm ($remark)';
+    if (hasSeq) return '$categoryNm | $categorySeqNm';
+    return categoryNm;
+  }
+
   static Color weekdayColor(String date) {
     try {
       final dt = DateTime.parse(date);

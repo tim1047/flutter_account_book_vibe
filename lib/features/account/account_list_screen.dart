@@ -362,15 +362,8 @@ class _AccountCard extends StatelessWidget {
   }
 
   Widget _buildCategoryRow() {
-    final hasSeq = item.categorySeqNm != '';
-    final hasRemark = item.remark != null && item.remark!.isNotEmpty;
-    final desc = hasSeq && hasRemark
-        ? '${item.categoryNm} | ${item.categorySeqNm} (${item.remark})'
-        : hasRemark
-            ? '${item.categoryNm} (${item.remark})'
-            : hasSeq
-                ? '${item.categoryNm} | ${item.categorySeqNm}'
-                : item.categoryNm;
+    final desc = FormatUtil.formatCategoryDesc(
+        item.categoryNm, item.categorySeqNm, item.remark);
     return Text(
       desc,
       style: AppTextStyles.textBodySm.copyWith(

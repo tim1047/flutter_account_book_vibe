@@ -127,9 +127,9 @@ class _ExpenseContent extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
-        // ⑤ 최대 단건 지출 TOP 5
+        // ⑤ 최대 단건 지출 TOP 10
         _SectionCard(
-          title: '최대 단건 지출 TOP 5',
+          title: '최대 단건 지출 TOP 10',
           child: Column(
             children: data.topTransactions
                 .map((tx) => Padding(
