@@ -35,6 +35,7 @@ class DashboardExpenseData {
     required this.monthlyExpenses,
     required this.categoryBreakdown,
     required this.topTransactions,
+    required this.changeLabel,
   });
 
   final int totalExpense;
@@ -42,6 +43,7 @@ class DashboardExpenseData {
   final List<({String month, int amount})> monthlyExpenses;
   final List<ExpenseCategoryItem> categoryBreakdown;
   final List<AccountListResponse> topTransactions;
+  final String changeLabel;
 
   double get changeRate {
     if (prevPeriodExpense == 0) return 0;
@@ -66,11 +68,7 @@ class DashboardExpenseViewModel extends ChangeNotifier {
 
     try {
       final range = _period.range;
-      final strt = _parseDate(range.strtDt);
-      final end = _parseDate(range.endDt);
-      final duration = end.difference(strt);
-      final prevEnd = strt.subtract(const Duration(days: 1));
-      final prevStrt = prevEnd.subtract(duration);
+      final prevRange = _period.prevRange;
 
       final results = await Future.wait([
         AccountService.instance.getAccounts(
@@ -80,8 +78,8 @@ class DashboardExpenseViewModel extends ChangeNotifier {
         ),
         AccountService.instance.getAccounts(
           divisionId: Division.expense,
-          strtDt: _fmtDate(prevStrt),
-          endDt: _fmtDate(prevEnd),
+          strtDt: prevRange.strtDt,
+          endDt: prevRange.endDt,
         ),
         CategoryService.instance.getCategorySum(
           divisionId: Division.expense,
@@ -90,13 +88,13 @@ class DashboardExpenseViewModel extends ChangeNotifier {
         ),
         CategoryService.instance.getCategorySum(
           divisionId: Division.expense,
-          strtDt: _fmtDate(prevStrt),
-          endDt: _fmtDate(prevEnd),
+          strtDt: prevRange.strtDt,
+          endDt: prevRange.endDt,
         ),
       ]);
 
       final current = results[0] as List<AccountListResponse>;
-      final prev = results[1] as List<AccountListResponse>;
+      final prevAccounts = results[1] as List<AccountListResponse>;
       final currentCats = results[2] as List<CategorySumResponse>;
       final prevCats = results[3] as List<CategorySumResponse>;
 
@@ -104,10 +102,11 @@ class DashboardExpenseViewModel extends ChangeNotifier {
 
       data = DashboardExpenseData(
         totalExpense: current.fold(0, (s, e) => s + e.price),
-        prevPeriodExpense: prev.fold(0, (s, e) => s + e.price),
+        prevPeriodExpense: prevAccounts.fold(0, (s, e) => s + e.price),
         monthlyExpenses: buildMonthlyTotals(current, range.strtDt, range.endDt),
         categoryBreakdown: buildCategoryBreakdown(currentCats, prevCats),
         topTransactions: topTx.take(10).toList(),
+        changeLabel: _period.changeLabel,
       );
     } on AppException catch (e) {
       errorMessage = e.message;
@@ -162,15 +161,6 @@ class DashboardExpenseViewModel extends ChangeNotifier {
       ..sort((a, b) => a.key.compareTo(b.key));
     return sorted.map((e) => (month: e.key, amount: e.value)).toList();
   }
-
-  DateTime _parseDate(String yyyymmdd) => DateTime(
-        int.parse(yyyymmdd.substring(0, 4)),
-        int.parse(yyyymmdd.substring(4, 6)),
-        int.parse(yyyymmdd.substring(6, 8)),
-      );
-
-  String _fmtDate(DateTime dt) =>
-      '${dt.year}${dt.month.toString().padLeft(2, '0')}${dt.day.toString().padLeft(2, '0')}';
 
   @override
   void dispose() {

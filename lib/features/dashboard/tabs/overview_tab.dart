@@ -53,7 +53,7 @@ class _OverviewContent extends StatelessWidget {
           title: '순자산 (Net Worth)',
           amount: data.netWorth,
           changeAmount: data.netWorthChange,
-          changeLabel: '전월 대비',
+          changeLabel: data.changeLabel,
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

@@ -1,10 +1,13 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
+import 'package:account_book_vibe/core/constants/category_emojis.dart';
+import 'package:account_book_vibe/core/constants/member_images.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/expense_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/donut_legend_row.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/monthly_bar_chart.dart';
 import 'package:account_book_vibe/shared/widgets/error_view.dart';
+import 'package:account_book_vibe/shared/widgets/user_avatar.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -78,6 +81,11 @@ class _ExpenseContent extends StatelessWidget {
                   children: [
                     Row(
                       children: [
+                        Text(
+                          CategoryEmojis.getEmoji(e.categoryNm),
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             e.categoryNm,
@@ -136,6 +144,13 @@ class _ExpenseContent extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       child: Row(
                         children: [
+                          UserAvatar(
+                            memberIndex: tx.memberId.codeUnits.fold(0, (a, b) => a + b) % AppColors.memberColors.length,
+                            imagePath: MemberImages.paths[tx.memberNm],
+                            name: tx.memberNm,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               tx.categorySeqNm,
@@ -215,7 +230,7 @@ class _ExpenseHeroCard extends StatelessWidget {
                     isIncrease ? AppColors.colorExpense : AppColors.colorProfit,
               ),
               Text(
-                '${(change.abs() * 100).toStringAsFixed(1)}% 전기 대비',
+                '${(change.abs() * 100).toStringAsFixed(1)}% ${data.changeLabel}',
                 style: AppTextStyles.textBodySm.copyWith(
                   color: isIncrease
                       ? AppColors.colorExpense
@@ -257,15 +272,15 @@ class _DonutSection extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 100,
-          height: 100,
+          width: 80,
+          height: 80,
           child: PieChart(PieChartData(
             sections: sections,
-            centerSpaceRadius: 28,
+            centerSpaceRadius: 22,
             sectionsSpace: 2,
           )),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 24),
         Expanded(
           child: Column(
             children: data.categoryBreakdown.asMap().entries.map((e) {

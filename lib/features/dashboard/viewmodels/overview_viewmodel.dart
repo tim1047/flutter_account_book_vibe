@@ -26,26 +26,28 @@ class CategoryExpenseItem {
 class DashboardOverviewData {
   const DashboardOverviewData({
     required this.netWorth,
-    required this.prevMonthNetWorth,
+    required this.prevPeriodNetWorth,
     required this.totalIncome,
     required this.totalExpense,
     required this.totalInvest,
     required this.topExpenseCategories,
     required this.recentTransactions,
     required this.netWorthHistory,
+    required this.changeLabel,
   });
 
   final int netWorth;
-  final int prevMonthNetWorth;
+  final int prevPeriodNetWorth;
   final int totalIncome;
   final int totalExpense;
   final int totalInvest;
   final List<CategoryExpenseItem> topExpenseCategories;
   final List<AccountListResponse> recentTransactions;
   final List<({String date, int amount})> netWorthHistory;
+  final String changeLabel;
 
   int get savings => totalIncome - totalExpense;
-  int get netWorthChange => netWorth - prevMonthNetWorth;
+  int get netWorthChange => netWorth - prevPeriodNetWorth;
 }
 
 class DashboardOverviewViewModel extends ChangeNotifier {
@@ -65,13 +67,11 @@ class DashboardOverviewViewModel extends ChangeNotifier {
 
     try {
       final range = _period.range;
+      final prevRange = _period.prevRange;
       final now = DateTime.now();
       final todayDt =
           '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
-
-      final prevMonth = DateTime(now.year, now.month - 1, 1);
-      final prevDt =
-          '${prevMonth.year}${prevMonth.month.toString().padLeft(2, '0')}01';
+      final prevDt = prevRange.endDt;
 
       final results = await Future.wait([
         MyAssetService.instance.getMyAssets(strtDt: todayDt, endDt: todayDt),
@@ -117,7 +117,8 @@ class DashboardOverviewViewModel extends ChangeNotifier {
 
       data = DashboardOverviewData(
         netWorth: currentAsset.totNetWorthSumPrice,
-        prevMonthNetWorth: prevAsset.totNetWorthSumPrice,
+        prevPeriodNetWorth: prevAsset.totNetWorthSumPrice,
+        changeLabel: _period.changeLabel,
         totalIncome: incomeList.fold(0, (s, e) => s + e.price),
         totalExpense: expenseList.fold(0, (s, e) => s + e.price),
         totalInvest: investList.fold(0, (s, e) => s + e.price),
