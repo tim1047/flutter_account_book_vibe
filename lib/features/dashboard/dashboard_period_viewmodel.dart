@@ -1,7 +1,7 @@
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:flutter/foundation.dart';
 
-enum DashboardPeriod { thisMonth, thisQuarter, thisYear, custom }
+enum DashboardPeriod { thisMonth, thisQuarter, thisHalfYear, thisYear, custom }
 
 class DashboardPeriodViewModel extends ChangeNotifier {
   DashboardPeriod _period = DashboardPeriod.thisYear;
@@ -13,6 +13,7 @@ class DashboardPeriodViewModel extends ChangeNotifier {
   String get label => switch (_period) {
         DashboardPeriod.thisMonth => '이번 달',
         DashboardPeriod.thisQuarter => '이번 분기',
+        DashboardPeriod.thisHalfYear => '이번 반기',
         DashboardPeriod.thisYear => '올해',
         DashboardPeriod.custom => '커스텀',
       };
@@ -35,6 +36,7 @@ class DashboardPeriodViewModel extends ChangeNotifier {
           endDt: FormatUtil.toEndDt(now.year, now.month),
         ),
       DashboardPeriod.thisQuarter => _quarterRange(now),
+      DashboardPeriod.thisHalfYear => _halfYearRange(now),
       DashboardPeriod.thisYear => (
           strtDt: FormatUtil.toStrtDt(now.year, 0),
           endDt: FormatUtil.toEndDt(now.year, 0),
@@ -53,6 +55,7 @@ class DashboardPeriodViewModel extends ChangeNotifier {
   String get changeLabel => switch (_period) {
         DashboardPeriod.thisMonth => '전달 대비',
         DashboardPeriod.thisQuarter => '전 분기 대비',
+        DashboardPeriod.thisHalfYear => '전 반기 대비',
         DashboardPeriod.thisYear => '전년 대비',
         DashboardPeriod.custom => _customChangeLabel(),
       };
@@ -62,6 +65,7 @@ class DashboardPeriodViewModel extends ChangeNotifier {
     return switch (_period) {
       DashboardPeriod.thisMonth => _prevMonthRange(now),
       DashboardPeriod.thisQuarter => _prevQuarterRange(now),
+      DashboardPeriod.thisHalfYear => _prevHalfYearRange(now),
       DashboardPeriod.thisYear => (
           strtDt: FormatUtil.toStrtDt(now.year - 1, 0),
           endDt: FormatUtil.toEndDt(now.year - 1, 0),
@@ -114,6 +118,22 @@ class DashboardPeriodViewModel extends ChangeNotifier {
       strtDt: FormatUtil.toStrtDt(now.year - 1, 10),
       endDt: FormatUtil.toEndDt(now.year - 1, 12),
     );
+  }
+
+  ({String strtDt, String endDt}) _halfYearRange(DateTime now) {
+    final isH1 = now.month <= 6;
+    return isH1
+        ? (strtDt: FormatUtil.toStrtDt(now.year, 1), endDt: FormatUtil.toEndDt(now.year, 6))
+        : (strtDt: FormatUtil.toStrtDt(now.year, 7), endDt: FormatUtil.toEndDt(now.year, 12));
+  }
+
+  ({String strtDt, String endDt}) _prevHalfYearRange(DateTime now) {
+    final isH1 = now.month <= 6;
+    return isH1
+        // 상반기 → 전년 하반기
+        ? (strtDt: FormatUtil.toStrtDt(now.year - 1, 7), endDt: FormatUtil.toEndDt(now.year - 1, 12))
+        // 하반기 → 올해 상반기
+        : (strtDt: FormatUtil.toStrtDt(now.year, 1), endDt: FormatUtil.toEndDt(now.year, 6));
   }
 
   ({String strtDt, String endDt}) _prevCustomRange() {
