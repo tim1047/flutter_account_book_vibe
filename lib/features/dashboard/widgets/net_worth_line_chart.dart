@@ -27,32 +27,34 @@ class NetWorthLineChart extends StatelessWidget {
       );
     }
 
-    final amounts = history.map((e) => e.amount.toDouble()).toList();
+    final amounts = history.map((record) => record.amount.toDouble()).toList();
     final minY = amounts.reduce((a, b) => a < b ? a : b);
     final maxY = amounts.reduce((a, b) => a > b ? a : b);
     final yRange = maxY - minY;
-    final padding = yRange < 1 ? 1.0 : yRange * 0.1;
 
-    // 4 tick positions: data min, 1/3, 2/3, data max
-    final tick0 = minY;
-    final tick1 = minY + yRange / 3.0;
-    final tick2 = minY + yRange * 2.0 / 3.0;
-    final tick3 = maxY;
-    // epsilon must be > padding so fl_chart ticks (offset by padding) still match
-    final tickEpsilon = yRange < 1 ? 0.5 : yRange * 0.12;
-    final yInterval = yRange < 1 ? 1.0 : yRange / 3.0;
+    // interval = yRange/3 so chart bounds [minY-interval, maxY+interval]
+    // aligns fl_chart's tick grid exactly with our 4 target positions
+    final yInterval = yRange > 0 ? yRange / 3.0 : 1.0;
 
-    final spots = history.asMap().entries.map((e) => FlSpot(
-          e.key.toDouble(),
-          e.value.amount.toDouble(),
+    // 4 target Y-axis positions: data min, 1/3, 2/3, data max
+    final yAxisTicks = [
+      minY,
+      minY + yInterval,
+      minY + yInterval * 2,
+      maxY,
+    ];
+
+    final spots = history.asMap().entries.map((entry) => FlSpot(
+          entry.key.toDouble(),
+          entry.value.amount.toDouble(),
         )).toList();
 
     return SizedBox(
       height: height,
       child: LineChart(
         LineChartData(
-          minY: minY - padding,
-          maxY: maxY + padding,
+          minY: minY - yInterval,
+          maxY: maxY + yInterval,
           lineBarsData: [
             LineChartBarData(
               spots: spots,
@@ -91,14 +93,16 @@ class NetWorthLineChart extends StatelessWidget {
                 reservedSize: 58,
                 interval: yInterval,
                 getTitlesWidget: (value, _) {
-                  final ticks = [tick0, tick1, tick2, tick3];
-                  if (!ticks.any((t) => (value - t).abs() <= tickEpsilon)) {
+                  // Only show labels at our 4 target tick positions.
+                  // epsilon = 1.0 won: fl_chart ticks are exact due to aligned bounds.
+                  if (!yAxisTicks.any((tick) => (value - tick).abs() <= 1.0)) {
                     return const SizedBox.shrink();
                   }
-                  final awkDouble = value / 100000000;
-                  final label = awkDouble.toStringAsFixed(1).endsWith('.0')
-                      ? '${awkDouble.round()}억'
-                      : '${awkDouble.toStringAsFixed(1)}억';
+                  final amountInEok = value / 100000000;
+                  final formatted = amountInEok.toStringAsFixed(1);
+                  final label = formatted.endsWith('.0')
+                      ? '${amountInEok.round()}억'
+                      : '$formatted억';
                   return Text(
                     label,
                     style: AppTextStyles.textBodyXs.copyWith(
