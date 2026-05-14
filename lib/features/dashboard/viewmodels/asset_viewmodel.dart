@@ -157,10 +157,25 @@ class DashboardAssetViewModel extends ChangeNotifier {
       ...byDateDebt.keys,
     }.toList()
       ..sort();
-    return allDates.map((date) {
+    final now = DateTime.now();
+    final todayStr =
+        '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
+
+    final raw = allDates.map((date) {
       final asset = byDateAsset[date] ?? 0;
       final debt = byDateDebt[date] ?? 0;
       return (date: date, amount: asset - debt);
+    }).toList();
+
+    var lastKnown = 0;
+    return raw.map((e) {
+      if (e.date.compareTo(todayStr) <= 0 && e.amount != 0) {
+        lastKnown = e.amount;
+      }
+      if (e.date.compareTo(todayStr) > 0 && e.amount == 0 && lastKnown != 0) {
+        return (date: e.date, amount: lastKnown);
+      }
+      return e;
     }).toList();
   }
 
