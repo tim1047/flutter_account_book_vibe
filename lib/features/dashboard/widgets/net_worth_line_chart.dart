@@ -1,6 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
-import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -31,9 +30,17 @@ class NetWorthLineChart extends StatelessWidget {
     final amounts = history.map((e) => e.amount.toDouble()).toList();
     final minY = amounts.reduce((a, b) => a < b ? a : b);
     final maxY = amounts.reduce((a, b) => a > b ? a : b);
-    final padding = (maxY - minY) * 0.1;
-    final yRange = (maxY - minY).abs();
-    final yInterval = yRange < 10 ? 1.0 : yRange / 2;
+    final yRange = maxY - minY;
+    final padding = yRange < 1 ? 1.0 : yRange * 0.1;
+
+    // 4 tick positions: data min, 1/3, 2/3, data max
+    final tick0 = minY;
+    final tick1 = minY + yRange / 3.0;
+    final tick2 = minY + yRange * 2.0 / 3.0;
+    final tick3 = maxY;
+    // epsilon must be > padding so fl_chart ticks (offset by padding) still match
+    final tickEpsilon = yRange < 1 ? 0.5 : yRange * 0.12;
+    final yInterval = yRange < 1 ? 1.0 : yRange / 3.0;
 
     final spots = history.asMap().entries.map((e) => FlSpot(
           e.key.toDouble(),
@@ -84,10 +91,14 @@ class NetWorthLineChart extends StatelessWidget {
                 reservedSize: 58,
                 interval: yInterval,
                 getTitlesWidget: (value, _) {
-                  final roundedTenMillions = (value / 10000000).round();
-                  final label = roundedTenMillions == 0
-                      ? '₩${FormatUtil.formatPrice((value / 10000).round())}만'
-                      : '₩${FormatUtil.formatPrice(roundedTenMillions)}천만';
+                  final ticks = [tick0, tick1, tick2, tick3];
+                  if (!ticks.any((t) => (value - t).abs() <= tickEpsilon)) {
+                    return const SizedBox.shrink();
+                  }
+                  final awkDouble = value / 100000000;
+                  final label = awkDouble.toStringAsFixed(1).endsWith('.0')
+                      ? '${awkDouble.round()}억'
+                      : '${awkDouble.toStringAsFixed(1)}억';
                   return Text(
                     label,
                     style: AppTextStyles.textBodyXs.copyWith(
