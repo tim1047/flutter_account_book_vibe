@@ -31,18 +31,8 @@ class NetWorthLineChart extends StatelessWidget {
     final minY = amounts.reduce((a, b) => a < b ? a : b);
     final maxY = amounts.reduce((a, b) => a > b ? a : b);
     final yRange = maxY - minY;
-
-    // interval = yRange/3 so chart bounds [minY-interval, maxY+interval]
-    // aligns fl_chart's tick grid exactly with our 4 target positions
+    final padding = yRange > 0 ? yRange * 0.1 : 1.0;
     final yInterval = yRange > 0 ? yRange / 3.0 : 1.0;
-
-    // 4 target Y-axis positions: data min, 1/3, 2/3, data max
-    final yAxisTicks = [
-      minY,
-      minY + yInterval,
-      minY + yInterval * 2,
-      maxY,
-    ];
 
     final spots = history.asMap().entries.map((entry) => FlSpot(
           entry.key.toDouble(),
@@ -53,8 +43,8 @@ class NetWorthLineChart extends StatelessWidget {
       height: height,
       child: LineChart(
         LineChartData(
-          minY: minY - yInterval,
-          maxY: maxY + yInterval,
+          minY: minY - padding,
+          maxY: maxY + padding,
           lineBarsData: [
             LineChartBarData(
               spots: spots,
@@ -93,11 +83,6 @@ class NetWorthLineChart extends StatelessWidget {
                 reservedSize: 58,
                 interval: yInterval,
                 getTitlesWidget: (value, _) {
-                  // Only show labels at our 4 target tick positions.
-                  // epsilon = 1.0 won: fl_chart ticks are exact due to aligned bounds.
-                  if (!yAxisTicks.any((tick) => (value - tick).abs() <= 1.0)) {
-                    return const SizedBox.shrink();
-                  }
                   final amountInEok = value / 100000000;
                   final formatted = amountInEok.toStringAsFixed(1);
                   final label = formatted.endsWith('.0')
