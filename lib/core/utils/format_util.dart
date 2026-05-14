@@ -77,9 +77,9 @@ class FormatUtil {
 
   static String formatCategoryDesc(
     String categoryNm,
-    String categorySeqNm,
+    String categorySeqNm, {
     String? remark,
-  ) {
+  }) {
     final hasSeq = categorySeqNm.isNotEmpty;
     final hasRemark = remark != null && remark.isNotEmpty;
     if (hasSeq && hasRemark) return '$categoryNm | $categorySeqNm ($remark)';

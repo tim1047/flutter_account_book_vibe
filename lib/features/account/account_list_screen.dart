@@ -363,7 +363,7 @@ class _AccountCard extends StatelessWidget {
 
   Widget _buildCategoryRow() {
     final desc = FormatUtil.formatCategoryDesc(
-        item.categoryNm, item.categorySeqNm, item.remark);
+        item.categoryNm, item.categorySeqNm, remark: item.remark);
     return Text(
       desc,
       style: AppTextStyles.textBodySm.copyWith(

@@ -135,7 +135,7 @@ class _OverviewContent extends StatelessWidget {
                     Expanded(
                       child: Text(
                         FormatUtil.formatCategoryDesc(
-                            tx.categoryNm, tx.categorySeqNm, tx.remark),
+                            tx.categoryNm, tx.categorySeqNm, remark: tx.remark),
                         style: AppTextStyles.textBodySm.copyWith(
                           color: AppColors.colorTextPrimary,
                         ),

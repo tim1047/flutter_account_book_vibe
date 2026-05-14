@@ -103,7 +103,7 @@ class _ExpenseDtlScreenState extends State<ExpenseDtlScreen> {
           child: ProgressRow(
             emoji: CategoryEmojis.getEmoji(item.categoryNm),
             label: FormatUtil.formatCategoryDesc(
-                item.categoryNm, item.categorySeqNm, null),
+                item.categoryNm, item.categorySeqNm),
             value: '${FormatUtil.formatPrice(item.sumPrice)}원 ($pctStr)',
             percentage: pct,
             color: AppColors.colorIncome,
