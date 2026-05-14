@@ -31,20 +31,26 @@ class NetWorthLineChart extends StatelessWidget {
     final minY = amounts.reduce((a, b) => a < b ? a : b);
     final maxY = amounts.reduce((a, b) => a > b ? a : b);
     final yRange = maxY - minY;
-    final padding = yRange > 0 ? yRange * 0.1 : 1.0;
+
+    // Normalize: shift all spot values so dataMin → 0.
+    // fl_chart generates ticks at multiples of interval from 0 (global grid).
+    // With minY shifted to 0, the 4 target ticks (0, interval, 2*interval, yRange)
+    // are exact multiples of yInterval, so they align perfectly.
     final yInterval = yRange > 0 ? yRange / 3.0 : 1.0;
+    // padding < yInterval ensures chartMin < 0, so first fl_chart tick = 0 = normalized minY
+    final padding = yRange > 0 ? yRange * 0.1 : 0.3;
 
     final spots = history.asMap().entries.map((entry) => FlSpot(
           entry.key.toDouble(),
-          entry.value.amount.toDouble(),
+          entry.value.amount.toDouble() - minY,
         )).toList();
 
     return SizedBox(
       height: height,
       child: LineChart(
         LineChartData(
-          minY: minY - padding,
-          maxY: maxY + padding,
+          minY: -padding,
+          maxY: yRange + padding,
           lineBarsData: [
             LineChartBarData(
               spots: spots,
@@ -68,10 +74,19 @@ class NetWorthLineChart extends StatelessWidget {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
-            getDrawingHorizontalLine: (_) => const FlLine(
-              color: AppColors.colorDivider,
-              strokeWidth: 0.5,
-            ),
+            horizontalInterval: yInterval,
+            getDrawingHorizontalLine: (value) {
+              // Show grid lines only at the two middle (1/3, 2/3) positions
+              final isMidTick = (value - yInterval).abs() <= 1.0 ||
+                  (value - yInterval * 2).abs() <= 1.0;
+              if (!isMidTick) {
+                return const FlLine(color: Colors.transparent, strokeWidth: 0);
+              }
+              return const FlLine(
+                color: AppColors.colorDivider,
+                strokeWidth: 0.5,
+              );
+            },
           ),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
@@ -80,16 +95,17 @@ class NetWorthLineChart extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 58,
+                reservedSize: 62,
                 interval: yInterval,
                 getTitlesWidget: (value, _) {
-                  final amountInEok = value / 100000000;
-                  final formatted = amountInEok.toStringAsFixed(1);
-                  final label = formatted.endsWith('.0')
-                      ? '${amountInEok.round()}억'
-                      : '$formatted억';
+                  // Guard: only show labels within the data range [0, yRange]
+                  if (value < -1.0 || value > yRange + 1.0) {
+                    return const SizedBox.shrink();
+                  }
+                  final actualValue = value + minY;
+                  final amountInEok = actualValue / 100000000;
                   return Text(
-                    label,
+                    '${amountInEok.toStringAsFixed(2)}억',
                     style: AppTextStyles.textBodyXs.copyWith(
                       color: AppColors.colorTextSecondary,
                     ),
