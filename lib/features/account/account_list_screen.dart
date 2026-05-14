@@ -1,6 +1,7 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/constants/division.dart';
+import 'package:account_book_vibe/core/constants/member_images.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/data/models/account_model.dart';
 import 'package:account_book_vibe/features/account/account_list_extra.dart';
@@ -272,14 +273,7 @@ class _AccountCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onLongPress;
 
-  static const _memberImages = {
-    '강원': 'assets/images/kangwon.png',
-    '정윤': 'assets/images/jungyoon.png',
-    '아인': 'assets/images/ain.png',
-    '함께': 'assets/images/family.png',
-  };
-
-  String? get _memberImagePath => _memberImages[item.memberNm];
+  String? get _memberImagePath => MemberImages.paths[item.memberNm];
 
   int get _memberIndex =>
       item.memberId.codeUnits.fold(0, (a, b) => a + b) %
