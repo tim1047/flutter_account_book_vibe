@@ -100,7 +100,7 @@ class _OverviewContent extends StatelessWidget {
             children: data.topExpenseCategories.map((e) {
               final emoji = CategoryEmojis.forCategory(e.categoryNm);
               return MiniBarRow(
-                label: emoji,
+                label: '$emoji ${e.categoryNm}',
                 amount: e.amount,
                 ratio: e.ratio,
                 color: AppColors.colorExpense,
