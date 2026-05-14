@@ -145,19 +145,34 @@ class _ExpenseContent extends StatelessWidget {
                       child: Row(
                         children: [
                           UserAvatar(
-                            memberIndex: tx.memberId.codeUnits.fold(0, (a, b) => a + b) % AppColors.memberColors.length,
+                            memberIndex:
+                                tx.memberId.codeUnits.fold(0, (a, b) => a + b) %
+                                    AppColors.memberColors.length,
                             imagePath: MemberImages.paths[tx.memberNm],
                             name: tx.memberNm,
                             size: 28,
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: Text(
-                              tx.categorySeqNm,
-                              style: AppTextStyles.textBodySm.copyWith(
-                                color: AppColors.colorTextPrimary,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  FormatUtil.formatCategoryDesc(
+                                      tx.categoryNm, tx.categorySeqNm,
+                                      remark: tx.remark),
+                                  style: AppTextStyles.textBodySm.copyWith(
+                                    color: AppColors.colorTextPrimary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  FormatUtil.formatDateShort(tx.accountDt),
+                                  style: AppTextStyles.textCaption.copyWith(
+                                    color: AppColors.colorTextDisabled,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           Text(
