@@ -25,7 +25,6 @@ class DashboardAssetData {
     required this.prevYearNetWorth,
     required this.assetComposition,
     required this.netWorthHistory,
-    required this.assetGroups,
   });
 
   final int totalAsset;
@@ -33,7 +32,6 @@ class DashboardAssetData {
   final int prevYearNetWorth;
   final List<AssetCompositionItem> assetComposition;
   final List<({String date, int amount})> netWorthHistory;
-  final List<MyAssetGroupResponse> assetGroups;
 
   int get debt => totalAsset - netWorth;
   int get yearlyGrowth => netWorth - prevYearNetWorth;
@@ -95,24 +93,31 @@ class DashboardAssetViewModel extends ChangeNotifier {
       final range = historyRange;
 
       final results = await Future.wait([
-        MyAssetService.instance.getMyAssets(strtDt: todayDt, endDt: todayDt),
+        MyAssetService.instance.getMyAssetSum(strtDt: todayDt, endDt: todayDt),
         MyAssetService.instance
-            .getMyAssets(strtDt: prevYearDt, endDt: prevYearDt),
+            .getMyAssetSum(strtDt: prevYearDt, endDt: prevYearDt),
         MyAssetService.instance
             .getMyAssetSum(strtDt: range.strtDt, endDt: range.endDt),
       ]);
 
-      final current = results[0] as MyAssetListResponse;
-      final prevYear = results[1] as MyAssetListResponse;
-      final sumHistory = results[2] as List<MyAssetSumResponse>;
+      final todaySum = results[0];
+      final prevYearSum = results[1];
+      final sumHistory = results[2];
+
+      final totalAsset = _sumAssets(todaySum);
+      final debt = _sumDebt(todaySum);
+      final netWorth = totalAsset - debt;
+
+      final prevTotalAsset = _sumAssets(prevYearSum);
+      final prevDebt = _sumDebt(prevYearSum);
+      final prevYearNetWorth = prevTotalAsset - prevDebt;
 
       data = DashboardAssetData(
-        totalAsset: current.totSumPrice,
-        netWorth: current.totNetWorthSumPrice,
-        prevYearNetWorth: prevYear.totNetWorthSumPrice,
-        assetComposition: _buildComposition(current),
+        totalAsset: totalAsset,
+        netWorth: netWorth,
+        prevYearNetWorth: prevYearNetWorth,
+        assetComposition: _buildComposition(todaySum),
         netWorthHistory: _buildNetWorthHistory(sumHistory),
-        assetGroups: current.data.values.toList(),
       );
     } on AppException catch (e) {
       errorMessage = e.message;
@@ -122,17 +127,27 @@ class DashboardAssetViewModel extends ChangeNotifier {
     }
   }
 
+  static int _sumAssets(List<MyAssetSumResponse> sums) => sums
+      .where((s) => s.assetId != '0' && s.assetId != '6')
+      .fold(0, (acc, s) => acc + s.sumPrice);
+
+  static int _sumDebt(List<MyAssetSumResponse> sums) => sums
+      .where((s) => s.assetId == '6')
+      .fold(0, (acc, s) => acc + s.sumPrice);
+
   static List<AssetCompositionItem> _buildComposition(
-    MyAssetListResponse resp,
+    List<MyAssetSumResponse> sums,
   ) {
-    final total = resp.totSumPrice;
+    final assets = sums
+        .where((s) => s.assetId != '0' && s.assetId != '6' && s.sumPrice > 0)
+        .toList();
+    final total = assets.fold(0, (acc, s) => acc + s.sumPrice);
     if (total == 0) return [];
-    return resp.data.values
-        .where((g) => g.assetTotSumPrice > 0)
-        .map((g) => AssetCompositionItem(
-              assetNm: g.assetNm,
-              amount: g.assetTotSumPrice,
-              ratio: g.assetTotSumPrice / total,
+    return assets
+        .map((s) => AssetCompositionItem(
+              assetNm: s.assetNm,
+              amount: s.sumPrice,
+              ratio: s.sumPrice / total,
             ))
         .toList()
       ..sort((a, b) => b.amount.compareTo(a.amount));

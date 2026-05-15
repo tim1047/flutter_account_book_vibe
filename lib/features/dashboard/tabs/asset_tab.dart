@@ -65,40 +65,8 @@ class _AssetContent extends StatelessWidget {
             height: 140,
           ),
         ),
-        const SizedBox(height: 12),
 
-        // ④ 자산 항목별 리스트 (항상 오늘 스냅샷)
-        _SectionCard(
-          title: '자산 항목',
-          child: Column(
-            children: data.assetGroups
-                .map((g) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              g.assetNm,
-                              style: AppTextStyles.textBodySm.copyWith(
-                                color: AppColors.colorTextPrimary,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            '₩ ${FormatUtil.formatPrice(g.assetTotSumPrice)}',
-                            style: AppTextStyles.textBodySm.copyWith(
-                              color: AppColors.colorTextPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ))
-                .toList(),
-          ),
-        ),
-
-        // ⑤ 부채 현황 (부채 > 0 일 때만, 항상 오늘 스냅샷)
+        // ④ 부채 현황 (부채 > 0 일 때만, 항상 오늘 스냅샷)
         if (data.debt > 0) ...[
           const SizedBox(height: 12),
           _SectionCard(
@@ -317,15 +285,15 @@ class _AssetDonutSection extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 100,
-          height: 100,
+          width: 80,
+          height: 80,
           child: PieChart(PieChartData(
             sections: sections,
-            centerSpaceRadius: 28,
+            centerSpaceRadius: 22,
             sectionsSpace: 2,
           )),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 24),
         Expanded(
           child: Column(
             children: data.assetComposition.asMap().entries.map((e) {
