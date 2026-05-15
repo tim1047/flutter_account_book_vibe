@@ -32,12 +32,6 @@ class AppDrawer extends StatelessWidget {
                   path: '/accountList',
                   currentPath: currentPath,
                 ),
-                _NavTile(
-                  emoji: '💡',
-                  label: '인사이트',
-                  path: '/insight',
-                  currentPath: currentPath,
-                ),
                 _AccordionSection(
                   emoji: '🛒',
                   label: '지출',
