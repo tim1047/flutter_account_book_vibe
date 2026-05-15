@@ -260,6 +260,9 @@ class _YearsInputDialogState extends State<_YearsInputDialog> {
           errorText: _hasError ? '1~50 사이 숫자를 입력해주세요' : null,
         ),
         onSubmitted: (_) => _confirm(),
+        onChanged: (_) {
+          if (_hasError) setState(() => _hasError = false);
+        },
       ),
       actions: [
         TextButton(
