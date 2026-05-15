@@ -5,6 +5,8 @@ import 'package:account_book_vibe/core/constants/member_images.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/data/models/account_model.dart';
 import 'package:account_book_vibe/features/account/account_list_extra.dart';
+import 'package:account_book_vibe/features/account/account_list_filter_bar.dart';
+import 'package:account_book_vibe/features/account/account_list_filter_state.dart';
 import 'package:account_book_vibe/features/account/account_list_viewmodel.dart';
 import 'package:account_book_vibe/shared/viewmodels/date_filter_viewmodel.dart';
 import 'package:account_book_vibe/shared/widgets/app_badge.dart';
@@ -41,17 +43,23 @@ class _AccountListScreenState extends State<AccountListScreen> {
     _dateFilter = DateFilterViewModel();
     _vm = AccountListViewModel();
     if (widget.extra != null) {
-      _vm.setFilter(
-        divisionId: widget.extra!.divisionId,
-        categoryId: widget.extra!.categoryId,
-        categorySeq: widget.extra!.categorySeq,
-        memberId: widget.extra!.memberId,
+      final e = widget.extra!;
+      _vm.filterState = AccountFilterState(
+        divisionIds: e.divisionId != null ? {e.divisionId!} : {},
+        categoryIds: e.categoryId != null ? {e.categoryId!} : {},
+        categorySeqs: e.categorySeq != null ? {e.categorySeq!} : {},
+        memberIds: e.memberId != null ? {e.memberId!} : {},
       );
     }
     _load();
   }
 
   void _load() => _vm.load(_dateFilter.strtDt, _dateFilter.endDt);
+
+  void _loadWithReset() {
+    _vm.clearFilter();
+    _vm.load(_dateFilter.strtDt, _dateFilter.endDt);
+  }
 
   @override
   void dispose() {
@@ -71,10 +79,11 @@ class _AccountListScreenState extends State<AccountListScreen> {
           constraints: const BoxConstraints(maxWidth: 600),
           child: Column(
             children: [
-              DateFilterBar(viewModel: _dateFilter, onRefresh: _load),
-              _SortToggleBar(
+              DateFilterBar(viewModel: _dateFilter, onRefresh: _loadWithReset),
+              AccountListFilterBar(
+                viewModel: _vm,
                 sortDescending: _sortDescending,
-                onToggle: () =>
+                onSortToggle: () =>
                     setState(() => _sortDescending = !_sortDescending),
               ),
               Expanded(
@@ -94,7 +103,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
                         onRetry: _load,
                       );
                     }
-                    if (_vm.grouped.isEmpty) {
+                    if (_vm.filteredGrouped.isEmpty) {
                       return const EmptyView();
                     }
                     return _buildList();
@@ -123,7 +132,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
             icon: Icons.add,
             onPressed: () async {
               final result = await context.push<String>('/account');
-              if (!mounted) return;
+              if (!context.mounted) return;
               _load();
               if (result != null) {
                 AppToast.show(context, '$result 완료!!!', type: ToastType.success);
@@ -136,7 +145,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
   }
 
   Widget _buildList() {
-    final sortedDates = _vm.grouped.keys.toList()
+    final sortedDates = _vm.filteredGrouped.keys.toList()
       ..sort((a, b) => _sortDescending ? b.compareTo(a) : a.compareTo(b));
 
     return ListView.builder(
@@ -145,7 +154,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
       itemCount: sortedDates.length,
       itemBuilder: (context, index) {
         final date = sortedDates[index];
-        final items = _vm.grouped[date]!;
+        final items = _vm.filteredGrouped[date]!;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -156,7 +165,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
                 onTap: () async {
                   final result =
                       await context.push<String>('/account', extra: item);
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   _load();
                   if (result != null) {
                     AppToast.show(
@@ -197,43 +206,6 @@ class _AccountListScreenState extends State<AccountListScreen> {
         AppToast.show(context, '삭제 실패', type: ToastType.error);
       }
     }
-  }
-}
-
-// ── Sort Toggle Bar ───────────────────────────────────────────────────────────
-
-class _SortToggleBar extends StatelessWidget {
-  const _SortToggleBar({required this.sortDescending, required this.onToggle});
-
-  final bool sortDescending;
-  final VoidCallback onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onToggle,
-      child: Container(
-        color: AppColors.colorBgSub,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Icon(
-              sortDescending ? Icons.arrow_downward : Icons.arrow_upward,
-              size: 14,
-              color: AppColors.colorTextDisabled,
-            ),
-            const SizedBox(width: 2),
-            Text(
-              sortDescending ? '최신순' : '오래된순',
-              style: AppTextStyles.textCaption.copyWith(
-                color: AppColors.colorTextDisabled,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -412,7 +384,12 @@ class _FallbackBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: Color.fromRGBO(color.red, color.green, color.blue, 0.20),
+        color: Color.fromRGBO(
+          (color.r * 255).round(),
+          (color.g * 255).round(),
+          (color.b * 255).round(),
+          0.20,
+        ),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
