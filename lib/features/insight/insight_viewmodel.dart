@@ -81,12 +81,10 @@ class InsightViewModel extends ChangeNotifier {
       // 거래 목록: 현재 월 + 직전 3개월 병렬
       final txFuture = Future.wait<List<AccountListResponse>>([
         AccountService.instance.getAccounts(
-          divisionId: Division.expense,
           strtDt: strtDt,
           endDt: endDt,
         ),
         ...pastRanges.map((r) => AccountService.instance.getAccounts(
-              divisionId: Division.expense,
               strtDt: r.strtDt,
               endDt: r.endDt,
             )),
@@ -99,8 +97,15 @@ class InsightViewModel extends ChangeNotifier {
 
       final currentCatSums = catResults[0];
       final pastCatSums = catResults.sublist(1);
-      final currentTxs = txResults[0];
-      final pastTxs = txResults.sublist(1).expand((l) => l).toList();
+      // 클라이언트 측에서 지출 거래만 필터링
+      final currentTxs = txResults[0]
+          .where((tx) => tx.divisionId == Division.expense)
+          .toList();
+      final pastTxs = txResults
+          .sublist(1)
+          .expand((l) => l)
+          .where((tx) => tx.divisionId == Division.expense)
+          .toList();
 
       categoryAnomalies = computeCategoryAnomalies(currentCatSums, pastCatSums);
       transactionAnomalies = computeTransactionAnomalies(currentTxs, pastTxs);

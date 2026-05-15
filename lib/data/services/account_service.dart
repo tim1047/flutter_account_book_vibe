@@ -25,10 +25,6 @@ class AccountService {
   Future<List<AccountListResponse>> getAccounts({
     String? strtDt,
     String? endDt,
-    String? divisionId,
-    String? categoryId,
-    String? categorySeq,
-    String? memberId,
   }) =>
       _request(() async {
         final response = await _dio.get(
@@ -36,10 +32,6 @@ class AccountService {
           queryParameters: {
             if (strtDt != null) 'strtDt': strtDt,
             if (endDt != null) 'endDt': endDt,
-            if (divisionId != null) 'divisionId': divisionId,
-            if (categoryId != null) 'categoryId': categoryId,
-            if (categorySeq != null) 'categorySeq': categorySeq,
-            if (memberId != null) 'memberId': memberId,
           },
         );
         final api = ApiResponse.fromJson(

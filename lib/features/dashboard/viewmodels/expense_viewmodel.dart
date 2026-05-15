@@ -72,12 +72,10 @@ class DashboardExpenseViewModel extends ChangeNotifier {
 
       final results = await Future.wait([
         AccountService.instance.getAccounts(
-          divisionId: Division.expense,
           strtDt: range.strtDt,
           endDt: range.endDt,
         ),
         AccountService.instance.getAccounts(
-          divisionId: Division.expense,
           strtDt: prevRange.strtDt,
           endDt: prevRange.endDt,
         ),
@@ -93,8 +91,13 @@ class DashboardExpenseViewModel extends ChangeNotifier {
         ),
       ]);
 
-      final current = results[0] as List<AccountListResponse>;
-      final prevAccounts = results[1] as List<AccountListResponse>;
+      // 클라이언트 측에서 지출 거래만 필터링
+      final current = (results[0] as List<AccountListResponse>)
+          .where((tx) => tx.divisionId == Division.expense)
+          .toList();
+      final prevAccounts = (results[1] as List<AccountListResponse>)
+          .where((tx) => tx.divisionId == Division.expense)
+          .toList();
       final currentCats = results[2] as List<CategorySumResponse>;
       final prevCats = results[3] as List<CategorySumResponse>;
 

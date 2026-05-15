@@ -77,17 +77,14 @@ class DashboardOverviewViewModel extends ChangeNotifier {
         MyAssetService.instance.getMyAssets(strtDt: todayDt, endDt: todayDt),
         MyAssetService.instance.getMyAssetSum(strtDt: prevDt, endDt: prevDt),
         AccountService.instance.getAccounts(
-          divisionId: Division.income,
           strtDt: range.strtDt,
           endDt: range.endDt,
         ),
         AccountService.instance.getAccounts(
-          divisionId: Division.expense,
           strtDt: range.strtDt,
           endDt: range.endDt,
         ),
         AccountService.instance.getAccounts(
-          divisionId: Division.invest,
           strtDt: range.strtDt,
           endDt: range.endDt,
         ),
@@ -108,9 +105,17 @@ class DashboardOverviewViewModel extends ChangeNotifier {
 
       final currentAsset = results[0] as MyAssetListResponse;
       final prevSums = results[1] as List<MyAssetSumResponse>;
-      final incomeList = results[2] as List<AccountListResponse>;
-      final expenseList = results[3] as List<AccountListResponse>;
-      final investList = results[4] as List<AccountListResponse>;
+      // 클라이언트 측에서 각 거래 타입별로 필터링
+      final allAccounts = results[2] as List<AccountListResponse>;
+      final incomeList = allAccounts
+          .where((tx) => tx.divisionId == Division.income)
+          .toList();
+      final expenseList = (results[3] as List<AccountListResponse>)
+          .where((tx) => tx.divisionId == Division.expense)
+          .toList();
+      final investList = (results[4] as List<AccountListResponse>)
+          .where((tx) => tx.divisionId == Division.invest)
+          .toList();
       final catSums = results[5] as List<CategorySumResponse>;
       final allTxs = results[6] as List<AccountListResponse>;
       final assetSums = results[7] as List<MyAssetSumResponse>;
