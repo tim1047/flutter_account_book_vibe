@@ -131,7 +131,7 @@ class _HistoryPeriodPicker extends StatelessWidget {
   static String _label(AssetHistoryPeriod p) => switch (p) {
         AssetHistoryPeriod.threeMonths => '3개월',
         AssetHistoryPeriod.sixMonths => '6개월',
-        AssetHistoryPeriod.oneYear => '',
+        AssetHistoryPeriod.oneYear => throw StateError('unreachable'),
       };
 }
 
@@ -143,23 +143,28 @@ class _PeriodChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(left: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.colorAccentTeal : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isSelected ? AppColors.colorAccentTeal : AppColors.colorDivider,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 48),
+      child: Container(
+        margin: const EdgeInsets.only(left: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.colorAccentTeal : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color:
+                isSelected ? AppColors.colorAccentTeal : AppColors.colorDivider,
+          ),
         ),
-      ),
-      child: Text(
-        label,
-        style: AppTextStyles.textBodyXs.copyWith(
-          color: isSelected
-              ? AppColors.colorBgMain
-              : AppColors.colorTextSecondary,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: AppTextStyles.textBodyXs.copyWith(
+            color: isSelected
+                ? AppColors.colorBgMain
+                : AppColors.colorTextSecondary,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+          ),
         ),
       ),
     );
@@ -174,6 +179,7 @@ Future<void> _showYearsDialog(
     context: context,
     builder: (context) => _YearsInputDialog(currentYears: vm.customYears),
   );
+  if (!context.mounted) return;
   if (years != null) {
     vm.selectCustomYears(years);
   }
@@ -190,6 +196,7 @@ class _YearsInputDialog extends StatefulWidget {
 
 class _YearsInputDialogState extends State<_YearsInputDialog> {
   late final TextEditingController _controller;
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -205,7 +212,10 @@ class _YearsInputDialogState extends State<_YearsInputDialog> {
 
   void _confirm() {
     final value = int.tryParse(_controller.text.trim());
-    if (value == null || value < 1) return;
+    if (value == null || value < 1 || value > 50) {
+      setState(() => _hasError = true);
+      return;
+    }
     Navigator.of(context).pop(value);
   }
 
@@ -230,6 +240,7 @@ class _YearsInputDialogState extends State<_YearsInputDialog> {
           color: AppColors.colorTextPrimary,
         ),
         decoration: InputDecoration(
+          filled: false,
           labelText: '기간 (년)',
           labelStyle: AppTextStyles.textBodySm.copyWith(
             color: AppColors.colorTextSecondary,
@@ -240,6 +251,13 @@ class _YearsInputDialogState extends State<_YearsInputDialog> {
           focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: AppColors.colorAccentTeal),
           ),
+          errorBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: AppColors.colorError),
+          ),
+          disabledBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: AppColors.colorDivider),
+          ),
+          errorText: _hasError ? '1~50 사이 숫자를 입력해주세요' : null,
         ),
         onSubmitted: (_) => _confirm(),
       ),
