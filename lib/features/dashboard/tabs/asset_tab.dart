@@ -105,45 +105,167 @@ class _HistoryPeriodPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: AssetHistoryPeriod.values.map((p) {
-        final isSelected = vm.historyPeriod == p;
-        return GestureDetector(
-          onTap: () => vm.selectHistoryPeriod(p),
-          child: Container(
-            margin: const EdgeInsets.only(left: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AppColors.colorAccentTeal
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected
-                    ? AppColors.colorAccentTeal
-                    : AppColors.colorDivider,
-              ),
+      children: [
+        ...[AssetHistoryPeriod.threeMonths, AssetHistoryPeriod.sixMonths]
+            .map((p) {
+          final isSelected = vm.historyPeriod == p;
+          return GestureDetector(
+            onTap: () => vm.selectHistoryPeriod(p),
+            child: _PeriodChip(
+              label: _label(p),
+              isSelected: isSelected,
             ),
-            child: Text(
-              _label(p),
-              style: AppTextStyles.textBodyXs.copyWith(
-                color: isSelected
-                    ? AppColors.colorBgMain
-                    : AppColors.colorTextSecondary,
-                fontWeight:
-                    isSelected ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
+          );
+        }),
+        GestureDetector(
+          onTap: () => _showYearsDialog(context, vm),
+          child: _PeriodChip(
+            label: '${vm.customYears}년',
+            isSelected: vm.historyPeriod == AssetHistoryPeriod.oneYear,
           ),
-        );
-      }).toList(),
+        ),
+      ],
     );
   }
 
   static String _label(AssetHistoryPeriod p) => switch (p) {
         AssetHistoryPeriod.threeMonths => '3개월',
         AssetHistoryPeriod.sixMonths => '6개월',
-        AssetHistoryPeriod.oneYear => '1년',
+        AssetHistoryPeriod.oneYear => '',
       };
+}
+
+class _PeriodChip extends StatelessWidget {
+  const _PeriodChip({required this.label, required this.isSelected});
+
+  final String label;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(left: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: isSelected ? AppColors.colorAccentTeal : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isSelected ? AppColors.colorAccentTeal : AppColors.colorDivider,
+        ),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.textBodyXs.copyWith(
+          color: isSelected
+              ? AppColors.colorBgMain
+              : AppColors.colorTextSecondary,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> _showYearsDialog(
+  BuildContext context,
+  DashboardAssetViewModel vm,
+) async {
+  final years = await showDialog<int>(
+    context: context,
+    builder: (context) => _YearsInputDialog(currentYears: vm.customYears),
+  );
+  if (years != null) {
+    vm.selectCustomYears(years);
+  }
+}
+
+class _YearsInputDialog extends StatefulWidget {
+  const _YearsInputDialog({required this.currentYears});
+
+  final int currentYears;
+
+  @override
+  State<_YearsInputDialog> createState() => _YearsInputDialogState();
+}
+
+class _YearsInputDialogState extends State<_YearsInputDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.currentYears.toString());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _confirm() {
+    final value = int.tryParse(_controller.text.trim());
+    if (value == null || value < 1) return;
+    Navigator.of(context).pop(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.colorBgSub,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
+      title: Text(
+        '기간 입력',
+        style: AppTextStyles.textHeadlineMd.copyWith(
+          color: AppColors.colorTextPrimary,
+        ),
+      ),
+      content: TextField(
+        controller: _controller,
+        keyboardType: TextInputType.number,
+        autofocus: true,
+        style: AppTextStyles.textBodyLg.copyWith(
+          color: AppColors.colorTextPrimary,
+        ),
+        decoration: InputDecoration(
+          labelText: '기간 (년)',
+          labelStyle: AppTextStyles.textBodySm.copyWith(
+            color: AppColors.colorTextSecondary,
+          ),
+          enabledBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: AppColors.colorDivider),
+          ),
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: AppColors.colorAccentTeal),
+          ),
+        ),
+        onSubmitted: (_) => _confirm(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            '취소',
+            style: AppTextStyles.textBodyMd.copyWith(
+              color: AppColors.colorTextSecondary,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: _confirm,
+          child: Text(
+            '확인',
+            style: AppTextStyles.textBodyMd.copyWith(
+              color: AppColors.colorAccentTeal,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _AssetHeroCard extends StatelessWidget {

@@ -41,11 +41,13 @@ class DashboardAssetViewModel extends ChangeNotifier {
   DashboardAssetViewModel();
 
   AssetHistoryPeriod _historyPeriod = AssetHistoryPeriod.oneYear;
+  int _customYears = 1;
   bool isLoading = false;
   String? errorMessage;
   DashboardAssetData? data;
 
   AssetHistoryPeriod get historyPeriod => _historyPeriod;
+  int get customYears => _customYears;
 
   DateTime _subtractMonths(DateTime from, int months) {
     final totalMonths = from.year * 12 + (from.month - 1) - months;
@@ -68,7 +70,7 @@ class DashboardAssetViewModel extends ChangeNotifier {
           endDt: endDt,
         ),
       AssetHistoryPeriod.oneYear => (
-          strtDt: _fmt(DateTime(now.year - 1, now.month, now.day)),
+          strtDt: _fmt(DateTime(now.year - _customYears, now.month, now.day)),
           endDt: endDt,
         ),
     };
@@ -77,6 +79,13 @@ class DashboardAssetViewModel extends ChangeNotifier {
   void selectHistoryPeriod(AssetHistoryPeriod period) {
     if (_historyPeriod == period) return;
     _historyPeriod = period;
+    notifyListeners();
+    load();
+  }
+
+  void selectCustomYears(int years) {
+    _customYears = years;
+    _historyPeriod = AssetHistoryPeriod.oneYear;
     notifyListeners();
     load();
   }
