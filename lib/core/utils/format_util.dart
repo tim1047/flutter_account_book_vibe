@@ -73,7 +73,8 @@ class FormatUtil {
     return (value / total * 100).clamp(0.0, 100.0);
   }
 
-  static String formatPercentage(double value) => '${value.toStringAsFixed(1)}%';
+  static String formatPercentage(double value) =>
+      '${value.toStringAsFixed(1)}%';
 
   static String formatCategoryDesc(
     String categoryNm,
@@ -82,8 +83,8 @@ class FormatUtil {
   }) {
     final hasSeq = categorySeqNm.isNotEmpty;
     final hasRemark = remark != null && remark.isNotEmpty;
-    if (hasSeq && hasRemark) return '$categoryNm | $categorySeqNm ($remark)';
-    if (hasRemark) return '$categoryNm ($remark)';
+    if (hasSeq && hasRemark) return '$categoryNm | $categorySeqNm ( $remark )';
+    if (hasRemark) return '$categoryNm ( $remark )';
     if (hasSeq) return '$categoryNm | $categorySeqNm';
     return categoryNm;
   }
