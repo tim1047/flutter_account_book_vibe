@@ -3,10 +3,12 @@ import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const MainAppBar({super.key});
+  const MainAppBar({super.key, this.bottom});
+
+  final PreferredSizeWidget? bottom;
 
   @override
-  Size get preferredSize => const Size.fromHeight(56);
+  Size get preferredSize => Size.fromHeight(56 + (bottom?.preferredSize.height ?? 0));
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () => Scaffold.of(ctx).openDrawer(),
         ),
       ),
+      bottom: bottom,
     );
   }
 }

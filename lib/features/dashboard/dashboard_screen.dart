@@ -9,6 +9,7 @@ import 'package:account_book_vibe/features/dashboard/viewmodels/expense_viewmode
 import 'package:account_book_vibe/features/dashboard/viewmodels/overview_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/period_selector.dart';
 import 'package:account_book_vibe/shared/widgets/app_drawer.dart';
+import 'package:account_book_vibe/shared/widgets/main_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -64,16 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     return Scaffold(
       backgroundColor: AppColors.colorBgMain,
       drawer: const AppDrawer(),
-      appBar: AppBar(
-        backgroundColor: AppColors.colorBgMain,
-        elevation: 0,
-        title: Text(
-          '📊 대시보드',
-          style: AppTextStyles.textBodyLg.copyWith(
-            color: AppColors.colorTextPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      appBar: MainAppBar(
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(_isAssetTab ? 44 : 88),
           child: Column(
