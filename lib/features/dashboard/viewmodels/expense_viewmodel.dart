@@ -29,12 +29,34 @@ class ExpenseCategoryItem {
   }
 }
 
+class ExpenseCategorySeqItem {
+  const ExpenseCategorySeqItem({
+    required this.categoryNm,
+    required this.categorySeqNm,
+    required this.amount,
+    required this.ratio,
+    this.prevPeriodAmount = 0,
+  });
+
+  final String categoryNm;
+  final String categorySeqNm;
+  final int amount;
+  final double ratio;
+  final int prevPeriodAmount;
+
+  double get changeRate {
+    if (prevPeriodAmount == 0) return 0;
+    return (amount - prevPeriodAmount) / prevPeriodAmount;
+  }
+}
+
 class DashboardExpenseData {
   const DashboardExpenseData({
     required this.totalExpense,
     required this.prevPeriodExpense,
     required this.monthlyExpenses,
     required this.categoryBreakdown,
+    required this.categorySeqBreakdown,
     required this.topTransactions,
     required this.changeLabel,
   });
@@ -43,6 +65,7 @@ class DashboardExpenseData {
   final int prevPeriodExpense;
   final List<({String month, int amount})> monthlyExpenses;
   final List<ExpenseCategoryItem> categoryBreakdown;
+  final List<ExpenseCategorySeqItem> categorySeqBreakdown;
   final List<AccountListResponse> topTransactions;
   final String changeLabel;
 
@@ -154,11 +177,44 @@ class DashboardExpenseViewModel extends ChangeNotifier {
         _period.range.endDt,
       ),
       categoryBreakdown: buildCategoryBreakdown(currentCats, prevCats),
+      categorySeqBreakdown: buildCategorySeqBreakdown(currentCats, prevCats),
       topTransactions: topTx.take(10).toList(),
       changeLabel: _period.changeLabel,
     );
     isLoading = false;
     notifyListeners();
+  }
+
+  static List<ExpenseCategorySeqItem> buildCategorySeqBreakdown(
+    List<CategorySumResponse> current,
+    List<CategorySumResponse> prev,
+  ) {
+    final total = current.fold(0, (s, e) => s + e.sumPrice);
+    if (total == 0) return [];
+    // prev: categoryId -> (categorySeq -> sumPrice)
+    final prevMap = <String, Map<String, int>>{};
+    for (final cat in prev) {
+      prevMap[cat.categoryId] = {
+        for (final seq in cat.data) seq.categorySeq: seq.sumPrice,
+      };
+    }
+    final items = <ExpenseCategorySeqItem>[];
+    for (final cat in current) {
+      for (final seq in cat.data) {
+        if (seq.sumPrice > 0) {
+          items.add(ExpenseCategorySeqItem(
+            categoryNm: cat.categoryNm,
+            categorySeqNm: seq.categorySeqNm,
+            amount: seq.sumPrice,
+            ratio: seq.sumPrice / total,
+            prevPeriodAmount:
+                prevMap[cat.categoryId]?[seq.categorySeq] ?? 0,
+          ));
+        }
+      }
+    }
+    items.sort((a, b) => b.amount.compareTo(a.amount));
+    return items;
   }
 
   static List<ExpenseCategoryItem> buildCategoryBreakdown(

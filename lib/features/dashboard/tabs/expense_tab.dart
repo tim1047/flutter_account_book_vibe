@@ -72,7 +72,7 @@ class _ExpenseContent extends StatelessWidget {
         _SectionCard(
           title: '카테고리 상세',
           child: Column(
-            children: data.categoryBreakdown.map((e) {
+            children: data.categorySeqBreakdown.map((e) {
               final changeRate = e.changeRate;
               final hasChange = e.prevPeriodAmount > 0;
               return Padding(
@@ -87,11 +87,22 @@ class _ExpenseContent extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Expanded(
-                          child: Text(
-                            e.categoryNm,
-                            style: AppTextStyles.textBodySm.copyWith(
-                              color: AppColors.colorTextPrimary,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                e.categorySeqNm,
+                                style: AppTextStyles.textBodySm.copyWith(
+                                  color: AppColors.colorTextPrimary,
+                                ),
+                              ),
+                              Text(
+                                e.categoryNm,
+                                style: AppTextStyles.textCaption.copyWith(
+                                  color: AppColors.colorTextDisabled,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         if (hasChange)
