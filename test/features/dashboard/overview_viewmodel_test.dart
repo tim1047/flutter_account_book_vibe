@@ -7,13 +7,14 @@ void main() {
     test('저축액 = 수입 - 지출', () {
       const data = DashboardOverviewData(
         netWorth: 100000000,
-        prevMonthNetWorth: 99000000,
+        prevPeriodNetWorth: 99000000,
         totalIncome: 4000000,
         totalExpense: 3160000,
         totalInvest: 500000,
         topExpenseCategories: [],
         recentTransactions: [],
         netWorthHistory: [],
+        changeLabel: '전달 대비',
       );
       expect(data.savings, 840000);
     });
@@ -21,13 +22,14 @@ void main() {
     test('순자산 변화 = 현재 - 전월', () {
       const data = DashboardOverviewData(
         netWorth: 100000000,
-        prevMonthNetWorth: 99000000,
+        prevPeriodNetWorth: 99000000,
         totalIncome: 0,
         totalExpense: 0,
         totalInvest: 0,
         topExpenseCategories: [],
         recentTransactions: [],
         netWorthHistory: [],
+        changeLabel: '전달 대비',
       );
       expect(data.netWorthChange, 1000000);
     });

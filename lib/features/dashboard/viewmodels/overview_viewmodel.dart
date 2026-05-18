@@ -1,12 +1,11 @@
-import 'package:account_book_vibe/core/network/app_exception.dart';
 import 'package:account_book_vibe/core/constants/division.dart';
+import 'package:account_book_vibe/core/network/app_exception.dart';
 import 'package:account_book_vibe/data/models/account_model.dart';
 import 'package:account_book_vibe/data/models/category_model.dart';
 import 'package:account_book_vibe/data/models/my_asset_model.dart';
-import 'package:account_book_vibe/data/services/account_service.dart';
-import 'package:account_book_vibe/data/services/category_service.dart';
 import 'package:account_book_vibe/data/services/my_asset_service.dart';
 import 'package:account_book_vibe/features/dashboard/dashboard_period_viewmodel.dart';
+import 'package:account_book_vibe/features/dashboard/dashboard_shared_viewmodel.dart';
 import 'package:flutter/foundation.dart';
 
 class CategoryExpenseItem {
@@ -51,83 +50,106 @@ class DashboardOverviewData {
 }
 
 class DashboardOverviewViewModel extends ChangeNotifier {
-  DashboardOverviewViewModel(this._period) {
-    _period.addListener(load);
+  DashboardOverviewViewModel(this._shared) {
+    _shared.period.addListener(_loadOwn);
+    _shared.addListener(_onSharedUpdated);
   }
 
-  final DashboardPeriodViewModel _period;
+  final DashboardSharedViewModel _shared;
+  DashboardPeriodViewModel get _period => _shared.period;
+
   bool isLoading = false;
   String? errorMessage;
   DashboardOverviewData? data;
 
-  Future<void> load() async {
+  // Internal state for own data
+  bool _ownLoading = false;
+  MyAssetListResponse? _currentAsset;
+  List<MyAssetSumResponse>? _prevSums;
+  List<MyAssetSumResponse>? _assetSums;
+
+  /// Public entry point (called on init and when needed).
+  Future<void> load() => _loadOwn();
+
+  Future<void> _loadOwn() async {
+    _ownLoading = true;
+    _currentAsset = null;
+    _prevSums = null;
+    _assetSums = null;
     isLoading = true;
     errorMessage = null;
     notifyListeners();
 
     try {
-      final range = _period.range;
-      final prevRange = _period.prevRange;
       final now = DateTime.now();
       final todayDt =
           '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
-      final prevDt = prevRange.endDt;
+      final prevDt = _period.prevRange.endDt;
+      final range = _period.range;
 
       final results = await Future.wait([
         MyAssetService.instance.getMyAssets(strtDt: todayDt, endDt: todayDt),
         MyAssetService.instance.getMyAssetSum(strtDt: prevDt, endDt: prevDt),
-        AccountService.instance.getAccounts(
-          strtDt: range.strtDt,
-          endDt: range.endDt,
-        ),
-        CategoryService.instance.getCategorySum(
-          divisionId: Division.expense,
-          strtDt: range.strtDt,
-          endDt: range.endDt,
-        ),
         MyAssetService.instance.getMyAssetSum(
           strtDt: range.strtDt,
           endDt: range.endDt,
         ),
       ]);
 
-      final currentAsset = results[0] as MyAssetListResponse;
-      final prevSums = results[1] as List<MyAssetSumResponse>;
-      // 클라이언트 측에서 각 거래 타입별로 필터링
-      final allAccounts = results[2] as List<AccountListResponse>;
-      final incomeList = allAccounts
-          .where((tx) => tx.divisionId == Division.income)
-          .toList();
-      final expenseList = allAccounts
-          .where((tx) => tx.divisionId == Division.expense)
-          .toList();
-      final investList = allAccounts
-          .where((tx) => tx.divisionId == Division.invest)
-          .toList();
-      final catSums = results[3] as List<CategorySumResponse>;
-      final allTxs = allAccounts;
-      final assetSums = results[4] as List<MyAssetSumResponse>;
-
-      data = DashboardOverviewData(
-        netWorth: currentAsset.totNetWorthSumPrice,
-        prevPeriodNetWorth: _calcNetWorth(prevSums),
-        changeLabel: _period.changeLabel,
-        totalIncome: incomeList.fold(0, (s, e) => s + e.price),
-        totalExpense: expenseList.fold(0, (s, e) => s + e.price),
-        totalInvest: investList.fold(0, (s, e) => s + e.price),
-        topExpenseCategories: buildTopCategories(catSums),
-        recentTransactions:
-            (allTxs..sort((a, b) => b.accountDt.compareTo(a.accountDt)))
-                .take(5)
-                .toList(),
-        netWorthHistory: _buildNetWorthHistory(assetSums),
-      );
+      _currentAsset = results[0] as MyAssetListResponse;
+      _prevSums = results[1] as List<MyAssetSumResponse>;
+      _assetSums = results[2] as List<MyAssetSumResponse>;
     } on AppException catch (e) {
       errorMessage = e.message;
-    } finally {
+      _ownLoading = false;
       isLoading = false;
       notifyListeners();
+      return;
     }
+
+    _ownLoading = false;
+    _tryBuildData();
+  }
+
+  void _onSharedUpdated() => _tryBuildData();
+
+  void _tryBuildData() {
+    if (_ownLoading || _shared.isLoading) return;
+    if (_currentAsset == null || _prevSums == null || _assetSums == null) return;
+
+    if (_shared.errorMessage != null) {
+      errorMessage = _shared.errorMessage;
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
+
+    final allAccounts = _shared.accounts;
+    final catSums = _shared.catSums;
+
+    final incomeList =
+        allAccounts.where((tx) => tx.divisionId == Division.income).toList();
+    final expenseList =
+        allAccounts.where((tx) => tx.divisionId == Division.expense).toList();
+    final investList =
+        allAccounts.where((tx) => tx.divisionId == Division.invest).toList();
+
+    final allTxs = [...allAccounts]
+      ..sort((a, b) => b.accountDt.compareTo(a.accountDt));
+
+    data = DashboardOverviewData(
+      netWorth: _currentAsset!.totNetWorthSumPrice,
+      prevPeriodNetWorth: _calcNetWorth(_prevSums!),
+      changeLabel: _period.changeLabel,
+      totalIncome: incomeList.fold(0, (s, e) => s + e.price),
+      totalExpense: expenseList.fold(0, (s, e) => s + e.price),
+      totalInvest: investList.fold(0, (s, e) => s + e.price),
+      topExpenseCategories: buildTopCategories(catSums),
+      recentTransactions: allTxs.take(5).toList(),
+      netWorthHistory: _buildNetWorthHistory(_assetSums!),
+    );
+    isLoading = false;
+    notifyListeners();
   }
 
   static int _calcNetWorth(List<MyAssetSumResponse> sums) {
@@ -209,7 +231,8 @@ class DashboardOverviewViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _period.removeListener(load);
+    _shared.period.removeListener(_loadOwn);
+    _shared.removeListener(_onSharedUpdated);
     super.dispose();
   }
 }

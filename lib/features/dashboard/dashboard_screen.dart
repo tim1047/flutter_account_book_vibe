@@ -1,6 +1,7 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/features/dashboard/dashboard_period_viewmodel.dart';
+import 'package:account_book_vibe/features/dashboard/dashboard_shared_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/tabs/asset_tab.dart';
 import 'package:account_book_vibe/features/dashboard/tabs/expense_tab.dart';
 import 'package:account_book_vibe/features/dashboard/tabs/overview_tab.dart';
@@ -22,6 +23,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen>
     with SingleTickerProviderStateMixin {
   late final DashboardPeriodViewModel _period;
+  late final DashboardSharedViewModel _shared;
   late final DashboardOverviewViewModel _overviewVm;
   late final DashboardExpenseViewModel _expenseVm;
   late final DashboardAssetViewModel _assetVm;
@@ -32,8 +34,9 @@ class _DashboardScreenState extends State<DashboardScreen>
   void initState() {
     super.initState();
     _period = DashboardPeriodViewModel();
-    _overviewVm = DashboardOverviewViewModel(_period)..load();
-    _expenseVm = DashboardExpenseViewModel(_period)..load();
+    _shared = DashboardSharedViewModel(_period)..load();
+    _overviewVm = DashboardOverviewViewModel(_shared)..load();
+    _expenseVm = DashboardExpenseViewModel(_shared)..load();
     _assetVm = DashboardAssetViewModel()..load();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
@@ -50,6 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   void dispose() {
     _tabController.removeListener(_onTabChanged);
     _period.dispose();
+    _shared.dispose();
     _overviewVm.dispose();
     _expenseVm.dispose();
     _assetVm.dispose();

@@ -5,6 +5,7 @@ import 'package:account_book_vibe/data/models/category_model.dart';
 import 'package:account_book_vibe/data/services/account_service.dart';
 import 'package:account_book_vibe/data/services/category_service.dart';
 import 'package:account_book_vibe/features/dashboard/dashboard_period_viewmodel.dart';
+import 'package:account_book_vibe/features/dashboard/dashboard_shared_viewmodel.dart';
 import 'package:flutter/foundation.dart';
 
 class ExpenseCategoryItem {
@@ -52,39 +53,41 @@ class DashboardExpenseData {
 }
 
 class DashboardExpenseViewModel extends ChangeNotifier {
-  DashboardExpenseViewModel(this._period) {
-    _period.addListener(load);
+  DashboardExpenseViewModel(this._shared) {
+    _shared.period.addListener(_loadOwn);
+    _shared.addListener(_onSharedUpdated);
   }
 
-  final DashboardPeriodViewModel _period;
+  final DashboardSharedViewModel _shared;
+  DashboardPeriodViewModel get _period => _shared.period;
+
   bool isLoading = false;
   String? errorMessage;
   DashboardExpenseData? data;
 
-  Future<void> load() async {
+  bool _ownLoading = false;
+  List<AccountListResponse>? _prevAccounts;
+  List<CategorySumResponse>? _prevCatSums;
+
+  /// Public entry point (called on init and when needed).
+  Future<void> load() => _loadOwn();
+
+  Future<void> _loadOwn() async {
+    _ownLoading = true;
+    _prevAccounts = null;
+    _prevCatSums = null;
     isLoading = true;
     errorMessage = null;
     notifyListeners();
 
     try {
-      final range = _period.range;
       final prevRange = _period.prevRange;
 
       final results = await Future.wait([
         AccountService.instance.getAccounts(
-          strtDt: range.strtDt,
-          endDt: range.endDt,
-          divisionId: Division.expense,
-        ),
-        AccountService.instance.getAccounts(
           strtDt: prevRange.strtDt,
           endDt: prevRange.endDt,
           divisionId: Division.expense,
-        ),
-        CategoryService.instance.getCategorySum(
-          divisionId: Division.expense,
-          strtDt: range.strtDt,
-          endDt: range.endDt,
         ),
         CategoryService.instance.getCategorySum(
           divisionId: Division.expense,
@@ -93,28 +96,58 @@ class DashboardExpenseViewModel extends ChangeNotifier {
         ),
       ]);
 
-      // 서버에서 이미 expense만 필터링해서 줌
-      final current = results[0] as List<AccountListResponse>;
-      final prevAccounts = results[1] as List<AccountListResponse>;
-      final currentCats = results[2] as List<CategorySumResponse>;
-      final prevCats = results[3] as List<CategorySumResponse>;
-
-      final topTx = [...current]..sort((a, b) => b.price.compareTo(a.price));
-
-      data = DashboardExpenseData(
-        totalExpense: current.fold(0, (s, e) => s + e.price),
-        prevPeriodExpense: prevAccounts.fold(0, (s, e) => s + e.price),
-        monthlyExpenses: buildMonthlyTotals(current, range.strtDt, range.endDt),
-        categoryBreakdown: buildCategoryBreakdown(currentCats, prevCats),
-        topTransactions: topTx.take(10).toList(),
-        changeLabel: _period.changeLabel,
-      );
+      _prevAccounts = results[0] as List<AccountListResponse>;
+      _prevCatSums = results[1] as List<CategorySumResponse>;
     } on AppException catch (e) {
       errorMessage = e.message;
-    } finally {
+      _ownLoading = false;
       isLoading = false;
       notifyListeners();
+      return;
     }
+
+    _ownLoading = false;
+    _tryBuildData();
+  }
+
+  void _onSharedUpdated() => _tryBuildData();
+
+  void _tryBuildData() {
+    if (_ownLoading || _shared.isLoading) return;
+    if (_prevAccounts == null || _prevCatSums == null) return;
+
+    if (_shared.errorMessage != null) {
+      errorMessage = _shared.errorMessage;
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
+
+    // Current expense from shared (client-side filter)
+    final current = _shared.accounts
+        .where((tx) => tx.divisionId == Division.expense)
+        .toList();
+
+    final currentCats = _shared.catSums;
+    final prevCats = _prevCatSums!;
+    final prevAccounts = _prevAccounts!;
+
+    final topTx = [...current]..sort((a, b) => b.price.compareTo(a.price));
+
+    data = DashboardExpenseData(
+      totalExpense: current.fold(0, (s, e) => s + e.price),
+      prevPeriodExpense: prevAccounts.fold(0, (s, e) => s + e.price),
+      monthlyExpenses: buildMonthlyTotals(
+        current,
+        _period.range.strtDt,
+        _period.range.endDt,
+      ),
+      categoryBreakdown: buildCategoryBreakdown(currentCats, prevCats),
+      topTransactions: topTx.take(10).toList(),
+      changeLabel: _period.changeLabel,
+    );
+    isLoading = false;
+    notifyListeners();
   }
 
   static List<ExpenseCategoryItem> buildCategoryBreakdown(
@@ -165,7 +198,8 @@ class DashboardExpenseViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _period.removeListener(load);
+    _shared.period.removeListener(_loadOwn);
+    _shared.removeListener(_onSharedUpdated);
     super.dispose();
   }
 }
