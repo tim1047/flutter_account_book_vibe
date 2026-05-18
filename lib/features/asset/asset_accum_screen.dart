@@ -154,10 +154,7 @@ class _StackedBarChart extends StatelessWidget {
   double get _maxY {
     double max = 0;
     for (final date in vm.sortedDates) {
-      double total = 0;
-      for (final nm in vm.assetNames) {
-        total += vm.dateAssetMap[date]?[nm] ?? 0;
-      }
+      final total = (vm.dateTotalMap[date] ?? 0).toDouble();
       if (total > max) max = total;
     }
     return max == 0 ? 1000000 : max * 1.25;
@@ -167,26 +164,13 @@ class _StackedBarChart extends StatelessWidget {
     final groups = <BarChartGroupData>[];
     for (int i = 0; i < vm.sortedDates.length; i++) {
       final date = vm.sortedDates[i];
-      final assetMap = vm.dateAssetMap[date] ?? {};
-      double fromY = 0;
-      final stacks = <BarChartRodStackItem>[];
-      for (int j = 0; j < vm.assetNames.length; j++) {
-        final price = (assetMap[vm.assetNames[j]] ?? 0).toDouble();
-        if (price > 0) {
-          final color = AppColors
-              .assetChartColors[j % AppColors.assetChartColors.length];
-          stacks.add(BarChartRodStackItem(fromY, fromY + price, color));
-          fromY += price;
-        }
-      }
+      final total = (vm.dateTotalMap[date] ?? 0).toDouble();
       groups.add(BarChartGroupData(
         x: i,
         barRods: [
           BarChartRodData(
-            toY: fromY,
-            rodStackItems: stacks.isEmpty
-                ? [BarChartRodStackItem(0, 0, Colors.transparent)]
-                : stacks,
+            toY: total,
+            color: AppColors.colorAccentTeal,
             width: _barWidth,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
           ),
@@ -292,14 +276,9 @@ class _StackedBarChart extends StatelessWidget {
                 final idx = group.x;
                 if (idx < 0 || idx >= vm.sortedDates.length) return null;
                 final date = vm.sortedDates[idx];
-                final assetMap = vm.dateAssetMap[date] ?? {};
-                final lines = <String>[_xLabel(date)];
-                for (final nm in vm.assetNames) {
-                  final p = assetMap[nm] ?? 0;
-                  if (p > 0) lines.add('$nm: ${FormatUtil.formatPrice(p)}원');
-                }
+                final total = vm.dateTotalMap[date] ?? 0;
                 return BarTooltipItem(
-                  lines.join('\n'),
+                  '${_xLabel(date)}\n순자산: ${FormatUtil.formatPrice(total)}원',
                   const TextStyle(
                     color: AppColors.colorTextPrimary,
                     fontSize: 11,
@@ -422,7 +401,7 @@ class _TotalAssetDetailCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 const Text(
-                  '총 자산',
+                  '순자산',
                   style: TextStyle(
                     color: AppColors.colorTextPrimary,
                     fontSize: 15,
