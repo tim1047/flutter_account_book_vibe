@@ -74,10 +74,12 @@ class DashboardExpenseViewModel extends ChangeNotifier {
         AccountService.instance.getAccounts(
           strtDt: range.strtDt,
           endDt: range.endDt,
+          divisionId: Division.expense,
         ),
         AccountService.instance.getAccounts(
           strtDt: prevRange.strtDt,
           endDt: prevRange.endDt,
+          divisionId: Division.expense,
         ),
         CategoryService.instance.getCategorySum(
           divisionId: Division.expense,
@@ -91,13 +93,9 @@ class DashboardExpenseViewModel extends ChangeNotifier {
         ),
       ]);
 
-      // 클라이언트 측에서 지출 거래만 필터링
-      final current = (results[0] as List<AccountListResponse>)
-          .where((tx) => tx.divisionId == Division.expense)
-          .toList();
-      final prevAccounts = (results[1] as List<AccountListResponse>)
-          .where((tx) => tx.divisionId == Division.expense)
-          .toList();
+      // 서버에서 이미 expense만 필터링해서 줌
+      final current = results[0] as List<AccountListResponse>;
+      final prevAccounts = results[1] as List<AccountListResponse>;
       final currentCats = results[2] as List<CategorySumResponse>;
       final prevCats = results[3] as List<CategorySumResponse>;
 
