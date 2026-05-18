@@ -54,7 +54,6 @@ class DashboardExpenseData {
 
 class DashboardExpenseViewModel extends ChangeNotifier {
   DashboardExpenseViewModel(this._shared) {
-    _shared.period.addListener(_loadOwn);
     _shared.addListener(_onSharedUpdated);
   }
 
@@ -68,6 +67,7 @@ class DashboardExpenseViewModel extends ChangeNotifier {
   bool _ownLoading = false;
   List<AccountListResponse>? _prevAccounts;
   List<CategorySumResponse>? _prevCatSums;
+  bool _sharedWasLoading = false;
 
   /// Public entry point (called on init and when needed).
   Future<void> load() => _loadOwn();
@@ -110,7 +110,18 @@ class DashboardExpenseViewModel extends ChangeNotifier {
     _tryBuildData();
   }
 
-  void _onSharedUpdated() => _tryBuildData();
+  void _onSharedUpdated() {
+    if (_shared.isLoading) {
+      _sharedWasLoading = true;
+      return;
+    }
+    if (_sharedWasLoading) {
+      _sharedWasLoading = false;
+      _loadOwn();
+      return;
+    }
+    _tryBuildData();
+  }
 
   void _tryBuildData() {
     if (_ownLoading || _shared.isLoading) return;
@@ -198,7 +209,6 @@ class DashboardExpenseViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _shared.period.removeListener(_loadOwn);
     _shared.removeListener(_onSharedUpdated);
     super.dispose();
   }

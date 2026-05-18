@@ -51,7 +51,6 @@ class DashboardOverviewData {
 
 class DashboardOverviewViewModel extends ChangeNotifier {
   DashboardOverviewViewModel(this._shared) {
-    _shared.period.addListener(_loadOwn);
     _shared.addListener(_onSharedUpdated);
   }
 
@@ -67,6 +66,7 @@ class DashboardOverviewViewModel extends ChangeNotifier {
   MyAssetListResponse? _currentAsset;
   List<MyAssetSumResponse>? _prevSums;
   List<MyAssetSumResponse>? _assetSums;
+  bool _sharedWasLoading = false;
 
   /// Public entry point (called on init and when needed).
   Future<void> load() => _loadOwn();
@@ -111,7 +111,18 @@ class DashboardOverviewViewModel extends ChangeNotifier {
     _tryBuildData();
   }
 
-  void _onSharedUpdated() => _tryBuildData();
+  void _onSharedUpdated() {
+    if (_shared.isLoading) {
+      _sharedWasLoading = true;
+      return;
+    }
+    if (_sharedWasLoading) {
+      _sharedWasLoading = false;
+      _loadOwn();
+      return;
+    }
+    _tryBuildData();
+  }
 
   void _tryBuildData() {
     if (_ownLoading || _shared.isLoading) return;
@@ -231,7 +242,6 @@ class DashboardOverviewViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _shared.period.removeListener(_loadOwn);
     _shared.removeListener(_onSharedUpdated);
     super.dispose();
   }
