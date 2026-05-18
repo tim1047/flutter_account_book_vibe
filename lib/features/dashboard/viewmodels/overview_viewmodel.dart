@@ -80,20 +80,8 @@ class DashboardOverviewViewModel extends ChangeNotifier {
           strtDt: range.strtDt,
           endDt: range.endDt,
         ),
-        AccountService.instance.getAccounts(
-          strtDt: range.strtDt,
-          endDt: range.endDt,
-        ),
-        AccountService.instance.getAccounts(
-          strtDt: range.strtDt,
-          endDt: range.endDt,
-        ),
         CategoryService.instance.getCategorySum(
           divisionId: Division.expense,
-          strtDt: range.strtDt,
-          endDt: range.endDt,
-        ),
-        AccountService.instance.getAccounts(
           strtDt: range.strtDt,
           endDt: range.endDt,
         ),
@@ -110,15 +98,15 @@ class DashboardOverviewViewModel extends ChangeNotifier {
       final incomeList = allAccounts
           .where((tx) => tx.divisionId == Division.income)
           .toList();
-      final expenseList = (results[3] as List<AccountListResponse>)
+      final expenseList = allAccounts
           .where((tx) => tx.divisionId == Division.expense)
           .toList();
-      final investList = (results[4] as List<AccountListResponse>)
+      final investList = allAccounts
           .where((tx) => tx.divisionId == Division.invest)
           .toList();
-      final catSums = results[5] as List<CategorySumResponse>;
-      final allTxs = results[6] as List<AccountListResponse>;
-      final assetSums = results[7] as List<MyAssetSumResponse>;
+      final catSums = results[3] as List<CategorySumResponse>;
+      final allTxs = allAccounts;
+      final assetSums = results[4] as List<MyAssetSumResponse>;
 
       data = DashboardOverviewData(
         netWorth: currentAsset.totNetWorthSumPrice,
