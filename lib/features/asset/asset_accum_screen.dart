@@ -70,8 +70,7 @@ class _AssetAccumScreenState extends State<AssetAccumScreen> {
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _TotalAssetDetailCard(
                         sortedDates: _vm.sortedDates,
-                        dateAssetMap: _vm.dateAssetMap,
-                        assetNames: _vm.assetNames,
+                        dateTotalMap: _vm.dateTotalMap,
                       ),
                     ),
                     ..._vm.assetNames.asMap().entries.map(
@@ -320,27 +319,18 @@ class _StackedBarChart extends StatelessWidget {
 class _TotalAssetDetailCard extends StatelessWidget {
   const _TotalAssetDetailCard({
     required this.sortedDates,
-    required this.dateAssetMap,
-    required this.assetNames,
+    required this.dateTotalMap,
   });
 
   final List<String> sortedDates;
-  final Map<String, Map<String, int>> dateAssetMap;
-  final List<String> assetNames;
+  final Map<String, int> dateTotalMap;
 
   String _fmtDt(String dt) {
     if (dt.length < 8) return dt;
     return '${dt.substring(0, 4)}.${dt.substring(4, 6)}.${dt.substring(6)}';
   }
 
-  int _totalForDate(String date) {
-    final assetMap = dateAssetMap[date] ?? {};
-    int total = 0;
-    for (final nm in assetNames) {
-      total += assetMap[nm] ?? 0;
-    }
-    return total;
-  }
+  int _totalForDate(String date) => dateTotalMap[date] ?? 0;
 
   List<Widget> _buildRows() {
     final rows = <Widget>[];

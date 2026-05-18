@@ -13,6 +13,9 @@ class AssetAccumViewModel extends ChangeNotifier {
   // [accumDt][assetNm] -> sumPrice
   Map<String, Map<String, int>> dateAssetMap = {};
 
+  // [accumDt] -> total sumPrice (assetId == '0')
+  Map<String, int> dateTotalMap = {};
+
   Future<void> loadData() async {
     _begin();
     try {
@@ -47,6 +50,11 @@ class AssetAccumViewModel extends ChangeNotifier {
     dateAssetMap = {};
     for (final item in filtered) {
       (dateAssetMap[item.accumDt] ??= {})[item.assetNm] = item.sumPrice;
+    }
+
+    dateTotalMap = {};
+    for (final item in items.where((e) => e.assetId == '0')) {
+      dateTotalMap[item.accumDt] = item.sumPrice;
     }
   }
 
