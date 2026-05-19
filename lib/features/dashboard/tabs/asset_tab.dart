@@ -20,7 +20,8 @@ class AssetTab extends StatelessWidget {
       builder: (context, _) {
         if (vm.isLoading) {
           return const Center(
-            child: CircularProgressIndicator(color: AppColors.colorAccentIndigo),
+            child:
+                CircularProgressIndicator(color: AppColors.colorAccentIndigo),
           );
         }
         if (vm.errorMessage != null) {
@@ -47,35 +48,8 @@ class _AssetContent extends StatelessWidget {
       children: [
         // ① 순자산 헤더 (항상 오늘 스냅샷)
         _AssetHeroCard(data: data),
-        const SizedBox(height: 12),
 
-        // ② 자산 구성 도넛 (항상 오늘 스냅샷)
-        _SectionCard(
-          title: '자산 구성',
-          child: _AssetDonutSection(data: data),
-        ),
-        const SizedBox(height: 12),
-
-        // ③ 순자산 추이 (히스토리 기간 선택 가능)
-        _SectionCard(
-          title: '순자산 추이',
-          trailing: _HistoryPeriodPicker(vm: vm),
-          child: NetWorthLineChart(
-            history: data.netWorthHistory,
-            height: 140,
-          ),
-        ),
-
-        // ④ 기간별 자산 현황
-        if (data.assetHistory.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          _SectionCard(
-            title: '기간별 자산 현황',
-            child: _AssetHistorySection(data: data),
-          ),
-        ],
-
-        // ⑤ 부채 현황 (부채 > 0 일 때만, 항상 오늘 스냅샷)
+        // ② 부채 현황 (부채 > 0 일 때만, 항상 오늘 스냅샷)
         if (data.debt > 0) ...[
           const SizedBox(height: 12),
           _SectionCard(
@@ -98,6 +72,33 @@ class _AssetContent extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+        const SizedBox(height: 12),
+
+        // ③ 자산 구성 도넛 (항상 오늘 스냅샷)
+        _SectionCard(
+          title: '자산 구성',
+          child: _AssetDonutSection(data: data),
+        ),
+        const SizedBox(height: 12),
+
+        // ④ 순자산 추이 (히스토리 기간 선택 가능)
+        _SectionCard(
+          title: '순자산 추이',
+          trailing: _HistoryPeriodPicker(vm: vm),
+          child: NetWorthLineChart(
+            history: data.netWorthHistory,
+            height: 140,
+          ),
+        ),
+
+        // ⑤ 기간별 자산 현황
+        if (data.assetHistory.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          _SectionCard(
+            title: '기간별 자산 현황',
+            child: _AssetHistorySection(data: data),
           ),
         ],
       ],
@@ -520,18 +521,19 @@ class _AssetHistorySection extends StatelessWidget {
           label: '순자산',
           dotColor: AppColors.colorTextPrimary,
           rows: _buildNetWorthRows(data.netWorthHistory),
+          initiallyExpanded: true,
         ),
         ...data.assetHistoryNames.asMap().entries.map(
-          (e) => Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: _HistoryCard(
-              label: e.value,
-              dotColor: AppColors.assetChartColors[
-                  e.key % AppColors.assetChartColors.length],
-              rows: _buildAssetRows(e.value, data.assetHistory),
+              (e) => Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: _HistoryCard(
+                  label: e.value,
+                  dotColor: AppColors.assetChartColors[
+                      e.key % AppColors.assetChartColors.length],
+                  rows: _buildAssetRows(e.value, data.assetHistory),
+                ),
+              ),
             ),
-          ),
-        ),
       ],
     );
   }
@@ -601,16 +603,31 @@ class _HistoryRowData {
   final double? pct;
 }
 
-class _HistoryCard extends StatelessWidget {
+class _HistoryCard extends StatefulWidget {
   const _HistoryCard({
     required this.label,
     required this.dotColor,
     required this.rows,
+    this.initiallyExpanded = false,
   });
 
   final String label;
   final Color dotColor;
   final List<_HistoryRowData> rows;
+  final bool initiallyExpanded;
+
+  @override
+  State<_HistoryCard> createState() => _HistoryCardState();
+}
+
+class _HistoryCardState extends State<_HistoryCard> {
+  late bool _expanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _expanded = widget.initiallyExpanded;
+  }
 
   String _fmtDt(String dt) {
     if (dt.length < 8) return dt;
@@ -619,39 +636,61 @@ class _HistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (rows.isEmpty) return const SizedBox.shrink();
+    if (widget.rows.isEmpty) return const SizedBox.shrink();
+    final latest = widget.rows.last;
     return Card(
       color: AppColors.colorBgSub,
       elevation: 0,
       margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: dotColor,
-                    borderRadius: BorderRadius.circular(2),
+      child: InkWell(
+        onTap: () => setState(() => _expanded = !_expanded),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: widget.dotColor,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: AppTextStyles.textHeadlineSm.copyWith(
-                    color: AppColors.colorTextPrimary,
+                  const SizedBox(width: 6),
+                  Text(
+                    widget.label,
+                    style: AppTextStyles.textTitleSm.copyWith(
+                      color: AppColors.colorTextPrimary,
+                    ),
                   ),
-                ),
+                  const Spacer(),
+                  if (!_expanded)
+                    Text(
+                      '${FormatUtil.formatPrice(latest.amount)}원',
+                      style: AppTextStyles.textBodyMd.copyWith(
+                        color: AppColors.colorTextPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    _expanded ? Icons.expand_less : Icons.expand_more,
+                    size: 18,
+                    color: AppColors.colorTextSecondary,
+                  ),
+                ],
+              ),
+              if (_expanded) ...[
+                const SizedBox(height: 8),
+                const Divider(height: 1, color: AppColors.colorDivider),
+                ...widget.rows.map(_buildRow),
               ],
-            ),
-            const SizedBox(height: 8),
-            const Divider(height: 1, color: AppColors.colorDivider),
-            ...rows.map(_buildRow),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -659,6 +698,7 @@ class _HistoryCard extends StatelessWidget {
 
   Widget _buildRow(_HistoryRowData row) {
     final isPositive = (row.change ?? 0) >= 0;
+    final sign = isPositive ? '+' : '-';
     final changeColor =
         isPositive ? AppColors.colorIncome : AppColors.colorExpense;
 
@@ -667,41 +707,35 @@ class _HistoryCard extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 90,
+            width: 60,
             child: Text(
               _fmtDt(row.date),
-              style: AppTextStyles.textTitleSm.copyWith(
+              style: AppTextStyles.textBodySm.copyWith(
                 color: AppColors.colorTextSecondary,
               ),
             ),
           ),
           Expanded(
+            flex: 2,
             child: Text(
-              '₩${FormatUtil.formatPrice(row.amount)}',
+              '${FormatUtil.formatPrice(row.amount)}원',
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.textTitleMd.copyWith(
+              style: AppTextStyles.textBodyMd.copyWith(
                 color: AppColors.colorTextPrimary,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          if (row.change != null && row.pct != null) ...[
-            Flexible(
+          if (row.change != null && row.pct != null)
+            Expanded(
+              flex: 3,
               child: Text(
-                '${isPositive ? '+' : ''}₩${FormatUtil.formatPrice(row.change!)}',
-                style: AppTextStyles.textBodyXs.copyWith(color: changeColor),
+                '$sign${FormatUtil.formatPrice(row.change!.abs())}원 ($sign${row.pct!.abs().toStringAsFixed(1)}%)',
+                style: AppTextStyles.textBodySm.copyWith(color: changeColor),
                 overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
               ),
             ),
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(
-                '(${isPositive ? '+' : ''}${row.pct!.toStringAsFixed(1)}%)',
-                style: AppTextStyles.textBodyXs.copyWith(color: changeColor),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
         ],
       ),
     );
