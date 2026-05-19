@@ -623,6 +623,7 @@ class _HistoryCard extends StatelessWidget {
     return Card(
       color: AppColors.colorBgSub,
       elevation: 0,
+      margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -641,10 +642,8 @@ class _HistoryCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: AppTextStyles.textHeadlineSm.copyWith(
                     color: AppColors.colorTextPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -671,31 +670,36 @@ class _HistoryCard extends StatelessWidget {
             width: 90,
             child: Text(
               _fmtDt(row.date),
-              style: const TextStyle(
+              style: AppTextStyles.textTitleSm.copyWith(
                 color: AppColors.colorTextSecondary,
-                fontSize: 12,
               ),
             ),
           ),
           Expanded(
             child: Text(
               '₩${FormatUtil.formatPrice(row.amount)}',
-              style: const TextStyle(
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.textTitleMd.copyWith(
                 color: AppColors.colorTextPrimary,
-                fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
           if (row.change != null && row.pct != null) ...[
-            Text(
-              '${isPositive ? '+' : ''}₩${FormatUtil.formatPrice(row.change!)}',
-              style: TextStyle(color: changeColor, fontSize: 11),
+            Flexible(
+              child: Text(
+                '${isPositive ? '+' : ''}₩${FormatUtil.formatPrice(row.change!)}',
+                style: AppTextStyles.textBodyXs.copyWith(color: changeColor),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(width: 4),
-            Text(
-              '(${isPositive ? '+' : ''}${row.pct!.toStringAsFixed(1)}%)',
-              style: TextStyle(color: changeColor, fontSize: 11),
+            Flexible(
+              child: Text(
+                '(${isPositive ? '+' : ''}${row.pct!.toStringAsFixed(1)}%)',
+                style: AppTextStyles.textBodyXs.copyWith(color: changeColor),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ],
