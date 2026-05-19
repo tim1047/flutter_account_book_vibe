@@ -1,4 +1,5 @@
 // test/features/dashboard/asset_viewmodel_test.dart
+import 'package:account_book_vibe/data/models/my_asset_model.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/asset_viewmodel.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -65,6 +66,63 @@ void main() {
       final vm = DashboardAssetViewModel();
       vm.selectHistoryPeriod(AssetHistoryPeriod.sixMonths);
       expect(vm.historyPeriod, AssetHistoryPeriod.sixMonths);
+    });
+  });
+
+  group('DashboardAssetViewModel.buildAssetHistory', () {
+    test('assetId 0과 6은 필터링됨', () {
+      final sums = [
+        const MyAssetSumResponse(
+            accumDt: '20250101', assetId: '0', assetNm: '합계', sumPrice: 300),
+        const MyAssetSumResponse(
+            accumDt: '20250101', assetId: '6', assetNm: '부채', sumPrice: 50),
+        const MyAssetSumResponse(
+            accumDt: '20250101', assetId: '1', assetNm: '주식', sumPrice: 100),
+      ];
+      final result = DashboardAssetViewModel.buildAssetHistory(sums);
+      expect(result.names, ['주식']);
+      expect(result.history.length, 1);
+      expect(result.history.first.byAsset.containsKey('합계'), false);
+      expect(result.history.first.byAsset.containsKey('부채'), false);
+    });
+
+    test('자산명 순서는 첫 등장 순 유지', () {
+      final sums = [
+        const MyAssetSumResponse(
+            accumDt: '20250101', assetId: '1', assetNm: '주식', sumPrice: 100),
+        const MyAssetSumResponse(
+            accumDt: '20250101', assetId: '2', assetNm: '예금', sumPrice: 200),
+        const MyAssetSumResponse(
+            accumDt: '20250201', assetId: '2', assetNm: '예금', sumPrice: 210),
+        const MyAssetSumResponse(
+            accumDt: '20250201', assetId: '1', assetNm: '주식', sumPrice: 110),
+      ];
+      final result = DashboardAssetViewModel.buildAssetHistory(sums);
+      expect(result.names, ['주식', '예금']);
+    });
+
+    test('날짜별 byAsset 그룹핑 + 날짜 정렬', () {
+      final sums = [
+        const MyAssetSumResponse(
+            accumDt: '20250201', assetId: '1', assetNm: '주식', sumPrice: 150),
+        const MyAssetSumResponse(
+            accumDt: '20250101', assetId: '1', assetNm: '주식', sumPrice: 100),
+        const MyAssetSumResponse(
+            accumDt: '20250101', assetId: '2', assetNm: '예금', sumPrice: 200),
+      ];
+      final result = DashboardAssetViewModel.buildAssetHistory(sums);
+      expect(result.history.length, 2);
+      expect(result.history[0].date, '20250101');
+      expect(result.history[0].byAsset['주식'], 100);
+      expect(result.history[0].byAsset['예금'], 200);
+      expect(result.history[1].date, '20250201');
+      expect(result.history[1].byAsset['주식'], 150);
+    });
+
+    test('빈 입력 → 빈 결과', () {
+      final result = DashboardAssetViewModel.buildAssetHistory([]);
+      expect(result.names, isEmpty);
+      expect(result.history, isEmpty);
     });
   });
 }

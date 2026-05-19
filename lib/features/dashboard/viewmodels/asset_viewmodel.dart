@@ -25,6 +25,8 @@ class DashboardAssetData {
     required this.prevYearNetWorth,
     required this.assetComposition,
     required this.netWorthHistory,
+    required this.assetHistoryNames,
+    required this.assetHistory,
   });
 
   final int totalAsset;
@@ -32,6 +34,8 @@ class DashboardAssetData {
   final int prevYearNetWorth;
   final List<AssetCompositionItem> assetComposition;
   final List<({String date, int amount})> netWorthHistory;
+  final List<String> assetHistoryNames;
+  final List<({String date, Map<String, int> byAsset})> assetHistory;
 
   int get debt => totalAsset - netWorth;
   int get yearlyGrowth => netWorth - prevYearNetWorth;
@@ -121,12 +125,16 @@ class DashboardAssetViewModel extends ChangeNotifier {
       final prevDebt = _sumDebt(prevYearSum);
       final prevYearNetWorth = prevTotalAsset - prevDebt;
 
+      final assetHist = buildAssetHistory(sumHistory);
+
       data = DashboardAssetData(
         totalAsset: totalAsset,
         netWorth: netWorth,
         prevYearNetWorth: prevYearNetWorth,
         assetComposition: _buildComposition(todaySum),
         netWorthHistory: _buildNetWorthHistory(sumHistory),
+        assetHistoryNames: assetHist.names,
+        assetHistory: assetHist.history,
       );
     } on AppException catch (e) {
       errorMessage = e.message;
@@ -160,6 +168,31 @@ class DashboardAssetViewModel extends ChangeNotifier {
             ))
         .toList()
       ..sort((a, b) => b.amount.compareTo(a.amount));
+  }
+
+  static ({
+    List<String> names,
+    List<({String date, Map<String, int> byAsset})> history,
+  }) buildAssetHistory(List<MyAssetSumResponse> sums) {
+    final filtered =
+        sums.where((s) => s.assetId != '0' && s.assetId != '6').toList();
+
+    final names = <String>[];
+    for (final s in filtered) {
+      if (!names.contains(s.assetNm)) names.add(s.assetNm);
+    }
+
+    final dates = filtered.map((s) => s.accumDt).toSet().toList()..sort();
+
+    final history = dates.map((date) {
+      final byAsset = <String, int>{};
+      for (final s in filtered.where((s) => s.accumDt == date)) {
+        byAsset[s.assetNm] = s.sumPrice;
+      }
+      return (date: date, byAsset: byAsset);
+    }).toList();
+
+    return (names: names, history: history);
   }
 
   static List<({String date, int amount})> _buildNetWorthHistory(
