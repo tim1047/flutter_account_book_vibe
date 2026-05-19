@@ -10,8 +10,11 @@ import 'package:account_book_vibe/features/dashboard/viewmodels/expense_viewmode
 import 'package:account_book_vibe/features/dashboard/viewmodels/overview_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/period_selector.dart';
 import 'package:account_book_vibe/shared/widgets/app_drawer.dart';
+import 'package:account_book_vibe/shared/widgets/app_toast.dart';
+import 'package:account_book_vibe/shared/widgets/gradient_button.dart';
 import 'package:account_book_vibe/shared/widgets/main_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -106,6 +109,20 @@ class _DashboardScreenState extends State<DashboardScreen>
           ExpenseTab(vm: _expenseVm),
           AssetTab(vm: _assetVm),
         ],
+      ),
+      floatingActionButton: GradientFAB(
+        heroTag: 'addAccount',
+        icon: Icons.add,
+        onPressed: () async {
+          final result = await context.push<String>('/account');
+          if (!context.mounted) return;
+          _shared.load();
+          _overviewVm.load();
+          _expenseVm.load();
+          if (result != null) {
+            AppToast.show(context, '$result 완료!!!', type: ToastType.success);
+          }
+        },
       ),
     );
   }
