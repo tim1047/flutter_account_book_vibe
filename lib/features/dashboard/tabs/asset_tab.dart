@@ -66,7 +66,16 @@ class _AssetContent extends StatelessWidget {
           ),
         ),
 
-        // ④ 부채 현황 (부채 > 0 일 때만, 항상 오늘 스냅샷)
+        // ④ 기간별 자산 현황
+        if (data.assetHistory.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          _SectionCard(
+            title: '기간별 자산 현황',
+            child: _AssetHistorySection(data: data),
+          ),
+        ],
+
+        // ⑤ 부채 현황 (부채 > 0 일 때만, 항상 오늘 스냅샷)
         if (data.debt > 0) ...[
           const SizedBox(height: 12),
           _SectionCard(
@@ -490,6 +499,205 @@ class _SectionCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           child,
+        ],
+      ),
+    );
+  }
+}
+
+// ── Asset History Section ─────────────────────────────────────────────────────
+
+class _AssetHistorySection extends StatelessWidget {
+  const _AssetHistorySection({required this.data});
+
+  final DashboardAssetData data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _HistoryCard(
+          label: '순자산',
+          dotColor: AppColors.colorTextPrimary,
+          rows: _buildNetWorthRows(data.netWorthHistory),
+        ),
+        ...data.assetHistoryNames.asMap().entries.map(
+          (e) => Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: _HistoryCard(
+              label: e.value,
+              dotColor: AppColors.assetChartColors[
+                  e.key % AppColors.assetChartColors.length],
+              rows: _buildAssetRows(e.value, data.assetHistory),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<_HistoryRowData> _buildNetWorthRows(
+    List<({String date, int amount})> history,
+  ) {
+    final rows = <_HistoryRowData>[];
+    for (int i = 0; i < history.length; i++) {
+      final entry = history[i];
+      int? change;
+      double? pct;
+      if (i > 0) {
+        final prev = history[i - 1].amount;
+        if (prev > 0) {
+          change = entry.amount - prev;
+          pct = change / prev * 100;
+        } else if (entry.amount == 0) {
+          change = 0;
+          pct = 0.0;
+        }
+      }
+      rows.add(_HistoryRowData(
+          date: entry.date, amount: entry.amount, change: change, pct: pct));
+    }
+    return rows;
+  }
+
+  List<_HistoryRowData> _buildAssetRows(
+    String assetNm,
+    List<({String date, Map<String, int> byAsset})> history,
+  ) {
+    final rows = <_HistoryRowData>[];
+    for (int i = 0; i < history.length; i++) {
+      final entry = history[i];
+      final amount = entry.byAsset[assetNm] ?? 0;
+      int? change;
+      double? pct;
+      if (i > 0) {
+        final prev = history[i - 1].byAsset[assetNm] ?? 0;
+        if (prev > 0) {
+          change = amount - prev;
+          pct = change / prev * 100;
+        } else if (amount == 0) {
+          change = 0;
+          pct = 0.0;
+        }
+      }
+      rows.add(_HistoryRowData(
+          date: entry.date, amount: amount, change: change, pct: pct));
+    }
+    return rows;
+  }
+}
+
+class _HistoryRowData {
+  const _HistoryRowData({
+    required this.date,
+    required this.amount,
+    this.change,
+    this.pct,
+  });
+
+  final String date;
+  final int amount;
+  final int? change;
+  final double? pct;
+}
+
+class _HistoryCard extends StatelessWidget {
+  const _HistoryCard({
+    required this.label,
+    required this.dotColor,
+    required this.rows,
+  });
+
+  final String label;
+  final Color dotColor;
+  final List<_HistoryRowData> rows;
+
+  String _fmtDt(String dt) {
+    if (dt.length < 8) return dt;
+    return '${dt.substring(0, 4)}.${dt.substring(4, 6)}.${dt.substring(6)}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (rows.isEmpty) return const SizedBox.shrink();
+    return Card(
+      color: AppColors.colorBgSub,
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: dotColor,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: AppColors.colorTextPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Divider(height: 1, color: AppColors.colorDivider),
+            ...rows.map(_buildRow),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRow(_HistoryRowData row) {
+    final isPositive = (row.change ?? 0) >= 0;
+    final changeColor =
+        isPositive ? AppColors.colorIncome : AppColors.colorExpense;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 90,
+            child: Text(
+              _fmtDt(row.date),
+              style: const TextStyle(
+                color: AppColors.colorTextSecondary,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              '₩${FormatUtil.formatPrice(row.amount)}',
+              style: const TextStyle(
+                color: AppColors.colorTextPrimary,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          if (row.change != null && row.pct != null) ...[
+            Text(
+              '${isPositive ? '+' : ''}₩${FormatUtil.formatPrice(row.change!)}',
+              style: TextStyle(color: changeColor, fontSize: 11),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              '(${isPositive ? '+' : ''}${row.pct!.toStringAsFixed(1)}%)',
+              style: TextStyle(color: changeColor, fontSize: 11),
+            ),
+          ],
         ],
       ),
     );
