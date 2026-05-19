@@ -106,15 +106,27 @@ class _ExpenseContent extends StatelessWidget {
                           ),
                         ),
                         if (hasChange)
-                          Text(
-                            changeRate >= 0
-                                ? '▲${(changeRate * 100).toStringAsFixed(1)}%'
-                                : '▼${(changeRate.abs() * 100).toStringAsFixed(1)}%',
-                            style: AppTextStyles.textBodySm.copyWith(
-                              color: changeRate >= 0
-                                  ? AppColors.colorExpense
-                                  : AppColors.colorProfit,
-                            ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                changeRate >= 0
+                                    ? Icons.arrow_drop_up
+                                    : Icons.arrow_drop_down,
+                                size: 16,
+                                color: changeRate >= 0
+                                    ? AppColors.colorExpense
+                                    : AppColors.colorProfit,
+                              ),
+                              Text(
+                                '${(changeRate.abs() * 100).toStringAsFixed(1)}%',
+                                style: AppTextStyles.textBodySm.copyWith(
+                                  color: changeRate >= 0
+                                      ? AppColors.colorExpense
+                                      : AppColors.colorProfit,
+                                ),
+                              ),
+                            ],
                           ),
                         const SizedBox(width: 8),
                         Text(
@@ -250,7 +262,7 @@ class _ExpenseHeroCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                isIncrease ? Icons.arrow_upward : Icons.arrow_downward,
+                isIncrease ? Icons.arrow_drop_up : Icons.arrow_drop_down,
                 size: 14,
                 color:
                     isIncrease ? AppColors.colorExpense : AppColors.colorProfit,

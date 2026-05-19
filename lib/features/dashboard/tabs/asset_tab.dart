@@ -354,12 +354,12 @@ class _AssetHeroCard extends StatelessWidget {
               Expanded(
                 child: _StatChip(
                   label: '전년 대비',
-                  value: growth >= 0
-                      ? '+₩${FormatUtil.formatPrice(growth)}'
-                      : '-₩${FormatUtil.formatPrice(growth.abs())}',
+                  value: '${FormatUtil.formatPrice(growth.abs())}원',
                   color: growth >= 0
                       ? AppColors.colorProfit
                       : AppColors.colorExpense,
+                  changeIcon:
+                      growth >= 0 ? Icons.arrow_drop_up : Icons.arrow_drop_down,
                 ),
               ),
             ],
@@ -375,10 +375,12 @@ class _StatChip extends StatelessWidget {
     required this.label,
     required this.value,
     required this.color,
+    this.changeIcon,
   });
   final String label;
   final String value;
   final Color color;
+  final IconData? changeIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -398,12 +400,24 @@ class _StatChip extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            value,
-            style: AppTextStyles.textBodySm.copyWith(
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (changeIcon != null) ...[
+                Icon(changeIcon!, size: 16, color: color),
+                const SizedBox(width: 1),
+              ],
+              Flexible(
+                child: Text(
+                  value,
+                  style: AppTextStyles.textBodySm.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -698,9 +712,8 @@ class _HistoryCardState extends State<_HistoryCard> {
 
   Widget _buildRow(_HistoryRowData row) {
     final isPositive = (row.change ?? 0) >= 0;
-    final sign = isPositive ? '+' : '-';
     final changeColor =
-        isPositive ? AppColors.colorIncome : AppColors.colorExpense;
+        isPositive ? AppColors.colorProfit : AppColors.colorExpense;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
@@ -729,11 +742,23 @@ class _HistoryCardState extends State<_HistoryCard> {
           if (row.change != null && row.pct != null)
             Expanded(
               flex: 3,
-              child: Text(
-                '$sign${FormatUtil.formatPrice(row.change!.abs())}원 ($sign${row.pct!.abs().toStringAsFixed(1)}%)',
-                style: AppTextStyles.textBodySm.copyWith(color: changeColor),
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.end,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(
+                    isPositive ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                    size: 16,
+                    color: changeColor,
+                  ),
+                  Flexible(
+                    child: Text(
+                      '${FormatUtil.formatPrice(row.change!.abs())}원 (${row.pct!.abs().toStringAsFixed(1)}%)',
+                      style:
+                          AppTextStyles.textBodySm.copyWith(color: changeColor),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ),
         ],

@@ -84,7 +84,7 @@ class HeroMetricCard extends StatelessWidget {
                   ),
                 ),
                 Icon(
-                  isPositive ? Icons.arrow_upward : Icons.arrow_downward,
+                  isPositive ? Icons.arrow_drop_up : Icons.arrow_drop_down,
                   color: changeColor,
                   size: 14,
                 ),
