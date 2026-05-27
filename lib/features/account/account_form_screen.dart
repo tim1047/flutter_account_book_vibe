@@ -124,7 +124,7 @@ class _AccountFormScreenState extends State<AccountFormScreen> {
       categoryId: _vm.selectedCategoryId!,
       categorySeq: _vm.selectedCategorySeq ?? '',
       price: price,
-      remark: _remarkCtrl.text.isNotEmpty ? _remarkCtrl.text : null,
+      remark: _remarkCtrl.text.trim().isNotEmpty ? _remarkCtrl.text.trim() : null,
       impulseYn: _impulseYn,
       pointPrice: _parsePrice(_pointPriceCtrl.text),
     );
