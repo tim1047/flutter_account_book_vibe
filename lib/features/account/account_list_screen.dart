@@ -56,11 +56,6 @@ class _AccountListScreenState extends State<AccountListScreen> {
 
   void _load() => _vm.load(_dateFilter.strtDt, _dateFilter.endDt);
 
-  void _loadWithReset() {
-    _vm.clearFilter();
-    _vm.load(_dateFilter.strtDt, _dateFilter.endDt);
-  }
-
   @override
   void dispose() {
     _vm.dispose();
@@ -79,7 +74,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
           constraints: const BoxConstraints(maxWidth: 600),
           child: Column(
             children: [
-              DateFilterBar(viewModel: _dateFilter, onRefresh: _loadWithReset),
+              DateFilterBar(viewModel: _dateFilter, onRefresh: _load),
               AccountListFilterBar(
                 viewModel: _vm,
                 sortDescending: _sortDescending,
