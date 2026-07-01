@@ -51,7 +51,16 @@ class _AccountListScreenState extends State<AccountListScreen> {
         memberIds: e.memberId != null ? {e.memberId!} : {},
       );
     }
-    _load();
+
+    final selectedDate = widget.extra?.date;
+    if (selectedDate != null) {
+      final ym = AccountListExtra.parseDateYearMonth(selectedDate);
+      _dateFilter.setYear(ym.year);
+      _dateFilter.setMonth(ym.month);
+      _vm.load(selectedDate, selectedDate);
+    } else {
+      _load();
+    }
   }
 
   void _load() => _vm.load(_dateFilter.strtDt, _dateFilter.endDt);
