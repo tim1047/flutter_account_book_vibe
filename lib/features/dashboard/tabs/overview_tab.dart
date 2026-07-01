@@ -6,7 +6,6 @@ import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/overview_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/hero_metric_card.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/mini_bar_row.dart';
-import 'package:account_book_vibe/features/dashboard/widgets/net_worth_line_chart.dart';
 import 'package:account_book_vibe/shared/widgets/error_view.dart';
 import 'package:account_book_vibe/shared/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
@@ -48,54 +47,57 @@ class _OverviewContent extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // ① 순자산 히어로
+        // ① 수입/지출/저축/투자
         HeroMetricCard(
-          title: '순자산 (Net Worth)',
-          amount: data.netWorth,
-          changeAmount: data.netWorthChange,
+          title: '수입',
+          amount: data.totalIncome,
+          changeAmount: data.incomeChange,
           changeLabel: data.changeLabel,
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF312E81), Color(0xFF1E3A5F)],
+            colors: [Color(0xFF042F2E), Color(0xFF115E59)],
           ),
         ),
         const SizedBox(height: 12),
-
-        // ② 수지 + 투자 요약 2컬럼
-        Row(
-          children: [
-            Expanded(
-              child: _SummaryCard(
-                title: '이번 달 수지',
-                rows: [
-                  ('수입', data.totalIncome, AppColors.colorIncome),
-                  ('지출', data.totalExpense, AppColors.colorExpense),
-                  ('저축', data.savings, AppColors.colorProfit),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _SummaryCard(
-                title: '투자 현황',
-                rows: [
-                  ('이번 기간', data.totalInvest, AppColors.colorInvest),
-                ],
-              ),
-            ),
-          ],
+        HeroMetricCard(
+          title: '지출',
+          amount: data.totalExpense,
+          changeAmount: data.expenseChange,
+          changeLabel: data.changeLabel,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF4C0519), Color(0xFF7F1D1D)],
+          ),
+        ),
+        const SizedBox(height: 12),
+        HeroMetricCard(
+          title: '저축',
+          amount: data.savings,
+          changeAmount: data.savingsChange,
+          changeLabel: data.changeLabel,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF052E16), Color(0xFF166534)],
+          ),
+        ),
+        const SizedBox(height: 12),
+        HeroMetricCard(
+          title: '투자',
+          amount: data.totalInvest,
+          changeAmount: data.investChange,
+          changeLabel: data.changeLabel,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF431407), Color(0xFF9A3412)],
+          ),
         ),
         const SizedBox(height: 16),
 
-        // ③ 순자산 변화 차트
-        _SectionCard(
-          title: '순자산 변화',
-          child: NetWorthLineChart(history: data.netWorthHistory),
-        ),
-        const SizedBox(height: 12),
-
-        // ④ 지출 TOP 5
+        // ② 지출 TOP 5
         _SectionCard(
           title: '지출 TOP 5 카테고리',
           child: Column(
@@ -112,7 +114,7 @@ class _OverviewContent extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
-        // ⑤ 최근 거래
+        // ③ 최근 거래
         _SectionCard(
           title: '최근 거래',
           trailing: TextButton(
@@ -219,57 +221,6 @@ class _SectionCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           child,
-        ],
-      ),
-    );
-  }
-}
-
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.title, required this.rows});
-
-  final String title;
-  final List<(String, int, Color)> rows;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.colorBgCard,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: AppTextStyles.textBodyXs.copyWith(
-              color: AppColors.colorTextSecondary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          ...rows.map((r) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      r.$1,
-                      style: AppTextStyles.textBodySm.copyWith(
-                        color: AppColors.colorTextSecondary,
-                      ),
-                    ),
-                    Text(
-                      '₩${FormatUtil.formatPrice(r.$2)}',
-                      style: AppTextStyles.textBodySm.copyWith(
-                        color: r.$3,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              )),
         ],
       ),
     );

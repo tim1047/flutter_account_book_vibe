@@ -1,37 +1,75 @@
+import 'package:account_book_vibe/data/models/account_model.dart';
 import 'package:account_book_vibe/data/models/category_model.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/overview_viewmodel.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+AccountListResponse _tx({required String divisionId, required int price}) =>
+    AccountListResponse(
+      seq: 1,
+      accountId: 1,
+      accountDt: '20260101',
+      divisionId: divisionId,
+      divisionNm: '',
+      memberId: 'm1',
+      memberNm: '',
+      paymentId: 'p1',
+      paymentNm: '',
+      paymentType: '',
+      categoryId: 'c1',
+      categoryNm: '',
+      categorySeq: '1',
+      categorySeqNm: '',
+      price: price,
+      impulseYn: 'N',
+      pointPrice: 0,
+    );
 
 void main() {
   group('DashboardOverviewViewModel.aggregate', () {
     test('저축액 = 수입 - 지출', () {
       const data = DashboardOverviewData(
-        netWorth: 100000000,
-        prevPeriodNetWorth: 99000000,
         totalIncome: 4000000,
         totalExpense: 3160000,
         totalInvest: 500000,
+        prevTotalIncome: 0,
+        prevTotalExpense: 0,
+        prevTotalInvest: 0,
         topExpenseCategories: [],
         recentTransactions: [],
-        netWorthHistory: [],
         changeLabel: '전달 대비',
       );
       expect(data.savings, 840000);
     });
 
-    test('순자산 변화 = 현재 - 전월', () {
+    test('수입/지출/저축/투자 변화 = 현재 - 전기간', () {
       const data = DashboardOverviewData(
-        netWorth: 100000000,
-        prevPeriodNetWorth: 99000000,
-        totalIncome: 0,
-        totalExpense: 0,
-        totalInvest: 0,
+        totalIncome: 4000000,
+        totalExpense: 3000000,
+        totalInvest: 500000,
+        prevTotalIncome: 3500000,
+        prevTotalExpense: 3200000,
+        prevTotalInvest: 300000,
         topExpenseCategories: [],
         recentTransactions: [],
-        netWorthHistory: [],
         changeLabel: '전달 대비',
       );
-      expect(data.netWorthChange, 1000000);
+      expect(data.incomeChange, 500000);
+      expect(data.expenseChange, -200000);
+      expect(data.savingsChange, 700000);
+      expect(data.investChange, 200000);
+    });
+
+    test('sumsByDivision: division별 합계 집계', () {
+      final accounts = [
+        _tx(divisionId: '1', price: 3000000),
+        _tx(divisionId: '1', price: 1000000),
+        _tx(divisionId: '3', price: 500000),
+        _tx(divisionId: '2', price: 200000),
+      ];
+      final sums = DashboardOverviewViewModel.sumsByDivision(accounts);
+      expect(sums.income, 4000000);
+      expect(sums.expense, 500000);
+      expect(sums.invest, 200000);
     });
 
     test('buildTopCategories: 합계 기준 내림차순 TOP 5', () {

@@ -78,8 +78,8 @@ class PeriodSelector extends StatelessWidget {
 
   String _label(DashboardPeriod p) => switch (p) {
         DashboardPeriod.thisMonth => '이번 달',
-        DashboardPeriod.thisQuarter => '이번 분기',
-        DashboardPeriod.thisHalfYear => '이번 반기',
+        DashboardPeriod.thisQuarter => '직전 3개월',
+        DashboardPeriod.thisHalfYear => '직전 6개월',
         DashboardPeriod.thisYear => '올해',
         DashboardPeriod.custom => vm.customLabel,
       };

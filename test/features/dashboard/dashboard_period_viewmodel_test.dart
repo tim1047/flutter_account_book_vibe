@@ -26,13 +26,92 @@ void main() {
       expect(vm.range.endDt, '${y}1231');
     });
 
-    test('thisQuarter range는 분기 시작월~끝월', () {
+    test('thisQuarter label은 직전 3개월', () {
+      final vm = DashboardPeriodViewModel();
+      vm.select(DashboardPeriod.thisQuarter);
+      expect(vm.label, '직전 3개월');
+    });
+
+    test('thisQuarter range는 당월 포함 최근 3개월 rolling', () {
       final vm = DashboardPeriodViewModel();
       vm.select(DashboardPeriod.thisQuarter);
       final now = DateTime.now();
-      final q = ((now.month - 1) ~/ 3);
-      final startMonth = (q * 3 + 1).toString().padLeft(2, '0');
-      expect(vm.range.strtDt.substring(4, 6), startMonth);
+      final start = DateTime(now.year, now.month - 2, 1);
+      expect(
+        vm.range.strtDt,
+        '${start.year}${start.month.toString().padLeft(2, '0')}01',
+      );
+      expect(
+        vm.range.endDt.substring(0, 6),
+        '${now.year}${now.month.toString().padLeft(2, '0')}',
+      );
+    });
+
+    test('thisQuarter prevRange는 그 이전 3개월', () {
+      final vm = DashboardPeriodViewModel();
+      vm.select(DashboardPeriod.thisQuarter);
+      final now = DateTime.now();
+      final prevEnd = DateTime(now.year, now.month - 3, 1);
+      final prevStart = DateTime(now.year, now.month - 5, 1);
+      final lastDay = DateTime(prevEnd.year, prevEnd.month + 1, 0).day;
+      expect(
+        vm.prevRange.strtDt,
+        '${prevStart.year}${prevStart.month.toString().padLeft(2, '0')}01',
+      );
+      expect(
+        vm.prevRange.endDt,
+        '${prevEnd.year}${prevEnd.month.toString().padLeft(2, '0')}${lastDay.toString().padLeft(2, '0')}',
+      );
+    });
+
+    test('thisQuarter changeLabel은 전 3개월 대비', () {
+      final vm = DashboardPeriodViewModel();
+      vm.select(DashboardPeriod.thisQuarter);
+      expect(vm.changeLabel, '전 3개월 대비');
+    });
+
+    test('thisHalfYear label은 직전 6개월', () {
+      final vm = DashboardPeriodViewModel();
+      vm.select(DashboardPeriod.thisHalfYear);
+      expect(vm.label, '직전 6개월');
+    });
+
+    test('thisHalfYear range는 당월 포함 최근 6개월 rolling', () {
+      final vm = DashboardPeriodViewModel();
+      vm.select(DashboardPeriod.thisHalfYear);
+      final now = DateTime.now();
+      final start = DateTime(now.year, now.month - 5, 1);
+      expect(
+        vm.range.strtDt,
+        '${start.year}${start.month.toString().padLeft(2, '0')}01',
+      );
+      expect(
+        vm.range.endDt.substring(0, 6),
+        '${now.year}${now.month.toString().padLeft(2, '0')}',
+      );
+    });
+
+    test('thisHalfYear prevRange는 그 이전 6개월', () {
+      final vm = DashboardPeriodViewModel();
+      vm.select(DashboardPeriod.thisHalfYear);
+      final now = DateTime.now();
+      final prevEnd = DateTime(now.year, now.month - 6, 1);
+      final prevStart = DateTime(now.year, now.month - 11, 1);
+      final lastDay = DateTime(prevEnd.year, prevEnd.month + 1, 0).day;
+      expect(
+        vm.prevRange.strtDt,
+        '${prevStart.year}${prevStart.month.toString().padLeft(2, '0')}01',
+      );
+      expect(
+        vm.prevRange.endDt,
+        '${prevEnd.year}${prevEnd.month.toString().padLeft(2, '0')}${lastDay.toString().padLeft(2, '0')}',
+      );
+    });
+
+    test('thisHalfYear changeLabel은 전 6개월 대비', () {
+      final vm = DashboardPeriodViewModel();
+      vm.select(DashboardPeriod.thisHalfYear);
+      expect(vm.changeLabel, '전 6개월 대비');
     });
 
     test('setCustomRange는 custom 기간으로 전환', () {

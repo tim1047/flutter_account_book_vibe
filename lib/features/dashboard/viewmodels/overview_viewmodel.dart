@@ -2,8 +2,7 @@ import 'package:account_book_vibe/core/constants/division.dart';
 import 'package:account_book_vibe/core/network/app_exception.dart';
 import 'package:account_book_vibe/data/models/account_model.dart';
 import 'package:account_book_vibe/data/models/category_model.dart';
-import 'package:account_book_vibe/data/models/my_asset_model.dart';
-import 'package:account_book_vibe/data/services/my_asset_service.dart';
+import 'package:account_book_vibe/data/services/account_service.dart';
 import 'package:account_book_vibe/features/dashboard/dashboard_period_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/dashboard_shared_viewmodel.dart';
 import 'package:flutter/foundation.dart';
@@ -24,29 +23,34 @@ class CategoryExpenseItem {
 
 class DashboardOverviewData {
   const DashboardOverviewData({
-    required this.netWorth,
-    required this.prevPeriodNetWorth,
     required this.totalIncome,
     required this.totalExpense,
     required this.totalInvest,
+    required this.prevTotalIncome,
+    required this.prevTotalExpense,
+    required this.prevTotalInvest,
     required this.topExpenseCategories,
     required this.recentTransactions,
-    required this.netWorthHistory,
     required this.changeLabel,
   });
 
-  final int netWorth;
-  final int prevPeriodNetWorth;
   final int totalIncome;
   final int totalExpense;
   final int totalInvest;
+  final int prevTotalIncome;
+  final int prevTotalExpense;
+  final int prevTotalInvest;
   final List<CategoryExpenseItem> topExpenseCategories;
   final List<AccountListResponse> recentTransactions;
-  final List<({String date, int amount})> netWorthHistory;
   final String changeLabel;
 
   int get savings => totalIncome - totalExpense;
-  int get netWorthChange => netWorth - prevPeriodNetWorth;
+  int get prevSavings => prevTotalIncome - prevTotalExpense;
+
+  int get incomeChange => totalIncome - prevTotalIncome;
+  int get expenseChange => totalExpense - prevTotalExpense;
+  int get savingsChange => savings - prevSavings;
+  int get investChange => totalInvest - prevTotalInvest;
 }
 
 class DashboardOverviewViewModel extends ChangeNotifier {
@@ -63,9 +67,7 @@ class DashboardOverviewViewModel extends ChangeNotifier {
 
   // Internal state for own data
   bool _ownLoading = false;
-  MyAssetListResponse? _currentAsset;
-  List<MyAssetSumResponse>? _prevSums;
-  List<MyAssetSumResponse>? _assetSums;
+  List<AccountListResponse>? _prevAccounts;
   bool _sharedWasLoading = false;
 
   /// Public entry point (called on init and when needed).
@@ -73,32 +75,17 @@ class DashboardOverviewViewModel extends ChangeNotifier {
 
   Future<void> _loadOwn() async {
     _ownLoading = true;
-    _currentAsset = null;
-    _prevSums = null;
-    _assetSums = null;
+    _prevAccounts = null;
     isLoading = true;
     errorMessage = null;
     notifyListeners();
 
     try {
-      final now = DateTime.now();
-      final todayDt =
-          '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
-      final prevDt = _period.prevRange.endDt;
-      final range = _period.range;
-
-      final results = await Future.wait([
-        MyAssetService.instance.getMyAssets(strtDt: todayDt, endDt: todayDt),
-        MyAssetService.instance.getMyAssetSum(strtDt: prevDt, endDt: prevDt),
-        MyAssetService.instance.getMyAssetSum(
-          strtDt: range.strtDt,
-          endDt: range.endDt,
-        ),
-      ]);
-
-      _currentAsset = results[0] as MyAssetListResponse;
-      _prevSums = results[1] as List<MyAssetSumResponse>;
-      _assetSums = results[2] as List<MyAssetSumResponse>;
+      final prevRange = _period.prevRange;
+      _prevAccounts = await AccountService.instance.getAccounts(
+        strtDt: prevRange.strtDt,
+        endDt: prevRange.endDt,
+      );
     } on AppException catch (e) {
       errorMessage = e.message;
       _ownLoading = false;
@@ -126,7 +113,7 @@ class DashboardOverviewViewModel extends ChangeNotifier {
 
   void _tryBuildData() {
     if (_ownLoading || _shared.isLoading) return;
-    if (_currentAsset == null || _prevSums == null || _assetSums == null) return;
+    if (_prevAccounts == null) return;
 
     if (_shared.errorMessage != null) {
       errorMessage = _shared.errorMessage;
@@ -138,43 +125,44 @@ class DashboardOverviewViewModel extends ChangeNotifier {
     final allAccounts = _shared.accounts;
     final catSums = _shared.catSums;
 
-    final incomeList =
-        allAccounts.where((tx) => tx.divisionId == Division.income).toList();
-    final expenseList =
-        allAccounts.where((tx) => tx.divisionId == Division.expense).toList();
-    final investList =
-        allAccounts.where((tx) => tx.divisionId == Division.invest).toList();
+    final sums = sumsByDivision(allAccounts);
+    final prevSums = sumsByDivision(_prevAccounts!);
 
     final allTxs = [...allAccounts]
       ..sort((a, b) => b.accountDt.compareTo(a.accountDt));
 
     data = DashboardOverviewData(
-      netWorth: _currentAsset!.totNetWorthSumPrice,
-      prevPeriodNetWorth: _calcNetWorth(_prevSums!),
       changeLabel: _period.changeLabel,
-      totalIncome: incomeList.fold(0, (s, e) => s + e.price),
-      totalExpense: expenseList.fold(0, (s, e) => s + e.price),
-      totalInvest: investList.fold(0, (s, e) => s + e.price),
+      totalIncome: sums.income,
+      totalExpense: sums.expense,
+      totalInvest: sums.invest,
+      prevTotalIncome: prevSums.income,
+      prevTotalExpense: prevSums.expense,
+      prevTotalInvest: prevSums.invest,
       topExpenseCategories: buildTopCategories(catSums),
       recentTransactions: allTxs.take(5).toList(),
-      netWorthHistory: _buildNetWorthHistory(_assetSums!),
     );
     isLoading = false;
     notifyListeners();
   }
 
-  static int _calcNetWorth(List<MyAssetSumResponse> sums) {
-    int assets = 0;
-    int debt = 0;
-    for (final s in sums) {
-      if (s.assetId == '0') continue;
-      if (s.assetId == '6') {
-        debt += s.sumPrice;
-      } else {
-        assets += s.sumPrice;
+  static ({int income, int expense, int invest}) sumsByDivision(
+    List<AccountListResponse> accounts,
+  ) {
+    int income = 0;
+    int expense = 0;
+    int invest = 0;
+    for (final tx in accounts) {
+      switch (tx.divisionId) {
+        case Division.income:
+          income += tx.price;
+        case Division.expense:
+          expense += tx.price;
+        case Division.invest:
+          invest += tx.price;
       }
     }
-    return assets - debt;
+    return (income: income, expense: expense, invest: invest);
   }
 
   static List<CategoryExpenseItem> buildTopCategories(
@@ -192,52 +180,6 @@ class DashboardOverviewViewModel extends ChangeNotifier {
               ratio: e.sumPrice / total,
             ))
         .toList();
-  }
-
-  static List<({String date, int amount})> _buildNetWorthHistory(
-    List<MyAssetSumResponse> sums,
-  ) {
-    final byDateAsset = <String, int>{};
-    final byDateDebt = <String, int>{};
-    for (final s in sums) {
-      if (s.assetId == '0') continue;
-      if (s.assetId == '6') {
-        byDateDebt[s.accumDt] = (byDateDebt[s.accumDt] ?? 0) + s.sumPrice;
-      } else {
-        byDateAsset[s.accumDt] =
-            (byDateAsset[s.accumDt] ?? 0) + s.sumPrice;
-      }
-    }
-    final allDates = {
-      ...byDateAsset.keys,
-      ...byDateDebt.keys,
-    }.toList()
-      ..sort();
-    final now = DateTime.now();
-    final todayStr =
-        '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
-
-    final raw = allDates.map((date) {
-      final asset = byDateAsset[date] ?? 0;
-      final debt = byDateDebt[date] ?? 0;
-      return (date: date, amount: asset - debt);
-    }).toList();
-
-    var lastKnown = 0;
-    final result = <({String date, int amount})>[];
-    for (final entry in raw) {
-      if (entry.date.compareTo(todayStr) <= 0 && entry.amount != 0) {
-        lastKnown = entry.amount;
-        result.add(entry);
-      } else if (entry.date.compareTo(todayStr) > 0 &&
-          entry.amount == 0 &&
-          lastKnown != 0) {
-        result.add((date: entry.date, amount: lastKnown));
-      } else {
-        result.add(entry);
-      }
-    }
-    return result;
   }
 
   @override
