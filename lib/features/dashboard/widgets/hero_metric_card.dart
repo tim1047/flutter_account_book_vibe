@@ -30,7 +30,7 @@ class HeroMetricCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: gradient ??
             const LinearGradient(
@@ -38,12 +38,12 @@ class HeroMetricCard extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [Color(0xFF1D2D50), Color(0xFF133B5C)],
             ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(13),
         boxShadow: const [
           BoxShadow(
             color: Color.fromRGBO(0, 0, 0, 0.3),
-            blurRadius: 12,
-            offset: Offset(0, 4),
+            blurRadius: 10,
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -54,14 +54,16 @@ class HeroMetricCard extends StatelessWidget {
             title,
             style: AppTextStyles.textBodySm.copyWith(
               color: AppColors.colorTextSecondary,
+              fontSize: 8,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           Text(
             '₩ ${FormatUtil.formatPrice(amount)}',
             style: AppTextStyles.textHeadingLg.copyWith(
               color: AppColors.colorTextPrimary,
               fontWeight: FontWeight.w700,
+              fontSize: 22,
             ),
           ),
           if (subtitle != null) ...[
@@ -70,29 +72,32 @@ class HeroMetricCard extends StatelessWidget {
               subtitle!,
               style: AppTextStyles.textBodySm.copyWith(
                 color: AppColors.colorTextSecondary,
+                fontSize: 8,
               ),
             ),
           ],
           if (change != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Row(
               children: [
                 Text(
                   '${changeLabel ?? ''} ',
                   style: AppTextStyles.textBodySm.copyWith(
                     color: AppColors.colorTextSecondary,
+                    fontSize: 8,
                   ),
                 ),
                 Icon(
                   isPositive ? Icons.arrow_drop_up : Icons.arrow_drop_down,
                   color: changeColor,
-                  size: 14,
+                  size: 11,
                 ),
                 Text(
                   '₩ ${FormatUtil.formatPrice(change.abs())}',
                   style: AppTextStyles.textBodySm.copyWith(
                     color: changeColor,
                     fontWeight: FontWeight.w600,
+                    fontSize: 8,
                   ),
                 ),
               ],
