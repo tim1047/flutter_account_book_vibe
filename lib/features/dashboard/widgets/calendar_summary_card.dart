@@ -147,9 +147,12 @@ class _DayCell extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          _AmountLine(amount: summary.income, color: AppColors.colorIncome, sign: '+'),
-          _AmountLine(amount: summary.expense, color: AppColors.colorExpense, sign: '-'),
-          _AmountLine(amount: summary.invest, color: AppColors.colorInvest, sign: '+'),
+          if (summary.income != 0)
+            _AmountLine(amount: summary.income, color: AppColors.colorIncome, sign: '+'),
+          if (summary.expense != 0)
+            _AmountLine(amount: summary.expense, color: AppColors.colorExpense, sign: '-'),
+          if (summary.invest != 0)
+            _AmountLine(amount: summary.invest, color: AppColors.colorInvest, sign: '+'),
         ],
       ),
     );
