@@ -4,12 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('CalendarSummaryViewModel.combine', () {
-    test('수입/지출/투자 일자별 합계를 day 기준으로 합친다', () {
+    test('API가 반환하는 누적값을 일별 증분(delta)으로 변환해 day 기준으로 합친다', () {
+      // sum-daily API는 월 누적 합계를 반환한다 (예: 1일 30000원, 3일 35000원 = 3일에 실제 5000원 지출).
       final result = CalendarSummaryViewModel.combine(
         income: [const DailyChartEntry(day: 1, price: 100000)],
         expense: [
           const DailyChartEntry(day: 1, price: 30000),
-          const DailyChartEntry(day: 3, price: 5000),
+          const DailyChartEntry(day: 3, price: 35000),
         ],
         invest: [const DailyChartEntry(day: 1, price: 20000)],
       );
@@ -20,6 +21,32 @@ void main() {
       expect(result[3]!.income, 0);
       expect(result[3]!.expense, 5000);
       expect(result[3]!.invest, 0);
+    });
+
+    test('매일 같은 금액이 누적돼도 일별로는 동일한 증분으로 분리된다', () {
+      final result = CalendarSummaryViewModel.combine(
+        income: const [],
+        expense: [
+          const DailyChartEntry(day: 1, price: 5000),
+          const DailyChartEntry(day: 2, price: 10000),
+          const DailyChartEntry(day: 3, price: 15000),
+        ],
+        invest: const [],
+      );
+
+      expect(result[1]!.expense, 5000);
+      expect(result[2]!.expense, 5000);
+      expect(result[3]!.expense, 5000);
+    });
+
+    test('중간 날짜가 누락돼도 다음 항목이 누적분을 흡수한다', () {
+      final result = CalendarSummaryViewModel.combine(
+        income: const [],
+        expense: [const DailyChartEntry(day: 5, price: 12000)],
+        invest: const [],
+      );
+
+      expect(result[5]!.expense, 12000);
     });
 
     test('세 리스트 모두 비어있으면 빈 맵 반환', () {

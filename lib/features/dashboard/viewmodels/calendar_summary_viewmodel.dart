@@ -79,9 +79,9 @@ class CalendarSummaryViewModel extends ChangeNotifier {
     required List<DailyChartEntry> expense,
     required List<DailyChartEntry> invest,
   }) {
-    final incomeByDay = {for (final e in income) e.day: e.price};
-    final expenseByDay = {for (final e in expense) e.day: e.price};
-    final investByDay = {for (final e in invest) e.day: e.price};
+    final incomeByDay = _dailyDeltas(income);
+    final expenseByDay = _dailyDeltas(expense);
+    final investByDay = _dailyDeltas(invest);
     final days = {...incomeByDay.keys, ...expenseByDay.keys, ...investByDay.keys};
     return {
       for (final day in days)
@@ -91,5 +91,17 @@ class CalendarSummaryViewModel extends ChangeNotifier {
           invest: investByDay[day] ?? 0,
         ),
     };
+  }
+
+  /// sum-daily API는 월 누적 합계를 반환하므로, 이전 항목과의 차이로 그날 하루치 금액을 구한다.
+  static Map<int, int> _dailyDeltas(List<DailyChartEntry> cumulative) {
+    final sorted = [...cumulative]..sort((a, b) => a.day.compareTo(b.day));
+    final deltas = <int, int>{};
+    var prevPrice = 0;
+    for (final entry in sorted) {
+      deltas[entry.day] = entry.price - prevPrice;
+      prevPrice = entry.price;
+    }
+    return deltas;
   }
 }
