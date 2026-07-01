@@ -6,6 +6,7 @@ import 'package:account_book_vibe/features/dashboard/tabs/asset_tab.dart';
 import 'package:account_book_vibe/features/dashboard/tabs/expense_tab.dart';
 import 'package:account_book_vibe/features/dashboard/tabs/overview_tab.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/asset_viewmodel.dart';
+import 'package:account_book_vibe/features/dashboard/viewmodels/calendar_summary_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/expense_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/overview_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/period_selector.dart';
@@ -30,6 +31,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   late final DashboardOverviewViewModel _overviewVm;
   late final DashboardExpenseViewModel _expenseVm;
   late final DashboardAssetViewModel _assetVm;
+  late final CalendarSummaryViewModel _calendarVm;
   late final TabController _tabController;
   int _currentIndex = 0;
 
@@ -41,6 +43,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     _overviewVm = DashboardOverviewViewModel(_shared)..load();
     _expenseVm = DashboardExpenseViewModel(_shared)..load();
     _assetVm = DashboardAssetViewModel()..load();
+    _calendarVm = CalendarSummaryViewModel()..load();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
   }
@@ -60,6 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     _overviewVm.dispose();
     _expenseVm.dispose();
     _assetVm.dispose();
+    _calendarVm.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -105,7 +109,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          OverviewTab(vm: _overviewVm),
+          OverviewTab(vm: _overviewVm, calendarVm: _calendarVm),
           ExpenseTab(vm: _expenseVm),
           AssetTab(vm: _assetVm),
         ],
@@ -119,6 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           _shared.load();
           _overviewVm.load();
           _expenseVm.load();
+          _calendarVm.load();
           if (result != null) {
             AppToast.show(context, '$result 완료!!!', type: ToastType.success);
           }

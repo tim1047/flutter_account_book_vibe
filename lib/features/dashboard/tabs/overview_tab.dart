@@ -3,7 +3,9 @@ import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/constants/category_emojis.dart';
 import 'package:account_book_vibe/core/constants/member_images.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
+import 'package:account_book_vibe/features/dashboard/viewmodels/calendar_summary_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/overview_viewmodel.dart';
+import 'package:account_book_vibe/features/dashboard/widgets/calendar_summary_card.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/hero_metric_card.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/mini_bar_row.dart';
 import 'package:account_book_vibe/shared/widgets/error_view.dart';
@@ -12,9 +14,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class OverviewTab extends StatelessWidget {
-  const OverviewTab({super.key, required this.vm});
+  const OverviewTab({super.key, required this.vm, required this.calendarVm});
 
   final DashboardOverviewViewModel vm;
+  final CalendarSummaryViewModel calendarVm;
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +34,17 @@ class OverviewTab extends StatelessWidget {
         }
         final data = vm.data;
         if (data == null) return const SizedBox.shrink();
-        return _OverviewContent(data: data);
+        return _OverviewContent(data: data, calendarVm: calendarVm);
       },
     );
   }
 }
 
 class _OverviewContent extends StatelessWidget {
-  const _OverviewContent({required this.data});
+  const _OverviewContent({required this.data, required this.calendarVm});
 
   final DashboardOverviewData data;
+  final CalendarSummaryViewModel calendarVm;
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +99,10 @@ class _OverviewContent extends StatelessWidget {
             colors: [Color(0xFF431407), Color(0xFF9A3412)],
           ),
         ),
+        const SizedBox(height: 16),
+
+        // ②-1 달력 요약
+        CalendarSummaryCard(vm: calendarVm),
         const SizedBox(height: 16),
 
         // ② 지출 TOP 5
