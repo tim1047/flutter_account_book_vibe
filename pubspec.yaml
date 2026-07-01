@@ -29,6 +29,7 @@ dependencies:
 
   # 국제화
   intl: ^0.20.2
+  table_calendar: ^3.2.0
 
 dev_dependencies:
   flutter_test:
