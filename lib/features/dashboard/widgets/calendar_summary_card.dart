@@ -52,6 +52,9 @@ class _CalendarSummaryCardState extends State<CalendarSummaryCard> {
 
   static String _pad(int n) => n.toString().padLeft(2, '0');
 
+  static String _formatHeaderTitle(DateTime date, dynamic locale) =>
+      '${date.year}년 ${date.month}월';
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -79,6 +82,7 @@ class _CalendarSummaryCardState extends State<CalendarSummaryCard> {
                   formatButtonVisible: false,
                   titleCentered: true,
                   titleTextStyle: AppTextStyles.textHeadlineSm,
+                  titleTextFormatter: _formatHeaderTitle,
                   leftChevronIcon: Icon(
                     Icons.chevron_left,
                     color: AppColors.colorAccentTeal,
