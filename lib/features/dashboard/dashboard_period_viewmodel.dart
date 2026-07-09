@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 enum DashboardPeriod { thisMonth, thisQuarter, thisHalfYear, thisYear, custom }
 
 class DashboardPeriodViewModel extends ChangeNotifier {
-  DashboardPeriod _period = DashboardPeriod.thisYear;
+  DashboardPeriod _period = DashboardPeriod.thisMonth;
   DateTime? _customStart;
   DateTime? _customEnd;
 
