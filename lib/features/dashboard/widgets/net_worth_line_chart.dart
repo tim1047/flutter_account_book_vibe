@@ -45,6 +45,37 @@ class NetWorthLineChart extends StatelessWidget {
           entry.value.amount.toDouble() - minY,
         )).toList();
 
+    // Pick x-axis label granularity so long ranges (multi-year) don't
+    // overlap: month → quarter (1/4/7/10) → half-year (1/7) → year (1),
+    // stepping up only until the resulting label count fits within 12.
+    final monthKeys = <String>[];
+    for (final record in history) {
+      final key = record.date.substring(0, 6);
+      if (monthKeys.isEmpty || monthKeys.last != key) monthKeys.add(key);
+    }
+    const quarterMonths = {'01', '04', '07', '10'};
+    const halfMonths = {'01', '07'};
+    var anchorMonths = const {
+      '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'
+    };
+    var yearlyLabels = false;
+    if (monthKeys.length > 12) {
+      final quarterCount =
+          monthKeys.where((k) => quarterMonths.contains(k.substring(4))).length;
+      if (quarterCount <= 12) {
+        anchorMonths = quarterMonths;
+      } else {
+        final halfCount =
+            monthKeys.where((k) => halfMonths.contains(k.substring(4))).length;
+        if (halfCount <= 12) {
+          anchorMonths = halfMonths;
+        } else {
+          anchorMonths = const {'01'};
+          yearlyLabels = true;
+        }
+      }
+    }
+
     return SizedBox(
       height: height,
       child: LineChart(
@@ -123,13 +154,21 @@ class NetWorthLineChart extends StatelessWidget {
                   if (idx < 0 || idx >= history.length) {
                     return const SizedBox.shrink();
                   }
-                  final currentMonth = history[idx].date.substring(4, 6);
+                  final date = history[idx].date;
+                  final currentMonth = date.substring(4, 6);
                   if (idx > 0 &&
-                      currentMonth == history[idx - 1].date.substring(4, 6)) {
+                      date.substring(0, 6) ==
+                          history[idx - 1].date.substring(0, 6)) {
                     return const SizedBox.shrink();
                   }
+                  if (!anchorMonths.contains(currentMonth)) {
+                    return const SizedBox.shrink();
+                  }
+                  final label = yearlyLabels
+                      ? date.substring(0, 4)
+                      : '${int.parse(currentMonth)}월';
                   return Text(
-                    '${int.parse(currentMonth)}월',
+                    label,
                     style: AppTextStyles.textBodyXs.copyWith(
                       color: AppColors.colorTextSecondary,
                     ),
