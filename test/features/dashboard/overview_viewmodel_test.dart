@@ -37,6 +37,7 @@ void main() {
         topExpenseCategories: [],
         recentTransactions: [],
         changeLabel: '전달 대비',
+        monthCount: 1,
       );
       expect(data.savings, 840000);
     });
@@ -52,6 +53,7 @@ void main() {
         topExpenseCategories: [],
         recentTransactions: [],
         changeLabel: '전달 대비',
+        monthCount: 1,
       );
       expect(data.incomeChange, 500000);
       expect(data.expenseChange, -200000);

@@ -57,6 +57,7 @@ class _OverviewContent extends StatelessWidget {
           amount: data.totalIncome,
           changeAmount: data.incomeChange,
           changeLabel: data.changeLabel,
+          averageAmount: data.showAverage ? data.avgIncome : null,
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -69,6 +70,7 @@ class _OverviewContent extends StatelessWidget {
           amount: data.totalExpense,
           changeAmount: data.expenseChange,
           changeLabel: data.changeLabel,
+          averageAmount: data.showAverage ? data.avgExpense : null,
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -81,6 +83,7 @@ class _OverviewContent extends StatelessWidget {
           amount: data.savings,
           changeAmount: data.savingsChange,
           changeLabel: data.changeLabel,
+          averageAmount: data.showAverage ? data.avgSavings : null,
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -93,6 +96,7 @@ class _OverviewContent extends StatelessWidget {
           amount: data.totalInvest,
           changeAmount: data.investChange,
           changeLabel: data.changeLabel,
+          averageAmount: data.showAverage ? data.avgInvest : null,
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

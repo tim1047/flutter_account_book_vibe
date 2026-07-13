@@ -32,6 +32,7 @@ class DashboardOverviewData {
     required this.topExpenseCategories,
     required this.recentTransactions,
     required this.changeLabel,
+    required this.monthCount,
   });
 
   final int totalIncome;
@@ -43,6 +44,7 @@ class DashboardOverviewData {
   final List<CategoryExpenseItem> topExpenseCategories;
   final List<AccountListResponse> recentTransactions;
   final String changeLabel;
+  final int monthCount;
 
   int get savings => totalIncome - totalExpense;
   int get prevSavings => prevTotalIncome - prevTotalExpense;
@@ -51,6 +53,12 @@ class DashboardOverviewData {
   int get expenseChange => totalExpense - prevTotalExpense;
   int get savingsChange => savings - prevSavings;
   int get investChange => totalInvest - prevTotalInvest;
+
+  bool get showAverage => monthCount > 1;
+  int get avgIncome => (totalIncome / monthCount).round();
+  int get avgExpense => (totalExpense / monthCount).round();
+  int get avgSavings => (savings / monthCount).round();
+  int get avgInvest => (totalInvest / monthCount).round();
 }
 
 class DashboardOverviewViewModel extends ChangeNotifier {
@@ -141,6 +149,7 @@ class DashboardOverviewViewModel extends ChangeNotifier {
       prevTotalInvest: prevSums.invest,
       topExpenseCategories: buildTopCategories(catSums),
       recentTransactions: allTxs.take(5).toList(),
+      monthCount: _period.monthCount,
     );
     isLoading = false;
     notifyListeners();

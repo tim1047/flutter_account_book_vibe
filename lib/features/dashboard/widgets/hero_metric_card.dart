@@ -12,6 +12,7 @@ class HeroMetricCard extends StatelessWidget {
     this.changeLabel,
     this.gradient,
     this.subtitle,
+    this.averageAmount,
   });
 
   final String title;
@@ -20,6 +21,7 @@ class HeroMetricCard extends StatelessWidget {
   final String? changeLabel;
   final LinearGradient? gradient;
   final String? subtitle;
+  final int? averageAmount;
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +102,16 @@ class HeroMetricCard extends StatelessWidget {
                     fontSize: 8,
                   ),
                 ),
+                if (averageAmount != null) ...[
+                  const SizedBox(width: 6),
+                  Text(
+                    '평균 ₩${FormatUtil.formatPrice(averageAmount!)}',
+                    style: AppTextStyles.textBodySm.copyWith(
+                      color: AppColors.colorTextSecondary,
+                      fontSize: 8,
+                    ),
+                  ),
+                ],
               ],
             ),
           ],

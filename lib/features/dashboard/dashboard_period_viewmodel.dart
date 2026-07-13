@@ -52,6 +52,21 @@ class DashboardPeriodViewModel extends ChangeNotifier {
     };
   }
 
+  int get monthCount => switch (_period) {
+        DashboardPeriod.thisMonth => 1,
+        DashboardPeriod.thisQuarter => 3,
+        DashboardPeriod.thisHalfYear => 6,
+        DashboardPeriod.thisYear => 12,
+        DashboardPeriod.custom => _customMonthCount(),
+      };
+
+  int _customMonthCount() {
+    final now = DateTime.now();
+    final start = _customStart ?? DateTime(now.year, 1, 1);
+    final end = _customEnd ?? now;
+    return (end.year - start.year) * 12 + end.month - start.month + 1;
+  }
+
   String get changeLabel => switch (_period) {
         DashboardPeriod.thisMonth => '전달 대비',
         DashboardPeriod.thisQuarter => '전 3개월 대비',
