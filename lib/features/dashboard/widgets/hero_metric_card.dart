@@ -105,9 +105,16 @@ class HeroMetricCard extends StatelessWidget {
                 if (averageAmount != null) ...[
                   const SizedBox(width: 6),
                   Text(
-                    '평균 ₩${FormatUtil.formatPrice(averageAmount!)}',
+                    '평균 ',
                     style: AppTextStyles.textBodySm.copyWith(
                       color: AppColors.colorTextSecondary,
+                      fontSize: 8,
+                    ),
+                  ),
+                  Text(
+                    '₩${FormatUtil.formatPrice(averageAmount!)}',
+                    style: AppTextStyles.textBodySm.copyWith(
+                      color: AppColors.colorTextPrimary,
                       fontSize: 8,
                     ),
                   ),
