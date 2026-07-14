@@ -1,16 +1,33 @@
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:flutter/foundation.dart';
 
-enum DashboardPeriod { thisMonth, thisQuarter, thisHalfYear, thisYear, custom }
+enum DashboardPeriod {
+  singleMonth,
+  thisMonth,
+  thisQuarter,
+  thisHalfYear,
+  thisYear,
+  custom,
+}
 
 class DashboardPeriodViewModel extends ChangeNotifier {
-  DashboardPeriod _period = DashboardPeriod.thisMonth;
+  DashboardPeriodViewModel()
+      : _selectedYear = DateTime.now().year,
+        _selectedMonth = DateTime.now().month;
+
+  DashboardPeriod _period = DashboardPeriod.singleMonth;
+  int _selectedYear;
+  int _selectedMonth;
   DateTime? _customStart;
   DateTime? _customEnd;
 
   DashboardPeriod get period => _period;
+  int get selectedYear => _selectedYear;
+  int get selectedMonth => _selectedMonth;
 
   String get label => switch (_period) {
+        DashboardPeriod.singleMonth =>
+          '$_selectedYear.${_selectedMonth.toString().padLeft(2, '0')}',
         DashboardPeriod.thisMonth => '이번 달',
         DashboardPeriod.thisQuarter => '직전 3개월',
         DashboardPeriod.thisHalfYear => '직전 6개월',
@@ -31,6 +48,10 @@ class DashboardPeriodViewModel extends ChangeNotifier {
   ({String strtDt, String endDt}) get range {
     final now = DateTime.now();
     return switch (_period) {
+      DashboardPeriod.singleMonth => (
+          strtDt: FormatUtil.toStrtDt(_selectedYear, _selectedMonth),
+          endDt: FormatUtil.toEndDt(_selectedYear, _selectedMonth),
+        ),
       DashboardPeriod.thisMonth => (
           strtDt: FormatUtil.toStrtDt(now.year, now.month),
           endDt: FormatUtil.toEndDt(now.year, now.month),
@@ -53,6 +74,7 @@ class DashboardPeriodViewModel extends ChangeNotifier {
   }
 
   int get monthCount => switch (_period) {
+        DashboardPeriod.singleMonth => 1,
         DashboardPeriod.thisMonth => 1,
         DashboardPeriod.thisQuarter => 3,
         DashboardPeriod.thisHalfYear => 6,
@@ -68,6 +90,7 @@ class DashboardPeriodViewModel extends ChangeNotifier {
   }
 
   String get changeLabel => switch (_period) {
+        DashboardPeriod.singleMonth => '전달 대비',
         DashboardPeriod.thisMonth => '전달 대비',
         DashboardPeriod.thisQuarter => '전 3개월 대비',
         DashboardPeriod.thisHalfYear => '전 6개월 대비',
@@ -78,6 +101,8 @@ class DashboardPeriodViewModel extends ChangeNotifier {
   ({String strtDt, String endDt}) get prevRange {
     final now = DateTime.now();
     return switch (_period) {
+      DashboardPeriod.singleMonth =>
+        _prevMonthRange(DateTime(_selectedYear, _selectedMonth)),
       DashboardPeriod.thisMonth => _prevMonthRange(now),
       DashboardPeriod.thisQuarter => _prevRollingRange(now, 3),
       DashboardPeriod.thisHalfYear => _prevRollingRange(now, 6),
@@ -91,6 +116,43 @@ class DashboardPeriodViewModel extends ChangeNotifier {
 
   void select(DashboardPeriod period) {
     _period = period;
+    notifyListeners();
+  }
+
+  void selectYearMonth(int year, int month) {
+    _selectedYear = year;
+    _selectedMonth = month;
+    _period = DashboardPeriod.singleMonth;
+    notifyListeners();
+  }
+
+  void goPrevMonth() {
+    if (_selectedMonth == 1) {
+      _selectedYear--;
+      _selectedMonth = 12;
+    } else {
+      _selectedMonth--;
+    }
+    _period = DashboardPeriod.singleMonth;
+    notifyListeners();
+  }
+
+  void goNextMonth() {
+    if (_selectedMonth == 12) {
+      _selectedYear++;
+      _selectedMonth = 1;
+    } else {
+      _selectedMonth++;
+    }
+    _period = DashboardPeriod.singleMonth;
+    notifyListeners();
+  }
+
+  void resetToToday() {
+    final now = DateTime.now();
+    _selectedYear = now.year;
+    _selectedMonth = now.month;
+    _period = DashboardPeriod.singleMonth;
     notifyListeners();
   }
 

@@ -34,6 +34,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   late final CalendarSummaryViewModel _calendarVm;
   late final TabController _tabController;
   int _currentIndex = 0;
+  bool _periodExpanded = false;
 
   @override
   void initState() {
@@ -78,14 +79,21 @@ class _DashboardScreenState extends State<DashboardScreen>
       drawer: const AppDrawer(),
       appBar: MainAppBar(
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(_isAssetTab ? 44 : 88),
+          preferredSize: Size.fromHeight(_isAssetTab
+              ? 44
+              : 88 + (_periodExpanded ? 48 : 0)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (!_isAssetTab)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: PeriodSelector(vm: _period),
+                  child: PeriodSelector(
+                    vm: _period,
+                    onExpandedChanged: (expanded) {
+                      setState(() => _periodExpanded = expanded);
+                    },
+                  ),
                 ),
               TabBar(
                 controller: _tabController,
