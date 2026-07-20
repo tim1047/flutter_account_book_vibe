@@ -2,6 +2,7 @@ import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/asset_viewmodel.dart';
+import 'package:account_book_vibe/features/dashboard/widgets/asset_stacked_area_chart.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/net_worth_line_chart.dart';
 import 'package:account_book_vibe/shared/widgets/error_view.dart';
 import 'package:flutter/material.dart';
@@ -577,11 +578,17 @@ class _AssetHistorySection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        if (data.assetHistoryNames.isNotEmpty) ...[
+          AssetStackedAreaChart(
+            history: data.assetHistory,
+            assetNames: data.assetHistoryNames,
+          ),
+          const SizedBox(height: 16),
+        ],
         _HistoryCard(
           label: '순자산',
           dotColor: AppColors.colorTextPrimary,
           rows: _buildNetWorthRows(data.netWorthHistory),
-          initiallyExpanded: true,
         ),
         ...data.assetHistoryNames.asMap().entries.map(
               (e) => Padding(
@@ -668,26 +675,18 @@ class _HistoryCard extends StatefulWidget {
     required this.label,
     required this.dotColor,
     required this.rows,
-    this.initiallyExpanded = false,
   });
 
   final String label;
   final Color dotColor;
   final List<_HistoryRowData> rows;
-  final bool initiallyExpanded;
 
   @override
   State<_HistoryCard> createState() => _HistoryCardState();
 }
 
 class _HistoryCardState extends State<_HistoryCard> {
-  late bool _expanded;
-
-  @override
-  void initState() {
-    super.initState();
-    _expanded = widget.initiallyExpanded;
-  }
+  bool _expanded = false;
 
   String _fmtDt(String dt) {
     if (dt.length < 8) return dt;
