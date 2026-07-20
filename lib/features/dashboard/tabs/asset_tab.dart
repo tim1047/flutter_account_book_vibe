@@ -2,10 +2,8 @@ import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/asset_viewmodel.dart';
-import 'package:account_book_vibe/features/dashboard/widgets/donut_legend_row.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/net_worth_line_chart.dart';
 import 'package:account_book_vibe/shared/widgets/error_view.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class AssetTab extends StatelessWidget {
@@ -76,10 +74,10 @@ class _AssetContent extends StatelessWidget {
         ],
         const SizedBox(height: 12),
 
-        // ③ 자산 구성 도넛 (항상 오늘 스냅샷)
+        // ③ 자산 구성 (항상 오늘 스냅샷)
         _SectionCard(
           title: '자산 구성',
-          child: _AssetDonutSection(data: data),
+          child: _AssetCompositionBars(data: data),
         ),
         const SizedBox(height: 12),
 
@@ -425,8 +423,8 @@ class _StatChip extends StatelessWidget {
   }
 }
 
-class _AssetDonutSection extends StatelessWidget {
-  const _AssetDonutSection({required this.data});
+class _AssetCompositionBars extends StatelessWidget {
+  const _AssetCompositionBars({required this.data});
   final DashboardAssetData data;
 
   static const _colors = AppColors.assetChartColors;
@@ -439,42 +437,90 @@ class _AssetDonutSection extends StatelessWidget {
         child: Center(child: Text('데이터 없음')),
       );
     }
-    final sections = data.assetComposition.asMap().entries.map((e) {
-      final color = _colors[e.key % _colors.length];
-      return PieChartSectionData(
-        value: e.value.ratio,
-        color: color,
-        radius: 40,
-        title: '',
-      );
-    }).toList();
+    return Column(
+      children: data.assetComposition.asMap().entries.map((e) {
+        final color = _colors[e.key % _colors.length];
+        return _AssetCompositionBarRow(
+          color: color,
+          label: e.value.assetNm,
+          amount: e.value.amount,
+          ratio: e.value.ratio,
+        );
+      }).toList(),
+    );
+  }
+}
 
-    return Row(
-      children: [
-        SizedBox(
-          width: 80,
-          height: 80,
-          child: PieChart(PieChartData(
-            sections: sections,
-            centerSpaceRadius: 22,
-            sectionsSpace: 2,
-          )),
-        ),
-        const SizedBox(width: 24),
-        Expanded(
-          child: Column(
-            children: data.assetComposition.asMap().entries.map((e) {
-              final color = _colors[e.key % _colors.length];
-              return DonutLegendRow(
-                color: color,
-                label: e.value.assetNm,
-                amount: e.value.amount,
-                ratio: e.value.ratio,
-              );
-            }).toList(),
+class _AssetCompositionBarRow extends StatelessWidget {
+  const _AssetCompositionBarRow({
+    required this.color,
+    required this.label,
+    required this.amount,
+    required this.ratio,
+  });
+
+  final Color color;
+  final String label;
+  final int amount;
+  final double ratio;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTextStyles.textBodySm.copyWith(
+                    color: AppColors.colorTextPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                '₩ ${FormatUtil.formatPrice(amount)}',
+                style: AppTextStyles.textBodySm.copyWith(
+                  color: AppColors.colorTextPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 38,
+                child: Text(
+                  '${(ratio * 100).toStringAsFixed(0)}%',
+                  textAlign: TextAlign.right,
+                  style: AppTextStyles.textBodyXs.copyWith(
+                    color: AppColors.colorTextSecondary,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: LinearProgressIndicator(
+              value: ratio.clamp(0.0, 1.0),
+              minHeight: 8,
+              backgroundColor: AppColors.colorBgElevated,
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
