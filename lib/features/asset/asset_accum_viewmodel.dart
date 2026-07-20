@@ -8,7 +8,7 @@ class AssetAccumViewModel extends ChangeNotifier {
   String? errorMessage;
 
   List<String> sortedDates = [];
-  List<String> assetNames = [];
+  List<({String id, String name})> assets = [];
 
   // [accumDt][assetNm] -> sumPrice
   Map<String, Map<String, int>> dateAssetMap = {};
@@ -39,13 +39,15 @@ class AssetAccumViewModel extends ChangeNotifier {
     sortedDates =
         filtered.map((e) => e.accumDt).toSet().toList()..sort();
 
-    final order = <String>[];
+    final order = <({String id, String name})>[];
     for (final date in sortedDates) {
       for (final item in filtered.where((e) => e.accumDt == date)) {
-        if (!order.contains(item.assetNm)) order.add(item.assetNm);
+        if (!order.any((a) => a.name == item.assetNm)) {
+          order.add((id: item.assetId, name: item.assetNm));
+        }
       }
     }
-    assetNames = order;
+    assets = order;
 
     dateAssetMap = {};
     for (final item in filtered) {

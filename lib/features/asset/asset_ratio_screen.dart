@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/asset_colors.dart';
 import 'package:account_book_vibe/core/constants/category_emojis.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/data/models/my_asset_model.dart';
@@ -66,8 +67,7 @@ class _AssetRatioScreenState extends State<AssetRatioScreen> {
                 itemCount: groups.length,
                 itemBuilder: (context, index) {
                   final group = groups[index].value;
-                  final color = AppColors.assetChartColors[
-                      index % AppColors.assetChartColors.length];
+                  final color = AssetColors.of(groups[index].key);
                   return _AssetGroupRatioTile(
                     group: group,
                     totalPrice: data.totSumPrice,

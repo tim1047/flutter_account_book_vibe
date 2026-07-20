@@ -80,7 +80,8 @@ void main() {
             accumDt: '20250101', assetId: '1', assetNm: '주식', sumPrice: 100),
       ];
       final result = DashboardAssetViewModel.buildAssetHistory(sums);
-      expect(result.names, ['주식']);
+      expect(result.names.map((n) => n.name), ['주식']);
+      expect(result.names.map((n) => n.id), ['1']);
       expect(result.history.length, 1);
       expect(result.history.first.byAsset.containsKey('합계'), false);
       expect(result.history.first.byAsset.containsKey('부채'), false);
@@ -98,7 +99,7 @@ void main() {
             accumDt: '20250201', assetId: '1', assetNm: '주식', sumPrice: 110),
       ];
       final result = DashboardAssetViewModel.buildAssetHistory(sums);
-      expect(result.names, ['주식', '예금']);
+      expect(result.names.map((n) => n.name), ['주식', '예금']);
     });
 
     test('날짜별 byAsset 그룹핑 + 날짜 정렬', () {

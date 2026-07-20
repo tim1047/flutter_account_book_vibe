@@ -8,11 +8,13 @@ enum AssetHistoryPeriod { threeMonths, sixMonths, oneYear }
 
 class AssetCompositionItem {
   const AssetCompositionItem({
+    required this.assetId,
     required this.assetNm,
     required this.amount,
     required this.ratio,
   });
 
+  final String assetId;
   final String assetNm;
   final int amount;
   final double ratio;
@@ -34,7 +36,7 @@ class DashboardAssetData {
   final int prevYearNetWorth;
   final List<AssetCompositionItem> assetComposition;
   final List<({String date, int amount})> netWorthHistory;
-  final List<String> assetHistoryNames;
+  final List<({String id, String name})> assetHistoryNames;
   final List<({String date, Map<String, int> byAsset})> assetHistory;
 
   int get debt => totalAsset - netWorth;
@@ -162,6 +164,7 @@ class DashboardAssetViewModel extends ChangeNotifier {
     if (total == 0) return [];
     return assets
         .map((s) => AssetCompositionItem(
+              assetId: s.assetId,
               assetNm: s.assetNm,
               amount: s.sumPrice,
               ratio: s.sumPrice / total,
@@ -171,15 +174,17 @@ class DashboardAssetViewModel extends ChangeNotifier {
   }
 
   static ({
-    List<String> names,
+    List<({String id, String name})> names,
     List<({String date, Map<String, int> byAsset})> history,
   }) buildAssetHistory(List<MyAssetSumResponse> sums) {
     final filtered =
         sums.where((s) => s.assetId != '0' && s.assetId != '6').toList();
 
-    final names = <String>[];
+    final names = <({String id, String name})>[];
     for (final s in filtered) {
-      if (!names.contains(s.assetNm)) names.add(s.assetNm);
+      if (!names.any((n) => n.name == s.assetNm)) {
+        names.add((id: s.assetId, name: s.assetNm));
+      }
     }
 
     final dates = filtered.map((s) => s.accumDt).toSet().toList()..sort();

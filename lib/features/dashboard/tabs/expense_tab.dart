@@ -1,5 +1,6 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
+import 'package:account_book_vibe/core/constants/category_colors.dart';
 import 'package:account_book_vibe/core/constants/category_emojis.dart';
 import 'package:account_book_vibe/core/constants/member_images.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
@@ -287,8 +288,6 @@ class _DonutSection extends StatelessWidget {
   const _DonutSection({required this.data});
   final DashboardExpenseData data;
 
-  static const _colors = AppColors.assetChartColors;
-
   @override
   Widget build(BuildContext context) {
     if (data.categoryBreakdown.isEmpty) {
@@ -297,11 +296,10 @@ class _DonutSection extends StatelessWidget {
         child: Center(child: Text('데이터 없음')),
       );
     }
-    final sections = data.categoryBreakdown.asMap().entries.map((e) {
-      final color = _colors[e.key % _colors.length];
+    final sections = data.categoryBreakdown.map((e) {
       return PieChartSectionData(
-        value: e.value.ratio,
-        color: color,
+        value: e.ratio,
+        color: CategoryColors.of(e.categoryId),
         radius: 40,
         title: '',
       );
@@ -321,13 +319,12 @@ class _DonutSection extends StatelessWidget {
         const SizedBox(width: 24),
         Expanded(
           child: Column(
-            children: data.categoryBreakdown.asMap().entries.map((e) {
-              final color = _colors[e.key % _colors.length];
+            children: data.categoryBreakdown.map((e) {
               return DonutLegendRow(
-                color: color,
-                label: e.value.categoryNm,
-                amount: e.value.amount,
-                ratio: e.value.ratio,
+                color: CategoryColors.of(e.categoryId),
+                label: e.categoryNm,
+                amount: e.amount,
+                ratio: e.ratio,
               );
             }).toList(),
           ),

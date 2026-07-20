@@ -1,5 +1,6 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
+import 'package:account_book_vibe/core/constants/asset_colors.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/asset_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/asset_stacked_area_chart.dart';
@@ -428,8 +429,6 @@ class _AssetCompositionBars extends StatelessWidget {
   const _AssetCompositionBars({required this.data});
   final DashboardAssetData data;
 
-  static const _colors = AppColors.assetChartColors;
-
   @override
   Widget build(BuildContext context) {
     if (data.assetComposition.isEmpty) {
@@ -439,13 +438,12 @@ class _AssetCompositionBars extends StatelessWidget {
       );
     }
     return Column(
-      children: data.assetComposition.asMap().entries.map((e) {
-        final color = _colors[e.key % _colors.length];
+      children: data.assetComposition.map((e) {
         return _AssetCompositionBarRow(
-          color: color,
-          label: e.value.assetNm,
-          amount: e.value.amount,
-          ratio: e.value.ratio,
+          color: AssetColors.of(e.assetId),
+          label: e.assetNm,
+          amount: e.amount,
+          ratio: e.ratio,
         );
       }).toList(),
     );
@@ -581,7 +579,7 @@ class _AssetHistorySection extends StatelessWidget {
         if (data.assetHistoryNames.isNotEmpty) ...[
           AssetStackedAreaChart(
             history: data.assetHistory,
-            assetNames: data.assetHistoryNames,
+            assets: data.assetHistoryNames,
           ),
           const SizedBox(height: 16),
         ],
@@ -590,14 +588,13 @@ class _AssetHistorySection extends StatelessWidget {
           dotColor: AppColors.colorTextPrimary,
           rows: _buildNetWorthRows(data.netWorthHistory),
         ),
-        ...data.assetHistoryNames.asMap().entries.map(
-              (e) => Padding(
+        ...data.assetHistoryNames.map(
+              (asset) => Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: _HistoryCard(
-                  label: e.value,
-                  dotColor: AppColors.assetChartColors[
-                      e.key % AppColors.assetChartColors.length],
-                  rows: _buildAssetRows(e.value, data.assetHistory),
+                  label: asset.name,
+                  dotColor: AssetColors.of(asset.id),
+                  rows: _buildAssetRows(asset.name, data.assetHistory),
                 ),
               ),
             ),

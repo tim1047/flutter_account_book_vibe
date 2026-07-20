@@ -1,5 +1,6 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
+import 'package:account_book_vibe/core/constants/asset_colors.dart';
 import 'package:account_book_vibe/features/dashboard/utils/chart_x_axis.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -11,22 +12,20 @@ class AssetStackedAreaChart extends StatelessWidget {
   const AssetStackedAreaChart({
     super.key,
     required this.history,
-    required this.assetNames,
+    required this.assets,
     this.height = 170,
   });
 
   /// history: (date: 'YYYYMMDD', byAsset) 오름차순.
   final List<({String date, Map<String, int> byAsset})> history;
 
-  /// 색상 인덱스 기준 — 기간별 자산 현황 리스트와 동일한 순서를 써야 색이 일치한다.
-  final List<String> assetNames;
+  /// assetId별 고정 색상 조회에 쓰인다 — 기간별 자산 현황 리스트와 순서 일치 불필요.
+  final List<({String id, String name})> assets;
   final double height;
-
-  static const _colors = AppColors.assetChartColors;
 
   @override
   Widget build(BuildContext context) {
-    if (history.length < 2 || assetNames.isEmpty) {
+    if (history.length < 2 || assets.isEmpty) {
       return SizedBox(
         height: height,
         child: Center(
@@ -102,10 +101,10 @@ class AssetStackedAreaChart extends StatelessWidget {
         Wrap(
           spacing: 12,
           runSpacing: 6,
-          children: assetNames.asMap().entries.map((e) {
+          children: assets.map((asset) {
             return _LegendChip(
-              color: _colors[e.key % _colors.length],
-              label: e.value,
+              color: AssetColors.of(asset.id),
+              label: asset.name,
             );
           }).toList(),
         ),
@@ -116,10 +115,10 @@ class AssetStackedAreaChart extends StatelessWidget {
   /// cumulative[i][j] = 0~i번째 자산까지 j번째 시점의 누적 금액.
   List<List<double>> _buildCumulative() {
     final cumulative = <List<double>>[];
-    for (var i = 0; i < assetNames.length; i++) {
+    for (var i = 0; i < assets.length; i++) {
       final prevRow = i == 0 ? null : cumulative[i - 1];
       final row = List<double>.generate(history.length, (j) {
-        final amount = (history[j].byAsset[assetNames[i]] ?? 0).toDouble();
+        final amount = (history[j].byAsset[assets[i].name] ?? 0).toDouble();
         return (prevRow?[j] ?? 0) + amount;
       });
       cumulative.add(row);
@@ -130,8 +129,8 @@ class AssetStackedAreaChart extends StatelessWidget {
   /// 맨 위(총합) 밴드부터 그려 그 아래를 순서대로 덮어써야 스택된 영역처럼 보인다.
   List<LineChartBarData> _buildBarsData(List<List<double>> cumulative) {
     final barsData = <LineChartBarData>[];
-    for (var i = assetNames.length - 1; i >= 0; i--) {
-      final color = _colors[i % _colors.length];
+    for (var i = assets.length - 1; i >= 0; i--) {
+      final color = AssetColors.of(assets[i].id);
       barsData.add(LineChartBarData(
         spots: List.generate(
           history.length,

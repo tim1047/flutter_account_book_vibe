@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/asset_colors.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/features/asset/asset_accum_viewmodel.dart';
 import 'package:account_book_vibe/shared/widgets/app_drawer.dart';
@@ -62,7 +63,7 @@ class _AssetAccumScreenState extends State<AssetAccumScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _LegendSection(assetNames: _vm.assetNames),
+                    _LegendSection(assets: _vm.assets),
                     const SizedBox(height: 16),
                     _StackedBarChart(vm: _vm),
                     const SizedBox(height: 16),
@@ -73,12 +74,12 @@ class _AssetAccumScreenState extends State<AssetAccumScreen> {
                         dateTotalMap: _vm.dateTotalMap,
                       ),
                     ),
-                    ..._vm.assetNames.asMap().entries.map(
-                      (e) => Padding(
+                    ..._vm.assets.map(
+                      (asset) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: _AssetDetailCard(
-                          assetNm: e.value,
-                          colorIndex: e.key,
+                          assetNm: asset.name,
+                          assetId: asset.id,
                           sortedDates: _vm.sortedDates,
                           dateAssetMap: _vm.dateAssetMap,
                         ),
@@ -98,18 +99,16 @@ class _AssetAccumScreenState extends State<AssetAccumScreen> {
 // ── Legend ────────────────────────────────────────────────────────────────────
 
 class _LegendSection extends StatelessWidget {
-  const _LegendSection({required this.assetNames});
+  const _LegendSection({required this.assets});
 
-  final List<String> assetNames;
+  final List<({String id, String name})> assets;
 
   @override
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 16,
       runSpacing: 8,
-      children: assetNames.asMap().entries.map((e) {
-        final color =
-            AppColors.assetChartColors[e.key % AppColors.assetChartColors.length];
+      children: assets.map((asset) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -117,13 +116,13 @@ class _LegendSection extends StatelessWidget {
               width: 12,
               height: 12,
               decoration: BoxDecoration(
-                color: color,
+                color: AssetColors.of(asset.id),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(width: 4),
             Text(
-              e.value,
+              asset.name,
               style: const TextStyle(
                 color: AppColors.colorTextSecondary,
                 fontSize: 12,
@@ -425,18 +424,17 @@ class _TotalAssetDetailCard extends StatelessWidget {
 class _AssetDetailCard extends StatelessWidget {
   const _AssetDetailCard({
     required this.assetNm,
-    required this.colorIndex,
+    required this.assetId,
     required this.sortedDates,
     required this.dateAssetMap,
   });
 
   final String assetNm;
-  final int colorIndex;
+  final String assetId;
   final List<String> sortedDates;
   final Map<String, Map<String, int>> dateAssetMap;
 
-  Color get _color =>
-      AppColors.assetChartColors[colorIndex % AppColors.assetChartColors.length];
+  Color get _color => AssetColors.of(assetId);
 
   String _fmtDt(String dt) {
     if (dt.length < 8) return dt;
