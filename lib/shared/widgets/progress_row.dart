@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class ProgressRow extends StatelessWidget {
@@ -37,7 +38,7 @@ class ProgressRow extends StatelessWidget {
             Row(
               children: [
                 if (emoji != null) ...[
-                  Text(emoji!, style: const TextStyle(fontSize: 16)),
+                  Text(emoji!, style: const TextStyle(fontSize: 14)),
                   const SizedBox(width: 8),
                 ],
                 Expanded(
@@ -46,10 +47,7 @@ class ProgressRow extends StatelessWidget {
                       Flexible(
                         child: Text(
                           label,
-                          style: const TextStyle(
-                            color: AppColors.colorTextPrimary,
-                            fontSize: 14,
-                          ),
+                          style: AppTextStyles.textBodyMd,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -66,9 +64,8 @@ class ProgressRow extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   value,
-                  style: TextStyle(
+                  style: AppTextStyles.textBodySm.copyWith(
                     color: color,
-                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
