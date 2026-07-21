@@ -6,7 +6,6 @@ import 'package:account_book_vibe/features/asset/asset_list_screen.dart';
 import 'package:account_book_vibe/features/asset/asset_ratio_screen.dart';
 import 'package:account_book_vibe/features/asset/my_asset_form_screen.dart';
 import 'package:account_book_vibe/features/expense/expense_category_screen.dart';
-import 'package:account_book_vibe/features/expense/expense_daily_chart_screen.dart';
 import 'package:account_book_vibe/features/expense/expense_dtl_screen.dart';
 import 'package:account_book_vibe/features/expense/expense_member_screen.dart';
 import 'package:account_book_vibe/features/expense/expense_monthly_chart_screen.dart';
@@ -67,10 +66,6 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/expense/chart',
       pageBuilder: (c, s) => _slidePage(const ExpenseMonthlyChartScreen(), s),
-    ),
-    GoRoute(
-      path: '/expense/dailyChart',
-      pageBuilder: (c, s) => _slidePage(const ExpenseDailyChartScreen(), s),
     ),
     GoRoute(
       path: '/income',

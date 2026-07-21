@@ -61,12 +61,6 @@ class AppDrawer extends StatelessWidget {
                       path: '/expense/chart',
                       currentPath: currentPath,
                     ),
-                    _SubTile(
-                      emoji: '📅',
-                      label: '일별 지출 추이',
-                      path: '/expense/dailyChart',
-                      currentPath: currentPath,
-                    ),
                   ],
                 ),
                 _AccordionSection(

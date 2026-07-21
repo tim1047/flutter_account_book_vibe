@@ -74,15 +74,3 @@ class DailyChartEntry {
   final int day;
   final int price;
 }
-
-class MonthDailyData {
-  const MonthDailyData({
-    required this.year,
-    required this.month,
-    required this.entries,
-  });
-
-  final int year;
-  final int month;
-  final List<DailyChartEntry> entries;
-}
