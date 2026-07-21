@@ -98,58 +98,78 @@ class _DailyChartBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final current = monthlyData.last;
+    final previous =
+        monthlyData.length >= 2 ? monthlyData[monthlyData.length - 2] : null;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Legend(monthlyData: monthlyData),
+          const _Legend(),
           const SizedBox(height: 12),
           _MultiMonthLineChart(monthlyData: monthlyData),
+          const SizedBox(height: 16),
+          _CumulativeMonthCard(current: current, previous: previous),
         ],
       ),
     );
   }
 }
 
-// ── 범례 ──────────────────────────────────────────────────────────────────────
+// ── 범례 (이번달 강조 / 지난달들 눌림, 2항목 고정) ─────────────────────────────
 
 class _Legend extends StatelessWidget {
-  const _Legend({required this.monthlyData});
-
-  final List<MonthDailyData> monthlyData;
+  const _Legend();
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return const Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        for (int i = 0; i < monthlyData.length; i++) ...[
-          if (i > 0) const SizedBox(width: 20),
-          Container(
-            width: 14,
-            height: 14,
-            decoration: BoxDecoration(
-              color: AppColors.chartLineColors[i % AppColors.chartLineColors.length],
-              borderRadius: BorderRadius.circular(3),
-            ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            '${monthlyData[i].month}월',
-            style: const TextStyle(
-              color: AppColors.colorTextSecondary,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+        _LegendItem(color: AppColors.colorChartCurrent, label: '이번달'),
+        SizedBox(width: 20),
+        _LegendItem(color: AppColors.colorTextSecondary, label: '지난달들'),
       ],
     );
   }
 }
 
-// ── 3개월 꺾은선 차트 ──────────────────────────────────────────────────────────
+class _LegendItem extends StatelessWidget {
+  const _LegendItem({required this.color, required this.label});
+
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 14,
+          height: 14,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: const TextStyle(
+            color: AppColors.colorTextSecondary,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── 패널 A: 3개월 겹침 라인 (이번달 강조, 지난달들 눌림) ────────────────────────
 
 class _MultiMonthLineChart extends StatelessWidget {
   const _MultiMonthLineChart({required this.monthlyData});
@@ -157,10 +177,6 @@ class _MultiMonthLineChart extends StatelessWidget {
   final List<MonthDailyData> monthlyData;
 
   static const double _yInterval = 500000;
-
-  List<FlSpot> _buildSpots(List<DailyChartEntry> entries) => entries
-      .map((e) => FlSpot(e.day.toDouble(), e.price.toDouble()))
-      .toList();
 
   double _maxY() {
     double max = 0;
@@ -177,6 +193,7 @@ class _MultiMonthLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxY = _maxY();
+    final currentIndex = monthlyData.length - 1;
 
     return Container(
       height: 360,
@@ -193,29 +210,7 @@ class _MultiMonthLineChart extends StatelessWidget {
           maxY: maxY,
           lineBarsData: [
             for (int i = 0; i < monthlyData.length; i++)
-              LineChartBarData(
-                spots: _buildSpots(monthlyData[i].entries),
-                color: AppColors.chartLineColors[
-                    i % AppColors.chartLineColors.length],
-                isCurved: true,
-                curveSmoothness: 0.25,
-                dotData: const FlDotData(show: false),
-                belowBarData: BarAreaData(
-                  show: true,
-                  color: Color.fromRGBO(
-                    AppColors.chartLineColors[
-                            i % AppColors.chartLineColors.length]
-                        .red,
-                    AppColors.chartLineColors[
-                            i % AppColors.chartLineColors.length]
-                        .green,
-                    AppColors.chartLineColors[
-                            i % AppColors.chartLineColors.length]
-                        .blue,
-                    0.06,
-                  ),
-                ),
-              ),
+              _buildLine(i, i == currentIndex),
           ],
           gridData: FlGridData(
             show: true,
@@ -289,14 +284,49 @@ class _MultiMonthLineChart extends StatelessWidget {
                   '$month월 ${spot.x.toInt()}일\n'
                   '${FormatUtil.formatPrice(spot.y.round())}원',
                   TextStyle(
-                    color: AppColors.chartLineColors[
-                        idx % AppColors.chartLineColors.length],
+                    color: idx == currentIndex
+                        ? AppColors.colorChartCurrent
+                        : AppColors.colorTextSecondary,
                     fontSize: 12,
                   ),
                 );
               }).toList(),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  LineChartBarData _buildLine(int index, bool isCurrent) {
+    final entries = monthlyData[index].entries;
+    final spots =
+        entries.map((e) => FlSpot(e.day.toDouble(), e.price.toDouble())).toList();
+    final lastSpot = spots.isEmpty ? null : spots.last;
+
+    return LineChartBarData(
+      spots: spots,
+      color: isCurrent ? AppColors.colorChartCurrent : AppColors.colorTextSecondary,
+      isCurved: true,
+      curveSmoothness: 0.25,
+      barWidth: isCurrent ? 2 : 1,
+      dotData: FlDotData(
+        show: isCurrent,
+        checkToShowDot: (spot, _) => lastSpot != null && spot == lastSpot,
+        getDotPainter: (spot, percent, bar, index) => FlDotCirclePainter(
+          radius: 4,
+          color: AppColors.colorChartCurrent,
+          strokeWidth: 2,
+          strokeColor: AppColors.colorBgCard,
+        ),
+      ),
+      belowBarData: BarAreaData(
+        show: isCurrent,
+        color: Color.fromRGBO(
+          AppColors.colorChartCurrent.red,
+          AppColors.colorChartCurrent.green,
+          AppColors.colorChartCurrent.blue,
+          0.1,
         ),
       ),
     );
