@@ -86,13 +86,6 @@ class AppColors {
     Color(0xFFFACC15),
   ];
 
-  static const List<Color> chartLineColors = <Color>[
-    Color(0xFF2DD4BF),
-    Color(0xFFF472B6),
-    Color(0xFFFB923C),
-  ];
-
-  static const Color colorChartAverage = Color(0xFF30363D);
   static const Color colorChartCurrent = Color(0xFFF87171);
 
   // 9. 그래디언트
