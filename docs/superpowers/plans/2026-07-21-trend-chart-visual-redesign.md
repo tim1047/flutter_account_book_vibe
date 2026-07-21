@@ -1105,6 +1105,9 @@ class _CumulativeMonthCard extends StatelessWidget {
                 maxX: 31,
                 minY: 0,
                 maxY: maxY,
+                // labelResolver 클로저 안에서는 Dart가 `referenceCumulative == null` 체크의
+                // null-promotion을 이어받지 못하므로 `!`가 필요하다 (진입 자체가 non-null
+                // 분기 안이라 안전함).
                 extraLinesData: referenceCumulative == null
                     ? const ExtraLinesData()
                     : ExtraLinesData(
@@ -1121,7 +1124,7 @@ class _CumulativeMonthCard extends StatelessWidget {
                                 fontSize: 10,
                               ),
                               labelResolver: (_) =>
-                                  '지난달 동기간 ${FormatUtil.formatPrice(referenceCumulative)}원',
+                                  '지난달 동기간 ${FormatUtil.formatPrice(referenceCumulative!)}원',
                             ),
                           ),
                         ],
