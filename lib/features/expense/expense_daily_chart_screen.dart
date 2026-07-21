@@ -302,3 +302,36 @@ class _MultiMonthLineChart extends StatelessWidget {
     );
   }
 }
+
+// ── 누적 계산 (순수 함수, 테스트 대상) ──────────────────────────────────────────
+
+/// 일별 데이터에서 누적 합계를 계산하는 순수 함수 모음.
+class DailyCumulativeCalc {
+  DailyCumulativeCalc._();
+
+  static int cumulativeUpTo(List<DailyChartEntry> entries, int day) =>
+      entries
+          .where((e) => e.day <= day)
+          .fold(0, (sum, e) => sum + e.price);
+
+  static List<FlSpot> buildCumulativeSpots(List<DailyChartEntry> entries) {
+    final sorted = [...entries]..sort((a, b) => a.day.compareTo(b.day));
+    int running = 0;
+    final spots = <FlSpot>[];
+    for (final e in sorted) {
+      running += e.price;
+      spots.add(FlSpot(e.day.toDouble(), running.toDouble()));
+    }
+    return spots;
+  }
+
+  /// [year]/[month]가 실제 달력상 이번달이면 오늘까지, 아니면 그 달의 마지막 날까지를
+  /// "누적 기준일"로 본다. 이번달인 경우 `today.day`는 정의상 그 달의 마지막 날을
+  /// 넘을 수 없으므로 별도 clamp가 필요 없다.
+  static int referenceDay(int year, int month, {DateTime? now}) {
+    final today = now ?? DateTime.now();
+    final isCurrentCalendarMonth = year == today.year && month == today.month;
+    if (isCurrentCalendarMonth) return today.day;
+    return DateTime(year, month + 1, 0).day;
+  }
+}
