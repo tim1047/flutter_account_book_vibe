@@ -107,7 +107,7 @@ class _DailyChartBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _Legend(),
+          _Legend(hasPrevious: monthlyData.length >= 2),
           const SizedBox(height: 12),
           _MultiMonthLineChart(monthlyData: monthlyData),
           const SizedBox(height: 16),
@@ -121,16 +121,21 @@ class _DailyChartBody extends StatelessWidget {
 // ── 범례 (이번달 강조 / 지난달들 눌림, 2항목 고정) ─────────────────────────────
 
 class _Legend extends StatelessWidget {
-  const _Legend();
+  const _Legend({required this.hasPrevious});
+
+  final bool hasPrevious;
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _LegendItem(color: AppColors.colorChartCurrent, label: '이번달'),
-        SizedBox(width: 20),
-        _LegendItem(color: AppColors.colorTextSecondary, label: '지난달들'),
+        const _LegendItem(color: AppColors.colorChartCurrent, label: '이번달'),
+        if (hasPrevious) ...[
+          const SizedBox(width: 20),
+          const _LegendItem(
+              color: AppColors.colorTextSecondary, label: '지난달들'),
+        ],
       ],
     );
   }
@@ -359,7 +364,10 @@ class _CumulativeMonthCard extends StatelessWidget {
         referenceCumulative == null ? null : currentCumulative - referenceCumulative;
 
     final spots = DailyCumulativeCalc.buildCumulativeSpots(current.entries);
-    final maxY = currentCumulative == 0 ? 100000.0 : currentCumulative * 1.2;
+    final referenceValue = referenceCumulative ?? 0;
+    final rawMax =
+        currentCumulative > referenceValue ? currentCumulative : referenceValue;
+    final maxY = rawMax == 0 ? 100000.0 : rawMax * 1.2;
 
     return Container(
       decoration: BoxDecoration(
