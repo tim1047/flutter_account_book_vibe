@@ -333,6 +333,169 @@ class _MultiMonthLineChart extends StatelessWidget {
   }
 }
 
+// ── 패널 B: 이번달 누적 ─────────────────────────────────────────────────────────
+
+class _CumulativeMonthCard extends StatelessWidget {
+  const _CumulativeMonthCard({required this.current, required this.previous});
+
+  final MonthDailyData current;
+  final MonthDailyData? previous;
+
+  @override
+  Widget build(BuildContext context) {
+    final asOfDay = DailyCumulativeCalc.referenceDay(current.year, current.month);
+    final currentCumulative =
+        DailyCumulativeCalc.cumulativeUpTo(current.entries, asOfDay);
+
+    int? referenceCumulative;
+    final prevMonth = previous;
+    if (prevMonth != null) {
+      final prevLastDay = _lastDay(prevMonth);
+      final clampedDay = asOfDay > prevLastDay ? prevLastDay : asOfDay;
+      referenceCumulative =
+          DailyCumulativeCalc.cumulativeUpTo(prevMonth.entries, clampedDay);
+    }
+    final diff =
+        referenceCumulative == null ? null : currentCumulative - referenceCumulative;
+
+    final spots = DailyCumulativeCalc.buildCumulativeSpots(current.entries);
+    final maxY = currentCumulative == 0 ? 100000.0 : currentCumulative * 1.2;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.colorBgCard,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            diff == null
+                ? '이번달 누적 ${FormatUtil.formatPrice(currentCumulative)}원'
+                : '이번달 누적 ${FormatUtil.formatPrice(currentCumulative)}원 '
+                    '(지난달 동기간 대비 ${diff >= 0 ? '+' : ''}${FormatUtil.formatPrice(diff)}원)',
+            style: const TextStyle(
+              color: AppColors.colorTextPrimary,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 200,
+            child: LineChart(
+              LineChartData(
+                minX: 1,
+                maxX: 31,
+                minY: 0,
+                maxY: maxY,
+                extraLinesData: referenceCumulative == null
+                    ? const ExtraLinesData()
+                    : ExtraLinesData(
+                        horizontalLines: [
+                          HorizontalLine(
+                            y: referenceCumulative.toDouble(),
+                            color: AppColors.colorTextSecondary,
+                            strokeWidth: 1,
+                            label: HorizontalLineLabel(
+                              show: true,
+                              alignment: Alignment.topRight,
+                              style: const TextStyle(
+                                color: AppColors.colorTextSecondary,
+                                fontSize: 10,
+                              ),
+                              labelResolver: (_) =>
+                                  '지난달 동기간 ${FormatUtil.formatPrice(referenceCumulative!)}원',
+                            ),
+                          ),
+                        ],
+                      ),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: spots,
+                    color: AppColors.colorChartCurrent,
+                    isCurved: false,
+                    barWidth: 2,
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: Color.fromRGBO(
+                        AppColors.colorChartCurrent.red,
+                        AppColors.colorChartCurrent.green,
+                        AppColors.colorChartCurrent.blue,
+                        0.1,
+                      ),
+                    ),
+                  ),
+                ],
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (_) => const FlLine(
+                    color: AppColors.colorDivider,
+                    strokeWidth: 0.5,
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 28,
+                      interval: 5,
+                      getTitlesWidget: (value, meta) {
+                        final day = value.toInt();
+                        if (day == 1 || day % 5 == 0) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              '$day',
+                              style: const TextStyle(
+                                color: AppColors.colorTextSecondary,
+                                fontSize: 10,
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                ),
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    tooltipBgColor: AppColors.colorBgSub,
+                    getTooltipItems: (spots) => spots.map((spot) {
+                      return LineTooltipItem(
+                        '${spot.x.toInt()}일까지 누적\n'
+                        '${FormatUtil.formatPrice(spot.y.round())}원',
+                        const TextStyle(
+                          color: AppColors.colorChartCurrent,
+                          fontSize: 12,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _lastDay(MonthDailyData month) =>
+      DateTime(month.year, month.month + 1, 0).day;
+}
+
 // ── 누적 계산 (순수 함수, 테스트 대상) ──────────────────────────────────────────
 
 /// 일별 데이터에서 누적 합계를 계산하는 순수 함수 모음.
