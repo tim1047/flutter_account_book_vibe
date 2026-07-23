@@ -73,6 +73,23 @@ class DashboardPeriodViewModel extends ChangeNotifier {
     };
   }
 
+  /// 월별 지출 추이 차트용 range. 선택 기간이 1개월(singleMonth/thisMonth)이면
+  /// 해당 달을 끝으로 하는 rolling [chartRollingMonths]개월로 넓혀서 추이를 보여준다.
+  /// 이미 여러 달을 포괄하는 기간은 [range]와 동일.
+  static const int chartRollingMonths = 6;
+
+  ({String strtDt, String endDt}) get chartRange {
+    final now = DateTime.now();
+    return switch (_period) {
+      DashboardPeriod.singleMonth => _rollingRange(
+          DateTime(_selectedYear, _selectedMonth),
+          chartRollingMonths,
+        ),
+      DashboardPeriod.thisMonth => _rollingRange(now, chartRollingMonths),
+      _ => range,
+    };
+  }
+
   int get monthCount => switch (_period) {
         DashboardPeriod.singleMonth => 1,
         DashboardPeriod.thisMonth => 1,
@@ -81,6 +98,18 @@ class DashboardPeriodViewModel extends ChangeNotifier {
         DashboardPeriod.thisYear => 12,
         DashboardPeriod.custom => _customMonthCount(),
       };
+
+  /// 차트에서 강조 표시할 'YYYYMM'. 기간이 1개월짜리일 때만 값 존재.
+  String? get chartHighlightMonth {
+    final now = DateTime.now();
+    return switch (_period) {
+      DashboardPeriod.singleMonth =>
+        FormatUtil.toStrtDt(_selectedYear, _selectedMonth).substring(0, 6),
+      DashboardPeriod.thisMonth =>
+        FormatUtil.toStrtDt(now.year, now.month).substring(0, 6),
+      _ => null,
+    };
+  }
 
   int _customMonthCount() {
     final now = DateTime.now();

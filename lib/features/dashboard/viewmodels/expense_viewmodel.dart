@@ -59,6 +59,7 @@ class DashboardExpenseData {
     required this.categorySeqBreakdown,
     required this.topTransactions,
     required this.changeLabel,
+    this.chartHighlightMonth,
   });
 
   final int totalExpense;
@@ -68,6 +69,7 @@ class DashboardExpenseData {
   final List<ExpenseCategorySeqItem> categorySeqBreakdown;
   final List<AccountListResponse> topTransactions;
   final String changeLabel;
+  final String? chartHighlightMonth;
 
   double get changeRate {
     if (prevPeriodExpense == 0) return 0;
@@ -90,6 +92,7 @@ class DashboardExpenseViewModel extends ChangeNotifier {
   bool _ownLoading = false;
   List<AccountListResponse>? _prevAccounts;
   List<CategorySumResponse>? _prevCatSums;
+  List<AccountListResponse>? _chartAccounts;
   bool _sharedWasLoading = false;
 
   /// Public entry point (called on init and when needed).
@@ -99,12 +102,16 @@ class DashboardExpenseViewModel extends ChangeNotifier {
     _ownLoading = true;
     _prevAccounts = null;
     _prevCatSums = null;
+    _chartAccounts = null;
     isLoading = true;
     errorMessage = null;
     notifyListeners();
 
     try {
       final prevRange = _period.prevRange;
+      final chartRange = _period.chartRange;
+      // 기간이 1개월짜리일 땐 chartRange가 range보다 넓어짐 -> 별도 조회 필요.
+      final needsChartFetch = chartRange != _period.range;
 
       final results = await Future.wait([
         AccountService.instance.getAccounts(
@@ -117,10 +124,18 @@ class DashboardExpenseViewModel extends ChangeNotifier {
           strtDt: prevRange.strtDt,
           endDt: prevRange.endDt,
         ),
+        if (needsChartFetch)
+          AccountService.instance.getAccounts(
+            strtDt: chartRange.strtDt,
+            endDt: chartRange.endDt,
+            divisionId: Division.expense,
+          ),
       ]);
 
       _prevAccounts = results[0] as List<AccountListResponse>;
       _prevCatSums = results[1] as List<CategorySumResponse>;
+      _chartAccounts =
+          needsChartFetch ? results[2] as List<AccountListResponse> : null;
     } on AppException catch (e) {
       errorMessage = e.message;
       _ownLoading = false;
@@ -167,19 +182,21 @@ class DashboardExpenseViewModel extends ChangeNotifier {
     final prevAccounts = _prevAccounts!;
 
     final topTx = [...current]..sort((a, b) => b.price.compareTo(a.price));
+    final chartAccounts = _chartAccounts ?? current;
 
     data = DashboardExpenseData(
       totalExpense: current.fold(0, (s, e) => s + e.price),
       prevPeriodExpense: prevAccounts.fold(0, (s, e) => s + e.price),
       monthlyExpenses: buildMonthlyTotals(
-        current,
-        _period.range.strtDt,
-        _period.range.endDt,
+        chartAccounts,
+        _period.chartRange.strtDt,
+        _period.chartRange.endDt,
       ),
       categoryBreakdown: buildCategoryBreakdown(currentCats, prevCats),
       categorySeqBreakdown: buildCategorySeqBreakdown(currentCats, prevCats),
       topTransactions: topTx.take(10).toList(),
       changeLabel: _period.changeLabel,
+      chartHighlightMonth: _period.chartHighlightMonth,
     );
     isLoading = false;
     notifyListeners();

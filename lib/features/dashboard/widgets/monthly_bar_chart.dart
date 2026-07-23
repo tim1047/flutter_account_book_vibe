@@ -9,12 +9,16 @@ class MonthlyBarChart extends StatelessWidget {
     required this.data,
     required this.barColor,
     this.height = 120,
+    this.highlightMonth,
   });
 
   /// data: (month: 'YYYYMM', amount: int) 리스트, 월 오름차순
   final List<({String month, int amount})> data;
   final Color barColor;
   final double height;
+
+  /// 강조 표시할 'YYYYMM'. null이면 모든 막대 동일하게 표시.
+  final String? highlightMonth;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +37,11 @@ class MonthlyBarChart extends StatelessWidget {
     final barGroups = data.asMap().entries.map((entry) {
       final i = entry.key;
       final e = entry.value;
+      final isDimmed =
+          highlightMonth != null && e.month != highlightMonth;
+      final rodColors = isDimmed
+          ? [barColor.withValues(alpha: 0.18), barColor.withValues(alpha: 0.3)]
+          : [barColor.withValues(alpha: 0.6), barColor];
       return BarChartGroupData(
         x: i,
         barRods: [
@@ -41,7 +50,7 @@ class MonthlyBarChart extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
-              colors: [barColor.withValues(alpha: 0.6), barColor],
+              colors: rodColors,
             ),
             width: 12,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),

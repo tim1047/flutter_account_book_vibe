@@ -65,6 +65,7 @@ class _ExpenseContent extends StatelessWidget {
           child: MonthlyBarChart(
             data: data.monthlyExpenses,
             barColor: AppColors.colorExpense,
+            highlightMonth: data.chartHighlightMonth,
           ),
         ),
         const SizedBox(height: 12),
