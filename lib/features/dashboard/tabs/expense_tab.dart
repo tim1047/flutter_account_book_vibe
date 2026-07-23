@@ -5,11 +5,11 @@ import 'package:account_book_vibe/core/constants/category_emojis.dart';
 import 'package:account_book_vibe/core/constants/member_images.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/expense_viewmodel.dart';
-import 'package:account_book_vibe/features/dashboard/widgets/donut_legend_row.dart';
+import 'package:account_book_vibe/features/dashboard/widgets/category_legend_row.dart';
+import 'package:account_book_vibe/features/dashboard/widgets/category_share_bar.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/monthly_bar_chart.dart';
 import 'package:account_book_vibe/shared/widgets/error_view.dart';
 import 'package:account_book_vibe/shared/widgets/user_avatar.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseTab extends StatelessWidget {
@@ -52,10 +52,10 @@ class _ExpenseContent extends StatelessWidget {
         _ExpenseHeroCard(data: data),
         const SizedBox(height: 12),
 
-        // ② 카테고리 도넛 차트
+        // ② 카테고리별 비중 스택 바
         _SectionCard(
           title: '카테고리별 비중',
-          child: _DonutSection(data: data),
+          child: _CategoryShareSection(data: data),
         ),
         const SizedBox(height: 12),
 
@@ -285,8 +285,8 @@ class _ExpenseHeroCard extends StatelessWidget {
   }
 }
 
-class _DonutSection extends StatelessWidget {
-  const _DonutSection({required this.data});
+class _CategoryShareSection extends StatelessWidget {
+  const _CategoryShareSection({required this.data});
   final DashboardExpenseData data;
 
   @override
@@ -297,38 +297,24 @@ class _DonutSection extends StatelessWidget {
         child: Center(child: Text('데이터 없음')),
       );
     }
-    final sections = data.categoryBreakdown.map((e) {
-      return PieChartSectionData(
-        value: e.ratio,
-        color: CategoryColors.of(e.categoryId),
-        radius: 40,
-        title: '',
-      );
-    }).toList();
-
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 80,
-          height: 80,
-          child: PieChart(PieChartData(
-            sections: sections,
-            centerSpaceRadius: 22,
-            sectionsSpace: 2,
-          )),
+        CategoryShareBar(
+          segments: data.categoryBreakdown
+              .map((e) => (color: CategoryColors.of(e.categoryId), ratio: e.ratio))
+              .toList(),
         ),
-        const SizedBox(width: 24),
-        Expanded(
-          child: Column(
-            children: data.categoryBreakdown.map((e) {
-              return DonutLegendRow(
-                color: CategoryColors.of(e.categoryId),
-                label: e.categoryNm,
-                amount: e.amount,
-                ratio: e.ratio,
-              );
-            }).toList(),
-          ),
+        const SizedBox(height: 12),
+        Column(
+          children: data.categoryBreakdown.map((e) {
+            return CategoryLegendRow(
+              color: CategoryColors.of(e.categoryId),
+              label: e.categoryNm,
+              amount: e.amount,
+              ratio: e.ratio,
+            );
+          }).toList(),
         ),
       ],
     );

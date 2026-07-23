@@ -3,8 +3,8 @@ import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:flutter/material.dart';
 
-class DonutLegendRow extends StatelessWidget {
-  const DonutLegendRow({
+class CategoryLegendRow extends StatelessWidget {
+  const CategoryLegendRow({
     super.key,
     required this.color,
     required this.label,
