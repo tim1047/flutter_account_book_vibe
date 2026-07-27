@@ -135,7 +135,7 @@ class MyAssetListResponse {
   final int totNetWorthSumPrice;
   final int totCashableSumPrice;
   final int usdKrwRate;
-  final double jpyKrwRate;
+  final int jpyKrwRate;
   final String myAssetAccumDts;
   final Map<String, MyAssetGroupResponse> data;
 
@@ -145,7 +145,7 @@ class MyAssetListResponse {
         totNetWorthSumPrice: json['totNetWorthSumPrice'] as int,
         totCashableSumPrice: json['totCashableSumPrice'] as int,
         usdKrwRate: json['usdKrwRate'] as int,
-        jpyKrwRate: (json['jpyKrwRate'] as num).toDouble(),
+        jpyKrwRate: json['jpyKrwRate'] as int,
         myAssetAccumDts: json['myAssetAccumDts'] as String,
         data: (json['data'] as Map<String, dynamic>).map(
           (k, v) => MapEntry(

@@ -188,8 +188,7 @@ class _SummaryCard extends StatelessWidget {
               ),
               _StatCell(
                 label: '현금성',
-                value:
-                    FormatUtil.formatPrice(data.totCashableSumPrice),
+                value: FormatUtil.formatPrice(data.totCashableSumPrice),
                 color: AppColors.colorTextPrimary,
               ),
               GestureDetector(
@@ -212,7 +211,7 @@ class _SummaryCard extends StatelessWidget {
               ),
               _StatCell(
                 label: 'JPY/KRW',
-                value: (data.jpyKrwRate * 100).toStringAsFixed(2),
+                value: FormatUtil.formatPrice(data.jpyKrwRate),
                 color: AppColors.colorTextPrimary,
               ),
               _StatCell(
@@ -371,7 +370,8 @@ class _AssetSubGroupSection extends StatelessWidget {
           ],
         ),
         children: subGroup.items
-            .map((item) => _AssetItemTile(item: item, onTap: () => onEdit(item)))
+            .map(
+                (item) => _AssetItemTile(item: item, onTap: () => onEdit(item)))
             .toList(),
       ),
     );
@@ -397,8 +397,7 @@ class _AssetItemTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 6),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: AppColors.colorBgSub,
           borderRadius: BorderRadius.circular(10),
