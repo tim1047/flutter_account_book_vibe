@@ -1,3 +1,4 @@
+import 'package:account_book_vibe/core/constants/asset_ids.dart';
 import 'package:account_book_vibe/core/network/app_exception.dart';
 import 'package:account_book_vibe/data/models/my_asset_model.dart';
 import 'package:account_book_vibe/data/services/my_asset_service.dart';
@@ -35,7 +36,7 @@ class AssetAccumViewModel extends ChangeNotifier {
   }
 
   void _process(List<MyAssetSumResponse> items) {
-    final filtered = items.where((e) => e.assetId != '0').toList();
+    final filtered = items.where((e) => e.assetId != AssetIds.total).toList();
     sortedDates =
         filtered.map((e) => e.accumDt).toSet().toList()..sort();
 
@@ -55,7 +56,7 @@ class AssetAccumViewModel extends ChangeNotifier {
     }
 
     dateTotalMap = {};
-    for (final item in items.where((e) => e.assetId == '0')) {
+    for (final item in items.where((e) => e.assetId == AssetIds.total)) {
       dateTotalMap[item.accumDt] = item.sumPrice;
     }
   }

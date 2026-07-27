@@ -1,3 +1,4 @@
+import 'package:account_book_vibe/core/constants/asset_ids.dart';
 import 'package:flutter/material.dart';
 
 /// assetId(1~8) 별 고정 차트 컬러.
@@ -11,14 +12,14 @@ class AssetColors {
   static const Color _fallback = Color(0xFF8B949E);
 
   static const Map<String, Color> _colors = <String, Color>{
-    '1': Color(0xFF818CF8),
-    '2': Color(0xFFF472B6),
-    '3': Color(0xFF2DD4BF),
-    '4': Color(0xFF4ADE80),
-    '5': Color(0xFFF87171),
-    '6': Color(0xFFE6EDF3),
-    '7': Color(0xFFFB923C),
-    '8': Color(0xFFFACC15),
+    AssetIds.domesticStock: Color(0xFF818CF8),
+    AssetIds.usStock: Color(0xFFF472B6),
+    AssetIds.coin: Color(0xFF2DD4BF),
+    AssetIds.cash: Color(0xFF4ADE80),
+    AssetIds.realEstate: Color(0xFFF87171),
+    AssetIds.loan: Color(0xFFE6EDF3),
+    AssetIds.jpStock: Color(0xFFFB923C),
+    AssetIds.pension: Color(0xFFFACC15),
   };
 
   static Color of(String assetId) => _colors[assetId] ?? _fallback;

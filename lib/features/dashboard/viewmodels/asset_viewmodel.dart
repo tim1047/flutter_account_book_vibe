@@ -1,4 +1,5 @@
 // lib/features/dashboard/viewmodels/asset_viewmodel.dart
+import 'package:account_book_vibe/core/constants/asset_ids.dart';
 import 'package:account_book_vibe/core/network/app_exception.dart';
 import 'package:account_book_vibe/data/models/my_asset_model.dart';
 import 'package:account_book_vibe/data/services/my_asset_service.dart';
@@ -20,6 +21,13 @@ class AssetCompositionItem {
   final double ratio;
 }
 
+class DebtItem {
+  const DebtItem({required this.name, required this.amount});
+
+  final String name;
+  final int amount;
+}
+
 class DashboardAssetData {
   const DashboardAssetData({
     required this.totalAsset,
@@ -29,6 +37,7 @@ class DashboardAssetData {
     required this.netWorthHistory,
     required this.assetHistoryNames,
     required this.assetHistory,
+    required this.debtItems,
   });
 
   final int totalAsset;
@@ -38,6 +47,7 @@ class DashboardAssetData {
   final List<({String date, int amount})> netWorthHistory;
   final List<({String id, String name})> assetHistoryNames;
   final List<({String date, Map<String, int> byAsset})> assetHistory;
+  final List<DebtItem> debtItems;
 
   int get debt => totalAsset - netWorth;
   int get yearlyGrowth => netWorth - prevYearNetWorth;
@@ -107,13 +117,18 @@ class DashboardAssetViewModel extends ChangeNotifier {
       final prevYearDt = _fmt(DateTime(now.year - 1, now.month, now.day));
       final range = historyRange;
 
-      final results = await Future.wait([
+      final sumResults = Future.wait([
         MyAssetService.instance.getMyAssetSum(strtDt: todayDt, endDt: todayDt),
         MyAssetService.instance
             .getMyAssetSum(strtDt: prevYearDt, endDt: prevYearDt),
         MyAssetService.instance
             .getMyAssetSum(strtDt: range.strtDt, endDt: range.endDt),
       ]);
+      final myAssetsFuture = MyAssetService.instance
+          .getMyAssets(strtDt: todayDt, endDt: todayDt);
+
+      final results = await sumResults;
+      final myAssets = await myAssetsFuture;
 
       final todaySum = results[0];
       final prevYearSum = results[1];
@@ -137,6 +152,7 @@ class DashboardAssetViewModel extends ChangeNotifier {
         netWorthHistory: _buildNetWorthHistory(sumHistory),
         assetHistoryNames: assetHist.names,
         assetHistory: assetHist.history,
+        debtItems: _buildDebtItems(myAssets),
       );
     } on AppException catch (e) {
       errorMessage = e.message;
@@ -147,18 +163,31 @@ class DashboardAssetViewModel extends ChangeNotifier {
   }
 
   static int _sumAssets(List<MyAssetSumResponse> sums) => sums
-      .where((s) => s.assetId != '0' && s.assetId != '6')
+      .where((s) => s.assetId != AssetIds.total && s.assetId != AssetIds.loan)
       .fold(0, (acc, s) => acc + s.sumPrice);
 
   static int _sumDebt(List<MyAssetSumResponse> sums) => sums
-      .where((s) => s.assetId == '6')
+      .where((s) => s.assetId == AssetIds.loan)
       .fold(0, (acc, s) => acc + s.sumPrice);
+
+  static List<DebtItem> _buildDebtItems(MyAssetListResponse myAssets) {
+    final items = myAssets.data.values
+        .expand((group) => group.allItems)
+        .where((item) => item.assetId == AssetIds.loan)
+        .map((item) => DebtItem(name: item.myAssetNm, amount: item.sumPrice))
+        .toList()
+      ..sort((a, b) => b.amount.compareTo(a.amount));
+    return items;
+  }
 
   static List<AssetCompositionItem> _buildComposition(
     List<MyAssetSumResponse> sums,
   ) {
     final assets = sums
-        .where((s) => s.assetId != '0' && s.assetId != '6' && s.sumPrice > 0)
+        .where((s) =>
+            s.assetId != AssetIds.total &&
+            s.assetId != AssetIds.loan &&
+            s.sumPrice > 0)
         .toList();
     final total = assets.fold(0, (acc, s) => acc + s.sumPrice);
     if (total == 0) return [];
@@ -177,8 +206,9 @@ class DashboardAssetViewModel extends ChangeNotifier {
     List<({String id, String name})> names,
     List<({String date, Map<String, int> byAsset})> history,
   }) buildAssetHistory(List<MyAssetSumResponse> sums) {
-    final filtered =
-        sums.where((s) => s.assetId != '0' && s.assetId != '6').toList();
+    final filtered = sums
+        .where((s) => s.assetId != AssetIds.total && s.assetId != AssetIds.loan)
+        .toList();
 
     final names = <({String id, String name})>[];
     for (final s in filtered) {
@@ -206,8 +236,8 @@ class DashboardAssetViewModel extends ChangeNotifier {
     final byDateAsset = <String, int>{};
     final byDateDebt = <String, int>{};
     for (final s in sums) {
-      if (s.assetId == '0') continue;
-      if (s.assetId == '6') {
+      if (s.assetId == AssetIds.total) continue;
+      if (s.assetId == AssetIds.loan) {
         byDateDebt[s.accumDt] = (byDateDebt[s.accumDt] ?? 0) + s.sumPrice;
       } else {
         byDateAsset[s.accumDt] =
