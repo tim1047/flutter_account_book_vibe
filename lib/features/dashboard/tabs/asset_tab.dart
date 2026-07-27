@@ -54,22 +54,33 @@ class _AssetContent extends StatelessWidget {
           const SizedBox(height: 12),
           _SectionCard(
             title: '부채 현황',
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '총 부채',
-                  style: AppTextStyles.textBodySm.copyWith(
-                    color: AppColors.colorTextSecondary,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '총 부채',
+                      style: AppTextStyles.textBodySm.copyWith(
+                        color: AppColors.colorTextSecondary,
+                      ),
+                    ),
+                    Text(
+                      '-₩ ${FormatUtil.formatPrice(data.debt)}',
+                      style: AppTextStyles.textBodyMd.copyWith(
+                        color: AppColors.colorExpense,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  '-₩ ${FormatUtil.formatPrice(data.debt)}',
-                  style: AppTextStyles.textBodyMd.copyWith(
-                    color: AppColors.colorExpense,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                if (data.debtItems.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  const Divider(height: 1, color: AppColors.colorDivider),
+                  const SizedBox(height: 8),
+                  ...data.debtItems.map((item) => _DebtItemRow(item: item)),
+                ],
               ],
             ),
           ),
@@ -446,6 +457,40 @@ class _AssetCompositionBars extends StatelessWidget {
           ratio: e.ratio,
         );
       }).toList(),
+    );
+  }
+}
+
+class _DebtItemRow extends StatelessWidget {
+  const _DebtItemRow({required this.item});
+
+  final DebtItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              item.name,
+              style: AppTextStyles.textBodySm.copyWith(
+                color: AppColors.colorTextPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Text(
+            '-₩ ${FormatUtil.formatPrice(item.amount)}',
+            style: AppTextStyles.textBodySm.copyWith(
+              color: AppColors.colorTextSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
