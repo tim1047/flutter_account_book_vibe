@@ -32,6 +32,7 @@ class DashboardAssetData {
   const DashboardAssetData({
     required this.totalAsset,
     required this.netWorth,
+    required this.debt,
     required this.prevYearNetWorth,
     required this.assetComposition,
     required this.netWorthHistory,
@@ -42,6 +43,7 @@ class DashboardAssetData {
 
   final int totalAsset;
   final int netWorth;
+  final int debt;
   final int prevYearNetWorth;
   final List<AssetCompositionItem> assetComposition;
   final List<({String date, int amount})> netWorthHistory;
@@ -49,7 +51,6 @@ class DashboardAssetData {
   final List<({String date, Map<String, int> byAsset})> assetHistory;
   final List<DebtItem> debtItems;
 
-  int get debt => totalAsset - netWorth;
   int get yearlyGrowth => netWorth - prevYearNetWorth;
 }
 
@@ -136,17 +137,15 @@ class DashboardAssetViewModel extends ChangeNotifier {
 
       final totalAsset = _sumAssets(todaySum);
       final debt = _sumDebt(todaySum);
-      final netWorth = totalAsset - debt;
-
-      final prevTotalAsset = _sumAssets(prevYearSum);
-      final prevDebt = _sumDebt(prevYearSum);
-      final prevYearNetWorth = prevTotalAsset - prevDebt;
+      final netWorth = _netWorth(todaySum);
+      final prevYearNetWorth = _netWorth(prevYearSum);
 
       final assetHist = buildAssetHistory(sumHistory);
 
       data = DashboardAssetData(
         totalAsset: totalAsset,
         netWorth: netWorth,
+        debt: debt,
         prevYearNetWorth: prevYearNetWorth,
         assetComposition: _buildComposition(todaySum),
         netWorthHistory: _buildNetWorthHistory(sumHistory),
@@ -168,6 +167,10 @@ class DashboardAssetViewModel extends ChangeNotifier {
 
   static int _sumDebt(List<MyAssetSumResponse> sums) => sums
       .where((s) => s.assetId == AssetIds.loan)
+      .fold(0, (acc, s) => acc + s.sumPrice);
+
+  static int _netWorth(List<MyAssetSumResponse> sums) => sums
+      .where((s) => s.assetId == AssetIds.total)
       .fold(0, (acc, s) => acc + s.sumPrice);
 
   static List<DebtItem> _buildDebtItems(MyAssetListResponse myAssets) {
@@ -233,42 +236,28 @@ class DashboardAssetViewModel extends ChangeNotifier {
   static List<({String date, int amount})> _buildNetWorthHistory(
     List<MyAssetSumResponse> sums,
   ) {
-    final byDateAsset = <String, int>{};
-    final byDateDebt = <String, int>{};
+    final byDateNetWorth = <String, int>{};
     for (final s in sums) {
-      if (s.assetId == AssetIds.total) continue;
-      if (s.assetId == AssetIds.loan) {
-        byDateDebt[s.accumDt] = (byDateDebt[s.accumDt] ?? 0) + s.sumPrice;
-      } else {
-        byDateAsset[s.accumDt] =
-            (byDateAsset[s.accumDt] ?? 0) + s.sumPrice;
+      if (s.assetId == AssetIds.total) {
+        byDateNetWorth[s.accumDt] = s.sumPrice;
       }
     }
-    final allDates = {
-      ...byDateAsset.keys,
-      ...byDateDebt.keys,
-    }.toList()
-      ..sort();
+    final dates = byDateNetWorth.keys.toList()..sort();
     final todayStr = _fmt(DateTime.now());
-
-    final raw = allDates.map((date) {
-      final asset = byDateAsset[date] ?? 0;
-      final debt = byDateDebt[date] ?? 0;
-      return (date: date, amount: asset - debt);
-    }).toList();
 
     var lastKnown = 0;
     final result = <({String date, int amount})>[];
-    for (final entry in raw) {
-      if (entry.date.compareTo(todayStr) <= 0 && entry.amount != 0) {
-        lastKnown = entry.amount;
-        result.add(entry);
-      } else if (entry.date.compareTo(todayStr) > 0 &&
-          entry.amount == 0 &&
+    for (final date in dates) {
+      final amount = byDateNetWorth[date]!;
+      if (date.compareTo(todayStr) <= 0 && amount != 0) {
+        lastKnown = amount;
+        result.add((date: date, amount: amount));
+      } else if (date.compareTo(todayStr) > 0 &&
+          amount == 0 &&
           lastKnown != 0) {
-        result.add((date: entry.date, amount: lastKnown));
+        result.add((date: date, amount: lastKnown));
       } else {
-        result.add(entry);
+        result.add((date: date, amount: amount));
       }
     }
     return result;
