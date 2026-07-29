@@ -89,7 +89,7 @@ class _AssetContent extends StatelessWidget {
 
         // ③ 자산 구성 (항상 오늘 스냅샷)
         _SectionCard(
-          title: '자산 구성',
+          title: '순자산 구성',
           child: _AssetCompositionBars(data: data),
         ),
         const SizedBox(height: 12),
@@ -634,15 +634,15 @@ class _AssetHistorySection extends StatelessWidget {
           rows: _buildNetWorthRows(data.netWorthHistory),
         ),
         ...data.assetHistoryNames.map(
-              (asset) => Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: _HistoryCard(
-                  label: asset.name,
-                  dotColor: AssetColors.of(asset.id),
-                  rows: _buildAssetRows(asset.name, data.assetHistory),
-                ),
-              ),
+          (asset) => Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: _HistoryCard(
+              label: asset.name,
+              dotColor: AssetColors.of(asset.id),
+              rows: _buildAssetRows(asset.name, data.assetHistory),
             ),
+          ),
+        ),
       ],
     );
   }
