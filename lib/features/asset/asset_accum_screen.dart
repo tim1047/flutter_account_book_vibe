@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/constants/asset_colors.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/features/asset/asset_accum_viewmodel.dart';
@@ -123,9 +124,9 @@ class _LegendSection extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               asset.name,
-              style: const TextStyle(
+              style: AppTextStyles.textTitleSm.copyWith(
+                fontWeight: FontWeight.w400,
                 color: AppColors.colorTextSecondary,
-                fontSize: 12,
               ),
             ),
           ],
@@ -234,10 +235,7 @@ class _StackedBarChart extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 4),
                     child: Text(
                       _yLabel(value),
-                      style: const TextStyle(
-                        color: AppColors.colorTextSecondary,
-                        fontSize: 9,
-                      ),
+                      style: AppTextStyles.textCaption,
                       textAlign: TextAlign.right,
                     ),
                   );
@@ -258,10 +256,7 @@ class _StackedBarChart extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
                       _xLabel(vm.sortedDates[idx]),
-                      style: const TextStyle(
-                        color: AppColors.colorTextSecondary,
-                        fontSize: 9,
-                      ),
+                      style: AppTextStyles.textCaption,
                     ),
                   );
                 },
@@ -278,10 +273,7 @@ class _StackedBarChart extends StatelessWidget {
                 final total = vm.dateTotalMap[date] ?? 0;
                 return BarTooltipItem(
                   '${_xLabel(date)}\n순자산: ${FormatUtil.formatPrice(total)}원',
-                  const TextStyle(
-                    color: AppColors.colorTextPrimary,
-                    fontSize: 11,
-                  ),
+                  AppTextStyles.textBodyMd,
                 );
               },
             ),
@@ -341,31 +333,30 @@ class _TotalAssetDetailCard extends StatelessWidget {
               width: 90,
               child: Text(
                 _fmtDt(date),
-                style: const TextStyle(
+                style: AppTextStyles.textTitleSm.copyWith(
+                  fontWeight: FontWeight.w400,
                   color: AppColors.colorTextSecondary,
-                  fontSize: 12,
                 ),
               ),
             ),
             Expanded(
               child: Text(
                 '${FormatUtil.formatPrice(price)}원',
-                style: const TextStyle(
-                  color: AppColors.colorTextPrimary,
-                  fontSize: 13,
+                style: AppTextStyles.textBodyLg.copyWith(
                   fontWeight: FontWeight.w600,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
             ),
             if (change != null && pct != null) ...[
               Text(
                 '${isPositive ? '+' : ''}${FormatUtil.formatPrice(change)}원',
-                style: TextStyle(color: changeColor, fontSize: 11),
+                style: AppTextStyles.textBodyMd.copyWith(color: changeColor),
               ),
               const SizedBox(width: 4),
               Text(
                 '(${isPositive ? '+' : ''}${pct.toStringAsFixed(1)}%)',
-                style: TextStyle(color: changeColor, fontSize: 11),
+                style: AppTextStyles.textBodyMd.copyWith(color: changeColor),
               ),
             ],
           ],
@@ -401,11 +392,7 @@ class _TotalAssetDetailCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 const Text(
                   '순자산',
-                  style: TextStyle(
-                    color: AppColors.colorTextPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.textHeadlineSm,
                 ),
               ],
             ),
@@ -471,31 +458,30 @@ class _AssetDetailCard extends StatelessWidget {
               width: 90,
               child: Text(
                 _fmtDt(date),
-                style: const TextStyle(
+                style: AppTextStyles.textTitleSm.copyWith(
+                  fontWeight: FontWeight.w400,
                   color: AppColors.colorTextSecondary,
-                  fontSize: 12,
                 ),
               ),
             ),
             Expanded(
               child: Text(
                 '${FormatUtil.formatPrice(price)}원',
-                style: const TextStyle(
-                  color: AppColors.colorTextPrimary,
-                  fontSize: 13,
+                style: AppTextStyles.textBodyLg.copyWith(
                   fontWeight: FontWeight.w600,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
             ),
             if (change != null && pct != null) ...[
               Text(
                 '${isPositive ? '+' : ''}${FormatUtil.formatPrice(change)}원',
-                style: TextStyle(color: changeColor, fontSize: 11),
+                style: AppTextStyles.textBodyMd.copyWith(color: changeColor),
               ),
               const SizedBox(width: 4),
               Text(
                 '(${isPositive ? '+' : ''}${pct.toStringAsFixed(1)}%)',
-                style: TextStyle(color: changeColor, fontSize: 11),
+                style: AppTextStyles.textBodyMd.copyWith(color: changeColor),
               ),
             ],
           ],
@@ -529,13 +515,9 @@ class _AssetDetailCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 6),
-                Text(
+Text(
                   assetNm,
-                  style: const TextStyle(
-                    color: AppColors.colorTextPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.textHeadlineSm,
                 ),
               ],
             ),

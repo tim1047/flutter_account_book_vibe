@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/constants/asset_colors.dart';
 import 'package:account_book_vibe/core/constants/category_emojis.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
@@ -121,19 +122,15 @@ class _AssetGroupRatioTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   group.assetNm,
-                  style: const TextStyle(
-                    color: AppColors.colorTextPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.textHeadlineSm,
                 ),
               ),
               Text(
                 '${FormatUtil.formatPrice(group.assetTotSumPrice)}원  $_groupPctStr',
-                style: TextStyle(
+                style: AppTextStyles.textBodyLg.copyWith(
                   color: color,
-                  fontSize: 13,
                   fontWeight: FontWeight.w600,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
             ],

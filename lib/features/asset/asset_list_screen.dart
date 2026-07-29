@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/data/models/my_asset_model.dart';
 import 'package:account_book_vibe/features/asset/asset_viewmodel.dart';
@@ -246,16 +247,14 @@ class _StatCell extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 10,
+            style: AppTextStyles.textBodySm.copyWith(
               color: AppColors.colorTextSecondary,
             ),
           ),
           const SizedBox(height: 3),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 13,
+            style: AppTextStyles.textBodyLg.copyWith(
               fontWeight: FontWeight.w700,
               color: color,
               fontFeatures: const [FontFeature.tabularFigures()],
@@ -291,20 +290,15 @@ class _AssetGroupSection extends StatelessWidget {
               children: [
                 Text(
                   group.assetNm,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.colorTextSecondary,
-                  ),
+                  style: AppTextStyles.textHeadlineSm,
                 ),
                 const Spacer(),
                 Text(
                   '${FormatUtil.formatPrice(group.assetTotSumPrice)}원',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.textBodyLg.copyWith(
+                    fontWeight: FontWeight.w600,
                     color: AppColors.colorAccentTeal,
-                    fontFeatures: [FontFeature.tabularFigures()],
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
               ],
@@ -351,19 +345,17 @@ class _AssetSubGroupSection extends StatelessWidget {
             Expanded(
               child: Text(
                 subGroup.myAssetGroupNm,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+                style: AppTextStyles.textTitleSm.copyWith(
                   color: AppColors.colorTextDisabled,
                 ),
               ),
             ),
             Text(
               '${FormatUtil.formatPrice(subGroup.sumPrice)}원',
-              style: const TextStyle(
-                fontSize: 12,
+              style: AppTextStyles.textTitleSm.copyWith(
+                fontWeight: FontWeight.w400,
                 color: AppColors.colorTextDisabled,
-                fontFeatures: [FontFeature.tabularFigures()],
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
             const SizedBox(width: 4),
@@ -413,10 +405,8 @@ class _AssetItemTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           item.myAssetNm,
-                          style: const TextStyle(
-                            fontSize: 13,
+                          style: AppTextStyles.textTitleMd.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: AppColors.colorTextPrimary,
                           ),
                         ),
                       ),
@@ -431,11 +421,10 @@ class _AssetItemTile extends StatelessWidget {
                             color: const Color.fromRGBO(250, 204, 21, 0.12),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text(
+                          child: Text(
                             '현금성',
-                            style: TextStyle(
+                            style: AppTextStyles.textLabelSm.copyWith(
                               color: AppColors.colorRate,
-                              fontSize: 10,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -445,8 +434,7 @@ class _AssetItemTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '$qtyStr개',
-                    style: const TextStyle(
-                      fontSize: 11,
+                    style: AppTextStyles.textBodyMd.copyWith(
                       color: AppColors.colorTextSecondary,
                     ),
                   ),
@@ -456,12 +444,7 @@ class _AssetItemTile extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               '${FormatUtil.formatPrice(item.sumPrice)}원',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.colorTextPrimary,
-                fontFeatures: [FontFeature.tabularFigures()],
-              ),
+              style: AppTextStyles.moneySmall,
             ),
           ],
         ),
