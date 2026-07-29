@@ -18,6 +18,7 @@ class MyAssetItemResponse {
     required this.priceDivCd,
     required this.exchangeRateYn,
     required this.sumPrice,
+    required this.netSumPrice,
     this.myAssetGroupId,
     required this.cashableYn,
     required this.myAssetAccumDts,
@@ -34,6 +35,7 @@ class MyAssetItemResponse {
   final String priceDivCd;
   final String exchangeRateYn;
   final int sumPrice;
+  final int netSumPrice;
   final String? myAssetGroupId;
   final String cashableYn;
   final String myAssetAccumDts;
@@ -51,6 +53,7 @@ class MyAssetItemResponse {
         priceDivCd: json['priceDivCd'] as String,
         exchangeRateYn: json['exchangeRateYn'] as String,
         sumPrice: json['sumPrice'] as int,
+        netSumPrice: json['netSumPrice'] as int,
         myAssetGroupId: json['myAssetGroupId'] as String?,
         cashableYn: json['cashableYn'] as String,
         myAssetAccumDts: json['myAssetAccumDts'] as String,
@@ -76,12 +79,14 @@ class MyAssetGroupResponse {
   const MyAssetGroupResponse({
     required this.assetNm,
     required this.assetTotSumPrice,
+    required this.netAssetTotSumPrice,
     required this.items,
     required this.subGroups,
   });
 
   final String assetNm;
   final int assetTotSumPrice;
+  final int netAssetTotSumPrice;
   final List<MyAssetItemResponse> items;
   final List<MyAssetSubGroupResponse> subGroups;
 
@@ -114,6 +119,7 @@ class MyAssetGroupResponse {
     return MyAssetGroupResponse(
       assetNm: json['assetNm'] as String,
       assetTotSumPrice: json['assetTotSumPrice'] as int,
+      netAssetTotSumPrice: json['netAssetTotSumPrice'] as int,
       items: directItems,
       subGroups: subGroupsList,
     );

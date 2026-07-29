@@ -63,6 +63,10 @@ class _AssetRatioScreenState extends State<AssetRatioScreen> {
                 return const EmptyView();
               }
               final groups = data.data.entries.toList();
+              final netTotal = groups.fold(
+                0,
+                (sum, e) => sum + e.value.netAssetTotSumPrice,
+              );
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 itemCount: groups.length,
@@ -71,7 +75,7 @@ class _AssetRatioScreenState extends State<AssetRatioScreen> {
                   final color = AssetColors.of(groups[index].key);
                   return _AssetGroupRatioTile(
                     group: group,
-                    totalPrice: data.totSumPrice,
+                    totalPrice: netTotal,
                     color: color,
                   );
                 },
@@ -98,10 +102,10 @@ class _AssetGroupRatioTile extends StatelessWidget {
   final Color color;
 
   double get _groupPct =>
-      FormatUtil.percentageOf(group.assetTotSumPrice, totalPrice) / 100;
+      FormatUtil.percentageOf(group.netAssetTotSumPrice, totalPrice) / 100;
 
   String get _groupPctStr => FormatUtil.formatPercentage(
-        FormatUtil.percentageOf(group.assetTotSumPrice, totalPrice),
+        FormatUtil.percentageOf(group.netAssetTotSumPrice, totalPrice),
       );
 
   @override
@@ -126,7 +130,7 @@ class _AssetGroupRatioTile extends StatelessWidget {
                 ),
               ),
               Text(
-                '${FormatUtil.formatPrice(group.assetTotSumPrice)}원  $_groupPctStr',
+                '${FormatUtil.formatPrice(group.netAssetTotSumPrice)}원  $_groupPctStr',
                 style: AppTextStyles.textBodyLg.copyWith(
                   color: color,
                   fontWeight: FontWeight.w600,
@@ -149,15 +153,17 @@ class _AssetGroupRatioTile extends StatelessWidget {
           ),
           children: group.allItems.map((item) {
             final itemPct = FormatUtil.percentageOf(
-                  item.sumPrice, group.assetTotSumPrice) /
+                  item.netSumPrice, group.netAssetTotSumPrice) /
                 100;
             final itemPctStr = FormatUtil.formatPercentage(
-              FormatUtil.percentageOf(item.sumPrice, group.assetTotSumPrice),
+              FormatUtil.percentageOf(
+                  item.netSumPrice, group.netAssetTotSumPrice),
             );
             return ProgressRow(
               emoji: CategoryEmojis.getEmoji(item.myAssetNm),
               label: item.myAssetNm,
-              value: '${FormatUtil.formatPrice(item.sumPrice)}원 ($itemPctStr)',
+              value:
+                  '${FormatUtil.formatPrice(item.netSumPrice)}원 ($itemPctStr)',
               percentage: itemPct,
               color: color,
             );
