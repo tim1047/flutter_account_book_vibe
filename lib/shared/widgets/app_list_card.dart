@@ -48,16 +48,7 @@ class AppListCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(child: title),
-                        if (trailing != null) ...[
-                          const SizedBox(width: 12),
-                          trailing!,
-                        ],
-                      ],
-                    ),
+                    title,
                     if (subtitle != null) ...[
                       const SizedBox(height: 4),
                       subtitle!,
@@ -73,6 +64,10 @@ class AppListCard extends StatelessWidget {
                   ],
                 ),
               ),
+              if (trailing != null) ...[
+                const SizedBox(width: 12),
+                trailing!,
+              ],
             ],
           ),
         ),
