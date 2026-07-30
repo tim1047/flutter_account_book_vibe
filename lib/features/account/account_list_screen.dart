@@ -12,6 +12,7 @@ import 'package:account_book_vibe/shared/viewmodels/date_filter_viewmodel.dart';
 import 'package:account_book_vibe/shared/widgets/app_badge.dart';
 import 'package:account_book_vibe/shared/widgets/app_dialogs.dart';
 import 'package:account_book_vibe/shared/widgets/app_drawer.dart';
+import 'package:account_book_vibe/shared/widgets/app_list_card.dart';
 import 'package:account_book_vibe/shared/widgets/app_toast.dart';
 import 'package:account_book_vibe/shared/widgets/date_filter_bar.dart';
 import 'package:account_book_vibe/shared/widgets/empty_view.dart';
@@ -266,42 +267,18 @@ class _AccountCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      elevation: 0,
-      color: AppColors.colorBgSub,
-      child: InkWell(
-        onTap: onTap,
-        onLongPress: onLongPress,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              UserAvatar(
-                memberIndex: _memberIndex,
-                imagePath: _memberImagePath,
-                name: item.memberNm,
-                size: 44,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildPriceRow(),
-                    const SizedBox(height: 4),
-                    _buildCategoryRow(),
-                    const SizedBox(height: 6),
-                    _buildBadgeRow(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+    return AppListCard(
+      leading: UserAvatar(
+        memberIndex: _memberIndex,
+        imagePath: _memberImagePath,
+        name: item.memberNm,
+        size: 44,
       ),
+      title: _buildPriceRow(),
+      subtitle: _buildCategoryRow(),
+      badges: _buildBadgeList(),
+      onTap: onTap,
+      onLongPress: onLongPress,
     );
   }
 
@@ -344,21 +321,17 @@ class _AccountCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBadgeRow() {
-    return Wrap(
-      spacing: 4,
-      runSpacing: 4,
-      children: [
-        if (_isSeoulLove)
-          const AppBadge(type: BadgeType.seoulLove, label: '서울사랑'),
-        if (_isFirstMeeting)
-          const AppBadge(type: BadgeType.firstMeeting, label: '첫만남'),
-        if (_hasPoint) const AppBadge(type: BadgeType.point, label: '포인트'),
-        if (item.impulseYn == 'Y')
-          const AppBadge(type: BadgeType.impulse, label: '충동'),
-        _buildDivisionBadge(),
-      ],
-    );
+  List<Widget> _buildBadgeList() {
+    return [
+      if (_isSeoulLove)
+        const AppBadge(type: BadgeType.seoulLove, label: '서울사랑'),
+      if (_isFirstMeeting)
+        const AppBadge(type: BadgeType.firstMeeting, label: '첫만남'),
+      if (_hasPoint) const AppBadge(type: BadgeType.point, label: '포인트'),
+      if (item.impulseYn == 'Y')
+        const AppBadge(type: BadgeType.impulse, label: '충동'),
+      _buildDivisionBadge(),
+    ];
   }
 
   Widget _buildDivisionBadge() {
