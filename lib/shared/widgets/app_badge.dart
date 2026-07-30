@@ -11,6 +11,7 @@ enum BadgeType {
   point,
   impulse,
   fixed,
+  cashable,
 }
 
 class AppBadge extends StatelessWidget {
@@ -41,6 +42,8 @@ class AppBadge extends StatelessWidget {
         return AppColors.badgeImpulseBg;
       case BadgeType.fixed:
         return AppColors.badgeFixedBg;
+      case BadgeType.cashable:
+        return AppColors.badgeCashableBg;
     }
   }
 
@@ -62,6 +65,8 @@ class AppBadge extends StatelessWidget {
         return AppColors.badgeImpulseText;
       case BadgeType.fixed:
         return AppColors.badgeFixedText;
+      case BadgeType.cashable:
+        return AppColors.badgeCashableText;
     }
   }
 

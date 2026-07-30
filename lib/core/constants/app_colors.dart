@@ -61,6 +61,8 @@ class AppColors {
   static const Color badgeImpulseText = Color(0xFFC4B5FD);
   static const Color badgeFixedBg = Color(0xFF713F12);
   static const Color badgeFixedText = Color(0xFFFDE68A);
+  static const Color badgeCashableBg = Color.fromRGBO(250, 204, 21, 0.12);
+  static const Color badgeCashableText = Color(0xFFFACC15);
 
   // 7. 사용자 구분색
   static const Color colorUser1 = Color(0xFF2DD4BF);

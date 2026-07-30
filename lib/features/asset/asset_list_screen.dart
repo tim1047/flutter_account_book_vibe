@@ -3,6 +3,7 @@ import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/data/models/my_asset_model.dart';
 import 'package:account_book_vibe/features/asset/asset_viewmodel.dart';
+import 'package:account_book_vibe/shared/widgets/app_badge.dart';
 import 'package:account_book_vibe/shared/widgets/app_drawer.dart';
 import 'package:account_book_vibe/shared/widgets/app_list_card.dart';
 import 'package:account_book_vibe/shared/widgets/app_toast.dart';
@@ -291,12 +292,15 @@ class _AssetGroupSection extends StatelessWidget {
               children: [
                 Text(
                   group.assetNm,
-                  style: AppTextStyles.textHeadlineSm,
+                  style: AppTextStyles.textLabelSm.copyWith(
+                    color: AppColors.colorTextSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const Spacer(),
                 Text(
                   '${FormatUtil.formatPrice(group.assetTotSumPrice)}원',
-                  style: AppTextStyles.textBodyLg.copyWith(
+                  style: AppTextStyles.textLabelSm.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppColors.colorAccentTeal,
                     fontFeatures: const [FontFeature.tabularFigures()],
@@ -387,46 +391,28 @@ class _AssetItemTile extends StatelessWidget {
         : item.qty.toStringAsFixed(4);
 
     return AppListCard(
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              item.myAssetNm,
-              style: AppTextStyles.textTitleMd.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          if (isCashable)
-            Container(
-              margin: const EdgeInsets.only(left: 6),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 5,
-                vertical: 1,
-              ),
-              decoration: BoxDecoration(
-                color: const Color.fromRGBO(250, 204, 21, 0.12),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                '현금성',
-                style: AppTextStyles.textLabelSm.copyWith(
-                  color: AppColors.colorRate,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-        ],
+      title: Text(
+        item.myAssetNm,
+        style: AppTextStyles.textHeadlineSm,
       ),
       subtitle: Text(
         '$qtyStr개',
-        style: AppTextStyles.textBodyMd.copyWith(
+        style: AppTextStyles.textBodySm.copyWith(
           color: AppColors.colorTextSecondary,
         ),
       ),
-      trailing: Text(
-        '${FormatUtil.formatPrice(item.sumPrice)}원',
-        style: AppTextStyles.moneySmall,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isCashable) ...[
+            const AppBadge(type: BadgeType.cashable, label: '현금성'),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            '${FormatUtil.formatPrice(item.sumPrice)}원',
+            style: AppTextStyles.moneySmall,
+          ),
+        ],
       ),
       onTap: onTap,
     );
