@@ -90,6 +90,15 @@ class AppColors {
 
   static const Color colorChartCurrent = Color(0xFFF87171);
 
+  // 8-1. 자산 로고 배경색 (logoKey 기준)
+  static const Map<String, Color> assetLogoBackgroundColors = <String, Color>{
+    'currency_usd': Colors.white,
+    'currency_krw': Colors.white,
+    'currency_jpy': Colors.white,
+    'etf': Colors.white,
+    'real_estate': Colors.white,
+  };
+
   // 9. 그래디언트
   static const LinearGradient appGradient = LinearGradient(
     begin: Alignment.centerLeft,

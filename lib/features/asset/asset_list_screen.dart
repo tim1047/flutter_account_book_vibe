@@ -7,6 +7,7 @@ import 'package:account_book_vibe/shared/widgets/app_badge.dart';
 import 'package:account_book_vibe/shared/widgets/app_drawer.dart';
 import 'package:account_book_vibe/shared/widgets/app_list_card.dart';
 import 'package:account_book_vibe/shared/widgets/app_toast.dart';
+import 'package:account_book_vibe/shared/widgets/asset_avatar.dart';
 import 'package:account_book_vibe/shared/widgets/empty_view.dart';
 import 'package:account_book_vibe/shared/widgets/error_view.dart';
 import 'package:account_book_vibe/shared/widgets/gradient_button.dart';
@@ -389,8 +390,17 @@ class _AssetItemTile extends StatelessWidget {
     final qtyStr = item.qty == item.qty.roundToDouble()
         ? item.qty.toInt().toString()
         : item.qty.toStringAsFixed(4);
+    final hasLogo = (item.logoUrl != null && item.logoUrl!.isNotEmpty) ||
+        AssetAvatar.isSupported(item.logoKey);
 
     return AppListCard(
+      leading: hasLogo
+          ? AssetAvatar(
+              logoUrl: item.logoUrl,
+              logoKey: item.logoKey,
+              size: 28,
+            )
+          : null,
       title: Text(
         item.myAssetNm,
         style: AppTextStyles.textHeadlineSm,

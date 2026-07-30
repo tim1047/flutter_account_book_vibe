@@ -23,6 +23,8 @@ class MyAssetItemResponse {
     required this.cashableYn,
     required this.myAssetAccumDts,
     this.myAssetGroupNm,
+    this.logoUrl,
+    this.logoKey,
   });
 
   final String assetId;
@@ -40,6 +42,8 @@ class MyAssetItemResponse {
   final String cashableYn;
   final String myAssetAccumDts;
   final String? myAssetGroupNm;
+  final String? logoUrl;
+  final String? logoKey;
 
   factory MyAssetItemResponse.fromJson(Map<String, dynamic> json) =>
       MyAssetItemResponse(
@@ -58,6 +62,8 @@ class MyAssetItemResponse {
         cashableYn: json['cashableYn'] as String,
         myAssetAccumDts: json['myAssetAccumDts'] as String,
         myAssetGroupNm: json['myAssetGroupNm'] as String?,
+        logoUrl: json['logoUrl'] as String?,
+        logoKey: json['logoKey'] as String?,
       );
 }
 
