@@ -4,6 +4,7 @@ import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/data/models/my_asset_model.dart';
 import 'package:account_book_vibe/features/asset/asset_viewmodel.dart';
 import 'package:account_book_vibe/shared/widgets/app_drawer.dart';
+import 'package:account_book_vibe/shared/widgets/app_list_card.dart';
 import 'package:account_book_vibe/shared/widgets/app_toast.dart';
 import 'package:account_book_vibe/shared/widgets/empty_view.dart';
 import 'package:account_book_vibe/shared/widgets/error_view.dart';
@@ -280,12 +281,12 @@ class _AssetGroupSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
                 Text(
@@ -332,7 +333,7 @@ class _AssetSubGroupSection extends StatelessWidget {
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 2),
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16),
         childrenPadding: EdgeInsets.zero,
         minTileHeight: 36,
         leading: const Icon(
@@ -385,70 +386,49 @@ class _AssetItemTile extends StatelessWidget {
         ? item.qty.toInt().toString()
         : item.qty.toStringAsFixed(4);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppColors.colorBgSub,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item.myAssetNm,
-                          style: AppTextStyles.textTitleMd.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      if (isCashable)
-                        Container(
-                          margin: const EdgeInsets.only(left: 6),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 1,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color.fromRGBO(250, 204, 21, 0.12),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '현금성',
-                            style: AppTextStyles.textLabelSm.copyWith(
-                              color: AppColors.colorRate,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '$qtyStr개',
-                    style: AppTextStyles.textBodyMd.copyWith(
-                      color: AppColors.colorTextSecondary,
-                    ),
-                  ),
-                ],
+    return AppListCard(
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              item.myAssetNm,
+              style: AppTextStyles.textTitleMd.copyWith(
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: 12),
-            Text(
-              '${FormatUtil.formatPrice(item.sumPrice)}원',
-              style: AppTextStyles.moneySmall,
+          ),
+          if (isCashable)
+            Container(
+              margin: const EdgeInsets.only(left: 6),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 5,
+                vertical: 1,
+              ),
+              decoration: BoxDecoration(
+                color: const Color.fromRGBO(250, 204, 21, 0.12),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '현금성',
+                style: AppTextStyles.textLabelSm.copyWith(
+                  color: AppColors.colorRate,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-          ],
+        ],
+      ),
+      subtitle: Text(
+        '$qtyStr개',
+        style: AppTextStyles.textBodyMd.copyWith(
+          color: AppColors.colorTextSecondary,
         ),
       ),
+      trailing: Text(
+        '${FormatUtil.formatPrice(item.sumPrice)}원',
+        style: AppTextStyles.moneySmall,
+      ),
+      onTap: onTap,
     );
   }
 }
