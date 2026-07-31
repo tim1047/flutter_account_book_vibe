@@ -344,7 +344,7 @@ class _AssetSubGroupSection extends StatelessWidget {
         leading: const Icon(
           Icons.folder_outlined,
           size: 13,
-          color: AppColors.colorTextDisabled,
+          color: AppColors.colorTextSecondary,
         ),
         title: Row(
           children: [
@@ -352,7 +352,7 @@ class _AssetSubGroupSection extends StatelessWidget {
               child: Text(
                 subGroup.myAssetGroupNm,
                 style: AppTextStyles.textTitleSm.copyWith(
-                  color: AppColors.colorTextDisabled,
+                  color: AppColors.colorTextSecondary,
                 ),
               ),
             ),
@@ -360,7 +360,7 @@ class _AssetSubGroupSection extends StatelessWidget {
               '${FormatUtil.formatPrice(subGroup.sumPrice)}원',
               style: AppTextStyles.textTitleSm.copyWith(
                 fontWeight: FontWeight.w400,
-                color: AppColors.colorTextDisabled,
+                color: AppColors.colorTextSecondary,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
