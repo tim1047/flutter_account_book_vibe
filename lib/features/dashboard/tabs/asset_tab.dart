@@ -316,7 +316,8 @@ class _AssetHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final growth = data.yearlyGrowth;
+    final monthlyGrowth = data.monthlyGrowth;
+    final yearlyGrowth = data.yearlyGrowth;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -364,13 +365,27 @@ class _AssetHeroCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: _StatChip(
-                  label: '전년 대비',
-                  value: '${FormatUtil.formatPrice(growth.abs())}원',
-                  color: growth >= 0
+                  label: '전월 대비',
+                  value: '${FormatUtil.formatPrice(monthlyGrowth.abs())}원',
+                  color: monthlyGrowth >= 0
                       ? AppColors.colorProfit
                       : AppColors.colorExpense,
-                  changeIcon:
-                      growth >= 0 ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                  changeIcon: monthlyGrowth >= 0
+                      ? Icons.arrow_drop_up
+                      : Icons.arrow_drop_down,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _StatChip(
+                  label: '전년 대비',
+                  value: '${FormatUtil.formatPrice(yearlyGrowth.abs())}원',
+                  color: yearlyGrowth >= 0
+                      ? AppColors.colorProfit
+                      : AppColors.colorExpense,
+                  changeIcon: yearlyGrowth >= 0
+                      ? Icons.arrow_drop_up
+                      : Icons.arrow_drop_down,
                 ),
               ),
             ],

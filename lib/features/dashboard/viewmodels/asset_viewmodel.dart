@@ -34,6 +34,7 @@ class DashboardAssetData {
     required this.netWorth,
     required this.debt,
     required this.prevYearNetWorth,
+    required this.prevMonthNetWorth,
     required this.assetComposition,
     required this.netWorthHistory,
     required this.assetHistoryNames,
@@ -45,6 +46,7 @@ class DashboardAssetData {
   final int netWorth;
   final int debt;
   final int prevYearNetWorth;
+  final int prevMonthNetWorth;
   final List<AssetCompositionItem> assetComposition;
   final List<({String date, int amount})> netWorthHistory;
   final List<({String id, String name})> assetHistoryNames;
@@ -52,6 +54,7 @@ class DashboardAssetData {
   final List<DebtItem> debtItems;
 
   int get yearlyGrowth => netWorth - prevYearNetWorth;
+  int get monthlyGrowth => netWorth - prevMonthNetWorth;
 }
 
 class DashboardAssetViewModel extends ChangeNotifier {
@@ -139,6 +142,8 @@ class DashboardAssetViewModel extends ChangeNotifier {
       final debt = _sumDebt(todaySum);
       final netWorth = _netWorth(todaySum);
       final prevYearNetWorth = _netWorth(prevYearSum);
+      final prevMonthNetWorth =
+          _nearestNetWorth(sumHistory, _subtractMonths(now, 1));
 
       final assetHist = buildAssetHistory(sumHistory);
 
@@ -147,6 +152,7 @@ class DashboardAssetViewModel extends ChangeNotifier {
         netWorth: netWorth,
         debt: debt,
         prevYearNetWorth: prevYearNetWorth,
+        prevMonthNetWorth: prevMonthNetWorth,
         assetComposition: _buildComposition(todaySum),
         netWorthHistory: _buildNetWorthHistory(sumHistory),
         assetHistoryNames: assetHist.names,
@@ -172,6 +178,24 @@ class DashboardAssetViewModel extends ChangeNotifier {
   static int _netWorth(List<MyAssetSumResponse> sums) => sums
       .where((s) => s.assetId == AssetIds.total)
       .fold(0, (acc, s) => acc + s.sumPrice);
+
+  static DateTime _parseDt(String s) => DateTime(
+        int.parse(s.substring(0, 4)),
+        int.parse(s.substring(4, 6)),
+        s.length >= 8 ? int.parse(s.substring(6, 8)) : 1,
+      );
+
+  static int _monthIndex(DateTime d) => d.year * 12 + d.month;
+
+  static int _nearestNetWorth(List<MyAssetSumResponse> sums, DateTime target) {
+    final totals = sums.where((s) => s.assetId == AssetIds.total).toList();
+    if (totals.isEmpty) return 0;
+    final targetIdx = _monthIndex(target);
+    totals.sort((a, b) => (_monthIndex(_parseDt(a.accumDt)) - targetIdx)
+        .abs()
+        .compareTo((_monthIndex(_parseDt(b.accumDt)) - targetIdx).abs()));
+    return totals.first.sumPrice;
+  }
 
   static List<DebtItem> _buildDebtItems(MyAssetListResponse myAssets) {
     final items = myAssets.data.values
