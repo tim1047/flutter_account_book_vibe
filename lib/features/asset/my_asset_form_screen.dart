@@ -49,6 +49,7 @@ class _MyAssetFormScreenState extends State<MyAssetFormScreen> {
       priceDivCd: item?.priceDivCd,
       exchangeRateYn: item?.exchangeRateYn,
       cashableYn: item?.cashableYn,
+      holdingTypeCd: item?.holdingTypeCd,
     );
   }
 
@@ -101,6 +102,7 @@ class _MyAssetFormScreenState extends State<MyAssetFormScreen> {
       qty: qty,
       exchangeRateYn: _vm.exchangeRateYn,
       cashableYn: _vm.cashableYn,
+      holdingTypeCd: _vm.holdingTypeCd,
     );
 
     if (!mounted) return;
@@ -208,6 +210,27 @@ class _MyAssetFormScreenState extends State<MyAssetFormScreen> {
           ),
         ),
         const Divider(height: 1, color: AppColors.colorDivider),
+
+        // 보유 유형
+        if (_vm.showHoldingTypeCd) ...[
+          _FormRow(
+            emoji: '📊',
+            label: '보유 유형',
+            child: _buildDropdown<String>(
+              value: _vm.holdingTypeCd,
+              items: const [
+                DropdownMenuItem(value: '', child: Text('선택 안함')),
+                DropdownMenuItem(value: 'CASH', child: Text('CASH')),
+                DropdownMenuItem(value: 'ETF', child: Text('ETF')),
+                DropdownMenuItem(value: 'STOCK', child: Text('STOCK')),
+              ],
+              onChanged: (v) {
+                if (v != null) _vm.onHoldingTypeCdChanged(v);
+              },
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.colorDivider),
+        ],
 
         // 자산 이름
         _FormRow(
