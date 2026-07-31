@@ -38,3 +38,20 @@ SumGroupByMonthResponse _$SumGroupByMonthResponseFromJson(
           .map((e) => SumGroupByMonthItem.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
+
+DailyChartItem _$DailyChartItemFromJson(Map<String, dynamic> json) =>
+    DailyChartItem(
+      dt: json['dt'] as String,
+      dailyAmount: (json['dailyAmount'] as num).toInt(),
+      cumulativeAmount: (json['cumulativeAmount'] as num).toInt(),
+    );
+
+DailyChartResponse _$DailyChartResponseFromJson(Map<String, dynamic> json) =>
+    DailyChartResponse(
+      divisionId: json['divisionId'] as String,
+      strtDt: json['strtDt'] as String,
+      endDt: json['endDt'] as String,
+      items: (json['items'] as List<dynamic>)
+          .map((e) => DailyChartItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );

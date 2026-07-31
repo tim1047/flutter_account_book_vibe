@@ -72,21 +72,15 @@ class DivisionService {
         );
         final api = ApiResponse.fromJson(
           response.data as Map<String, dynamic>,
-          (json) {
-            final rows = json as List;
-            final entries = <DailyChartEntry>[];
-            for (final row in rows.skip(1)) {
-              final pair = row as List;
-              final label = pair[0] as String;
-              final price = (pair[1] as num).toInt();
-              final day = int.tryParse(label.replaceAll('일', '')) ?? 0;
-              if (day > 0) entries.add(DailyChartEntry(day: day, price: price));
-            }
-            return entries;
-          },
+          (json) => DailyChartResponse.fromJson(json as Map<String, dynamic>),
         );
         if (!api.isSuccess) throw ServerException(api.errorMessage);
-        return api.resultData ?? [];
+        return (api.resultData?.items ?? [])
+            .map((item) => DailyChartEntry(
+                  day: int.parse(item.dt.substring(6, 8)),
+                  price: item.dailyAmount,
+                ))
+            .toList();
       });
 
   Future<SumGroupByMonthResponse> getDivisionSumGroupByMonth(

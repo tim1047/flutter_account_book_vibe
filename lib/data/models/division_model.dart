@@ -74,3 +74,37 @@ class DailyChartEntry {
   final int day;
   final int price;
 }
+
+@JsonSerializable(createToJson: false)
+class DailyChartItem {
+  const DailyChartItem({
+    required this.dt,
+    required this.dailyAmount,
+    required this.cumulativeAmount,
+  });
+
+  final String dt;
+  final int dailyAmount;
+  final int cumulativeAmount;
+
+  factory DailyChartItem.fromJson(Map<String, dynamic> json) =>
+      _$DailyChartItemFromJson(json);
+}
+
+@JsonSerializable(createToJson: false)
+class DailyChartResponse {
+  const DailyChartResponse({
+    required this.divisionId,
+    required this.strtDt,
+    required this.endDt,
+    required this.items,
+  });
+
+  final String divisionId;
+  final String strtDt;
+  final String endDt;
+  final List<DailyChartItem> items;
+
+  factory DailyChartResponse.fromJson(Map<String, dynamic> json) =>
+      _$DailyChartResponseFromJson(json);
+}
