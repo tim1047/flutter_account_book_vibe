@@ -25,6 +25,7 @@ class MyAssetItemResponse {
     this.myAssetGroupNm,
     this.logoUrl,
     this.logoKey,
+    this.holdingTypeCd = '',
   });
 
   final String assetId;
@@ -44,6 +45,7 @@ class MyAssetItemResponse {
   final String? myAssetGroupNm;
   final String? logoUrl;
   final String? logoKey;
+  final String holdingTypeCd;
 
   factory MyAssetItemResponse.fromJson(Map<String, dynamic> json) =>
       MyAssetItemResponse(
@@ -64,6 +66,7 @@ class MyAssetItemResponse {
         myAssetGroupNm: json['myAssetGroupNm'] as String?,
         logoUrl: json['logoUrl'] as String?,
         logoKey: json['logoKey'] as String?,
+        holdingTypeCd: json['holdingTypeCd'] as String? ?? '',
       );
 }
 
@@ -200,6 +203,7 @@ class MyAssetRequest {
     required this.qty,
     required this.exchangeRateYn,
     required this.cashableYn,
+    this.holdingTypeCd = '',
   });
 
   final String myAssetNm;
@@ -210,6 +214,7 @@ class MyAssetRequest {
   final double qty;
   final String exchangeRateYn;
   final String cashableYn;
+  final String holdingTypeCd;
 
   Map<String, dynamic> toJson() => {
         'myAssetNm': myAssetNm,
@@ -220,5 +225,6 @@ class MyAssetRequest {
         'qty': qty,
         'exchangeRateYn': exchangeRateYn,
         'cashableYn': cashableYn,
+        'holdingTypeCd': holdingTypeCd,
       };
 }
