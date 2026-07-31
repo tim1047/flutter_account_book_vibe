@@ -203,7 +203,7 @@ class MyAssetRequest {
     required this.qty,
     required this.exchangeRateYn,
     required this.cashableYn,
-    this.holdingTypeCd = '',
+    this.holdingTypeCd,
   });
 
   final String myAssetNm;
@@ -214,7 +214,7 @@ class MyAssetRequest {
   final double qty;
   final String exchangeRateYn;
   final String cashableYn;
-  final String holdingTypeCd;
+  final String? holdingTypeCd;
 
   Map<String, dynamic> toJson() => {
         'myAssetNm': myAssetNm,
@@ -225,6 +225,7 @@ class MyAssetRequest {
         'qty': qty,
         'exchangeRateYn': exchangeRateYn,
         'cashableYn': cashableYn,
-        'holdingTypeCd': holdingTypeCd,
+        'holdingTypeCd':
+            (holdingTypeCd == null || holdingTypeCd!.isEmpty) ? null : holdingTypeCd,
       };
 }
