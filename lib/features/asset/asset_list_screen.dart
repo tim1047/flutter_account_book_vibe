@@ -182,7 +182,7 @@ class _SummaryCard extends StatelessWidget {
             children: [
               _StatCell(
                 label: '총 자산',
-                value: FormatUtil.formatPrice(data.totSumPrice),
+                value: FormatUtil.formatPrice(data.totNetAssetSumPrice),
                 color: AppColors.colorIncome,
               ),
               _StatCell(

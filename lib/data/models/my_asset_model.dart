@@ -137,7 +137,7 @@ class MyAssetGroupResponse {
 
 class MyAssetListResponse {
   const MyAssetListResponse({
-    required this.totSumPrice,
+    required this.totNetAssetSumPrice,
     required this.totNetWorthSumPrice,
     required this.totCashableSumPrice,
     required this.usdKrwRate,
@@ -146,7 +146,7 @@ class MyAssetListResponse {
     required this.data,
   });
 
-  final int totSumPrice;
+  final int totNetAssetSumPrice;
   final int totNetWorthSumPrice;
   final int totCashableSumPrice;
   final int usdKrwRate;
@@ -156,7 +156,7 @@ class MyAssetListResponse {
 
   factory MyAssetListResponse.fromJson(Map<String, dynamic> json) =>
       MyAssetListResponse(
-        totSumPrice: json['totSumPrice'] as int,
+        totNetAssetSumPrice: json['totNetAssetSumPrice'] as int,
         totNetWorthSumPrice: json['totNetWorthSumPrice'] as int,
         totCashableSumPrice: json['totCashableSumPrice'] as int,
         usdKrwRate: json['usdKrwRate'] as int,
