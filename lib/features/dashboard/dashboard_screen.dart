@@ -117,7 +117,11 @@ class _DashboardScreenState extends State<DashboardScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          OverviewTab(vm: _overviewVm, calendarVm: _calendarVm),
+          OverviewTab(
+            vm: _overviewVm,
+            calendarVm: _calendarVm,
+            periodVm: _period,
+          ),
           ExpenseTab(vm: _expenseVm),
           AssetTab(vm: _assetVm),
         ],

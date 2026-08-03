@@ -15,4 +15,18 @@ void main() {
       expect(result.month, 12);
     });
   });
+
+  group('AccountListExtra.year/month', () {
+    test('divisionId와 함께 year/month 전달 가능', () {
+      const extra = AccountListExtra(
+        divisionId: '3',
+        year: 2026,
+        month: 7,
+      );
+      expect(extra.divisionId, '3');
+      expect(extra.year, 2026);
+      expect(extra.month, 7);
+      expect(extra.date, isNull);
+    });
+  });
 }

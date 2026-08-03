@@ -4,6 +4,8 @@ import 'package:account_book_vibe/core/constants/category_emojis.dart';
 import 'package:account_book_vibe/core/constants/division.dart';
 import 'package:account_book_vibe/core/constants/member_images.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
+import 'package:account_book_vibe/features/account/account_list_extra.dart';
+import 'package:account_book_vibe/features/dashboard/dashboard_period_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/calendar_summary_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/overview_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/widgets/calendar_summary_card.dart';
@@ -15,10 +17,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class OverviewTab extends StatelessWidget {
-  const OverviewTab({super.key, required this.vm, required this.calendarVm});
+  const OverviewTab({
+    super.key,
+    required this.vm,
+    required this.calendarVm,
+    required this.periodVm,
+  });
 
   final DashboardOverviewViewModel vm;
   final CalendarSummaryViewModel calendarVm;
+  final DashboardPeriodViewModel periodVm;
 
   @override
   Widget build(BuildContext context) {
@@ -35,17 +43,46 @@ class OverviewTab extends StatelessWidget {
         }
         final data = vm.data;
         if (data == null) return const SizedBox.shrink();
-        return _OverviewContent(data: data, calendarVm: calendarVm);
+        return _OverviewContent(
+          data: data,
+          calendarVm: calendarVm,
+          periodVm: periodVm,
+        );
       },
     );
   }
 }
 
 class _OverviewContent extends StatelessWidget {
-  const _OverviewContent({required this.data, required this.calendarVm});
+  const _OverviewContent({
+    required this.data,
+    required this.calendarVm,
+    required this.periodVm,
+  });
 
   final DashboardOverviewData data;
   final CalendarSummaryViewModel calendarVm;
+  final DashboardPeriodViewModel periodVm;
+
+  /// 카드 클릭으로 가계부 목록 이동이 가능한 기간(단일 월)인지 여부.
+  /// 분기/반기/연간/커스텀 기간은 가계부 목록의 월 단위 필터로 표현할 수 없어 제외.
+  bool get _canNavigateToList =>
+      periodVm.period == DashboardPeriod.singleMonth ||
+      periodVm.period == DashboardPeriod.thisMonth;
+
+  void _goToAccountList(BuildContext context, String divisionId) {
+    final now = DateTime.now();
+    final year = periodVm.period == DashboardPeriod.singleMonth
+        ? periodVm.selectedYear
+        : now.year;
+    final month = periodVm.period == DashboardPeriod.singleMonth
+        ? periodVm.selectedMonth
+        : now.month;
+    context.push(
+      '/accountList',
+      extra: AccountListExtra(divisionId: divisionId, year: year, month: month),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +101,9 @@ class _OverviewContent extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: [Color(0xFF042F2E), Color(0xFF115E59)],
           ),
+          onTap: _canNavigateToList
+              ? () => _goToAccountList(context, Division.income)
+              : null,
         ),
         const SizedBox(height: 12),
         HeroMetricCard(
@@ -77,6 +117,9 @@ class _OverviewContent extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: [Color(0xFF4C0519), Color(0xFF7F1D1D)],
           ),
+          onTap: _canNavigateToList
+              ? () => _goToAccountList(context, Division.expense)
+              : null,
         ),
         const SizedBox(height: 12),
         HeroMetricCard(
@@ -103,6 +146,9 @@ class _OverviewContent extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: [Color(0xFF431407), Color(0xFF9A3412)],
           ),
+          onTap: _canNavigateToList
+              ? () => _goToAccountList(context, Division.invest)
+              : null,
         ),
         const SizedBox(height: 16),
 

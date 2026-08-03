@@ -13,6 +13,7 @@ class HeroMetricCard extends StatelessWidget {
     this.gradient,
     this.subtitle,
     this.averageAmount,
+    this.onTap,
   });
 
   final String title;
@@ -22,6 +23,7 @@ class HeroMetricCard extends StatelessWidget {
   final LinearGradient? gradient;
   final String? subtitle;
   final int? averageAmount;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class HeroMetricCard extends StatelessWidget {
     final changeColor =
         isPositive ? AppColors.colorSuccess : AppColors.colorExpense;
 
-    return Container(
+    final card = Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -123,6 +125,31 @@ class HeroMetricCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+
+    if (onTap == null) return card;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(13),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(13),
+        child: Stack(
+          children: [
+            card,
+            const Positioned(
+              top: 12,
+              right: 12,
+              child: Icon(
+                Icons.chevron_right,
+                color: AppColors.colorTextSecondary,
+                size: 18,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
