@@ -7,6 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+Color? _weekdayColor(int weekday) {
+  if (weekday == DateTime.saturday) return AppColors.colorInfo;
+  if (weekday == DateTime.sunday) return AppColors.colorError;
+  return null;
+}
+
 class CalendarSummaryCard extends StatefulWidget {
   const CalendarSummaryCard({super.key, required this.vm});
 
@@ -55,6 +61,10 @@ class _CalendarSummaryCardState extends State<CalendarSummaryCard> {
   static String _formatHeaderTitle(DateTime date, dynamic locale) =>
       '${date.year}년 ${date.month}월';
 
+  static const _weekdayLabels = ['월', '화', '수', '목', '금', '토', '일'];
+
+  static String _weekdayLabel(DateTime day) => _weekdayLabels[day.weekday - 1];
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -97,6 +107,14 @@ class _CalendarSummaryCardState extends State<CalendarSummaryCard> {
                   weekendStyle: AppTextStyles.textCaption,
                 ),
                 calendarBuilders: CalendarBuilders(
+                  dowBuilder: (context, day) => Center(
+                    child: Text(
+                      _weekdayLabel(day),
+                      style: AppTextStyles.textCaption.copyWith(
+                        color: _weekdayColor(day.weekday),
+                      ),
+                    ),
+                  ),
                   defaultBuilder: (context, day, focusedDay) =>
                       _DayCell(day: day, summary: widget.vm.summaryFor(day)),
                   todayBuilder: (context, day, focusedDay) => _DayCell(
@@ -147,7 +165,7 @@ class _DayCell extends StatelessWidget {
           Text(
             '${day.day}',
             style: AppTextStyles.textCaption.copyWith(
-              color: AppColors.colorTextPrimary,
+              color: _weekdayColor(day.weekday) ?? AppColors.colorTextPrimary,
             ),
           ),
           const SizedBox(height: 2),
