@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/data_refresh_bus.dart';
 import 'package:account_book_vibe/features/dashboard/dashboard_period_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/dashboard_shared_viewmodel.dart';
 import 'package:account_book_vibe/features/dashboard/tabs/overview_tab.dart';
@@ -32,10 +33,25 @@ class _HomeScreenState extends State<HomeScreen> {
     _shared = DashboardSharedViewModel(_period)..load();
     _overviewVm = DashboardOverviewViewModel(_shared)..load();
     _calendarVm = CalendarSummaryViewModel()..load();
+    DataRefreshBus.instance.addListener(_onDataChanged);
+  }
+
+  // Reloads this screen's own data in response to a mutation made in any
+  // branch (including this one, via DataRefreshBus.instance.notifyDataChanged()).
+  void _onDataChanged() {
+    if (!mounted) return;
+    _reloadAll();
+  }
+
+  void _reloadAll() {
+    _shared.load();
+    _overviewVm.load();
+    _calendarVm.load();
   }
 
   @override
   void dispose() {
+    DataRefreshBus.instance.removeListener(_onDataChanged);
     _period.dispose();
     _shared.dispose();
     _overviewVm.dispose();
@@ -67,9 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () async {
           final result = await context.push<String>('/account');
           if (!context.mounted) return;
-          _shared.load();
-          _overviewVm.load();
-          _calendarVm.load();
+          DataRefreshBus.instance.notifyDataChanged();
           if (result != null) {
             AppToast.show(context, '$result 완료!!!', type: ToastType.success);
           }

@@ -1,5 +1,6 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
+import 'package:account_book_vibe/core/data_refresh_bus.dart';
 import 'package:account_book_vibe/data/models/my_asset_model.dart';
 import 'package:account_book_vibe/features/asset/asset_list_body.dart';
 import 'package:account_book_vibe/features/asset/asset_viewmodel.dart';
@@ -35,14 +36,32 @@ class _AssetHubScreenState extends State<AssetHubScreen> with SingleTickerProvid
     _listVm = AssetViewModel()..loadAssets(strtDt: _todayDt, endDt: _todayDt);
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_onTabChanged);
+    DataRefreshBus.instance.addListener(_onDataChanged);
   }
 
   void _onTabChanged() {
     if (!_tabController.indexIsChanging) setState(() {});
   }
 
+  // Reloads this screen's own data in response to a mutation made in any
+  // branch (including this one, via DataRefreshBus.instance.notifyDataChanged()).
+  void _onDataChanged() {
+    if (!mounted) return;
+    _reloadAll();
+  }
+
+  // The asset branch is never disposed (indexedStack keeps every branch
+  // mounted), so the 현황 overview tab must be explicitly reloaded here too
+  // — otherwise it keeps showing pre-edit totals/composition/history
+  // indefinitely.
+  Future<void> _reloadAll() => Future.wait([
+        _listVm.loadAssets(strtDt: _todayDt, endDt: _todayDt),
+        _overviewVm.load(),
+      ]);
+
   @override
   void dispose() {
+    DataRefreshBus.instance.removeListener(_onDataChanged);
     _tabController.removeListener(_onTabChanged);
     _overviewVm.dispose();
     _listVm.dispose();
@@ -59,14 +78,7 @@ class _AssetHubScreenState extends State<AssetHubScreen> with SingleTickerProvid
     final result = await navContext.push<String>('/myAsset', extra: item);
     if (result == null || !navContext.mounted) return;
     AppToast.show(navContext, result);
-    // The asset branch is never disposed (indexedStack keeps every branch
-    // mounted), so the 현황 overview tab must be explicitly reloaded here too
-    // — otherwise it keeps showing pre-edit totals/composition/history
-    // indefinitely.
-    await Future.wait([
-      _listVm.loadAssets(strtDt: _todayDt, endDt: _todayDt),
-      _overviewVm.load(),
-    ]);
+    DataRefreshBus.instance.notifyDataChanged();
   }
 
   Future<void> _addAsset() async {
@@ -74,11 +86,7 @@ class _AssetHubScreenState extends State<AssetHubScreen> with SingleTickerProvid
     final result = await navContext.push<String>('/myAsset');
     if (result == null || !navContext.mounted) return;
     AppToast.show(navContext, result);
-    // See _editAsset: reload the overview viewmodel as well, not just the list.
-    await Future.wait([
-      _listVm.loadAssets(strtDt: _todayDt, endDt: _todayDt),
-      _overviewVm.load(),
-    ]);
+    DataRefreshBus.instance.notifyDataChanged();
   }
 
   @override

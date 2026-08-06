@@ -2,6 +2,7 @@ import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/constants/division.dart';
 import 'package:account_book_vibe/core/constants/member_images.dart';
+import 'package:account_book_vibe/core/data_refresh_bus.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/data/models/account_model.dart';
 import 'package:account_book_vibe/features/account/account_list_extra.dart';
@@ -76,12 +77,21 @@ class _AccountListScreenState extends State<AccountListScreen> {
     } else {
       _load();
     }
+    DataRefreshBus.instance.addListener(_onDataChanged);
   }
 
   void _load() => _vm.load(_dateFilter.strtDt, _dateFilter.endDt);
 
+  // Reloads this screen's own data in response to a mutation made in any
+  // branch (including this one, via DataRefreshBus.instance.notifyDataChanged()).
+  void _onDataChanged() {
+    if (!mounted) return;
+    _load();
+  }
+
   @override
   void dispose() {
+    DataRefreshBus.instance.removeListener(_onDataChanged);
     _vm.dispose();
     _dateFilter.dispose();
     _scrollController.dispose();
@@ -151,7 +161,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
             onPressed: () async {
               final result = await context.push<String>('/account');
               if (!context.mounted) return;
-              _load();
+              DataRefreshBus.instance.notifyDataChanged();
               if (result != null) {
                 AppToast.show(context, '$result 완료!!!', type: ToastType.success);
               }
@@ -184,7 +194,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
                   final result =
                       await context.push<String>('/account', extra: item);
                   if (!context.mounted) return;
-                  _load();
+                  DataRefreshBus.instance.notifyDataChanged();
                   if (result != null) {
                     AppToast.show(
                       context,

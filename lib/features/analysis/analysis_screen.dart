@@ -1,6 +1,7 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/constants/division.dart';
+import 'package:account_book_vibe/core/data_refresh_bus.dart';
 import 'package:account_book_vibe/features/account/account_list_extra.dart';
 import 'package:account_book_vibe/features/analysis/division_summary_tab.dart';
 import 'package:account_book_vibe/features/analysis/division_summary_viewmodel.dart';
@@ -50,10 +51,25 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
     _incomeVm = DivisionSummaryViewModel(Division.income, _period)..load();
     _investVm = DivisionSummaryViewModel(Division.invest, _period)..load();
     _tabController = TabController(length: 3, vsync: this);
+    DataRefreshBus.instance.addListener(_onDataChanged);
+  }
+
+  // Reloads this screen's own data in response to a mutation made in any
+  // branch (including this one, via DataRefreshBus.instance.notifyDataChanged()).
+  void _onDataChanged() {
+    if (!mounted) return;
+    _reloadAll();
+  }
+
+  void _reloadAll() {
+    _expenseVm.load();
+    _incomeVm.load();
+    _investVm.load();
   }
 
   @override
   void dispose() {
+    DataRefreshBus.instance.removeListener(_onDataChanged);
     _period.removeListener(_onPeriodChanged);
     _period.dispose();
     _expenseVm.dispose();
@@ -179,9 +195,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
         onPressed: () async {
           final result = await context.push<String>('/account');
           if (!context.mounted) return;
-          _expenseVm.load();
-          _incomeVm.load();
-          _investVm.load();
+          DataRefreshBus.instance.notifyDataChanged();
           if (result != null) {
             AppToast.show(context, '$result 완료!!!', type: ToastType.success);
           }
