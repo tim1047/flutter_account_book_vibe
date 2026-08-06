@@ -224,6 +224,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
     AppLoadingDialog.show(context);
     try {
       await _vm.deleteAccount(item.accountId);
+      DataRefreshBus.instance.notifyDataChanged();
       if (mounted) {
         AppLoadingDialog.hide(context);
         AppToast.show(context, '삭제 완료!!!', type: ToastType.info);
