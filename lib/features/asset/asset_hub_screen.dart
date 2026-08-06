@@ -59,7 +59,14 @@ class _AssetHubScreenState extends State<AssetHubScreen> with SingleTickerProvid
     final result = await navContext.push<String>('/myAsset', extra: item);
     if (result == null || !navContext.mounted) return;
     AppToast.show(navContext, result);
-    await _listVm.loadAssets(strtDt: _todayDt, endDt: _todayDt);
+    // The asset branch is never disposed (indexedStack keeps every branch
+    // mounted), so the 현황 overview tab must be explicitly reloaded here too
+    // — otherwise it keeps showing pre-edit totals/composition/history
+    // indefinitely.
+    await Future.wait([
+      _listVm.loadAssets(strtDt: _todayDt, endDt: _todayDt),
+      _overviewVm.load(),
+    ]);
   }
 
   Future<void> _addAsset() async {
@@ -67,7 +74,11 @@ class _AssetHubScreenState extends State<AssetHubScreen> with SingleTickerProvid
     final result = await navContext.push<String>('/myAsset');
     if (result == null || !navContext.mounted) return;
     AppToast.show(navContext, result);
-    await _listVm.loadAssets(strtDt: _todayDt, endDt: _todayDt);
+    // See _editAsset: reload the overview viewmodel as well, not just the list.
+    await Future.wait([
+      _listVm.loadAssets(strtDt: _todayDt, endDt: _todayDt),
+      _overviewVm.load(),
+    ]);
   }
 
   @override
