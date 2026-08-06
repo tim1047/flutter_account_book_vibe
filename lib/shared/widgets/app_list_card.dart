@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/app_shadows.dart';
 import 'package:flutter/material.dart';
 
 /// 가계부/자산 목록에서 공용으로 쓰는 리스트 카드.
@@ -27,48 +28,55 @@ class AppListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      elevation: 0,
-      color: AppColors.colorBgSub,
-      child: InkWell(
-        onTap: onTap,
-        onLongPress: onLongPress,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppColors.colorBgSub,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (leading != null) ...[
-                leading!,
-                const SizedBox(width: 12),
-              ],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    title,
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
-                      subtitle!,
+        boxShadow: AppShadows.card,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (leading != null) ...[
+                  leading!,
+                  const SizedBox(width: 10),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      title,
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 3),
+                        subtitle!,
+                      ],
+                      if (badges.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: badges,
+                        ),
+                      ],
                     ],
-                    if (badges.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: badges,
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
-              ),
-              if (trailing != null) ...[
-                const SizedBox(width: 12),
-                trailing!,
+                if (trailing != null) ...[
+                  const SizedBox(width: 10),
+                  trailing!,
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

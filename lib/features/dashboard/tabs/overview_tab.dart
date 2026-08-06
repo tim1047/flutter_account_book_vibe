@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/app_shadows.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/constants/category_emojis.dart';
 import 'package:account_book_vibe/core/constants/division.dart';
@@ -220,7 +221,7 @@ class _OverviewContent extends StatelessWidget {
                           Text(
                             FormatUtil.formatDateShort(tx.accountDt),
                             style: AppTextStyles.textCaption.copyWith(
-                              color: AppColors.colorTextDisabled,
+                              color: AppColors.colorTextSecondary,
                             ),
                           ),
                         ],
@@ -262,6 +263,7 @@ class _SectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.colorBgCard,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: AppShadows.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

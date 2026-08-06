@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/app_shadows.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/constants/category_emojis.dart';
 import 'package:account_book_vibe/core/constants/member.dart';
@@ -8,7 +9,6 @@ import 'package:account_book_vibe/features/analysis/division_summary_data.dart';
 import 'package:account_book_vibe/features/analysis/expense_summary_data.dart';
 import 'package:account_book_vibe/features/analysis/expense_summary_viewmodel.dart';
 import 'package:account_book_vibe/shared/widgets/error_view.dart';
-import 'package:account_book_vibe/shared/widgets/progress_row.dart';
 import 'package:account_book_vibe/shared/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
 
@@ -62,7 +62,8 @@ class ExpenseAnalysisTab extends StatelessWidget {
               title: '카테고리 상세',
               child: Column(
                 children: data.categorySeqBreakdown
-                    .map((e) => _CategorySeqRow(item: e, onTap: onCategorySeqTap))
+                    .map((e) =>
+                        _CategorySeqRow(item: e, onTap: onCategorySeqTap))
                     .toList(),
               ),
             ),
@@ -91,7 +92,8 @@ class ExpenseAnalysisTab extends StatelessWidget {
                           child: Row(
                             children: [
                               UserAvatar(
-                                memberIndex: tx.memberId.codeUnits.fold(0, (a, b) => a + b) %
+                                memberIndex: tx.memberId.codeUnits
+                                        .fold(0, (a, b) => a + b) %
                                     AppColors.memberColors.length,
                                 imagePath: Member.images[tx.memberId],
                                 name: tx.memberNm,
@@ -104,15 +106,16 @@ class ExpenseAnalysisTab extends StatelessWidget {
                                   children: [
                                     Text(
                                       FormatUtil.formatCategoryDesc(
-                                          tx.categoryNm, tx.categorySeqNm, remark: tx.remark),
-                                      style: AppTextStyles.textBodySm
-                                          .copyWith(color: AppColors.colorTextPrimary),
+                                          tx.categoryNm, tx.categorySeqNm,
+                                          remark: tx.remark),
+                                      style: AppTextStyles.textBodySm.copyWith(
+                                          color: AppColors.colorTextPrimary),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     Text(
                                       FormatUtil.formatDateShort(tx.accountDt),
-                                      style: AppTextStyles.textCaption
-                                          .copyWith(color: AppColors.colorTextDisabled),
+                                      style: AppTextStyles.textCaption.copyWith(
+                                          color: AppColors.colorTextSecondary),
                                     ),
                                   ],
                                 ),
@@ -155,16 +158,19 @@ class _CategorySeqRow extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(CategoryEmojis.getEmoji(item.categoryNm), style: const TextStyle(fontSize: 14)),
+                Text(CategoryEmojis.getEmoji(item.categoryNm),
+                    style: const TextStyle(fontSize: 14)),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(item.categorySeqNm,
-                          style: AppTextStyles.textBodySm.copyWith(color: AppColors.colorTextPrimary)),
+                          style: AppTextStyles.textBodySm
+                              .copyWith(color: AppColors.colorTextPrimary)),
                       Text(item.categoryNm,
-                          style: AppTextStyles.textCaption.copyWith(color: AppColors.colorTextDisabled)),
+                          style: AppTextStyles.textCaption
+                              .copyWith(color: AppColors.colorTextSecondary)),
                     ],
                   ),
                 ),
@@ -173,14 +179,20 @@ class _CategorySeqRow extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        changeRate >= 0 ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                        changeRate >= 0
+                            ? Icons.arrow_drop_up
+                            : Icons.arrow_drop_down,
                         size: 16,
-                        color: changeRate >= 0 ? AppColors.colorExpense : AppColors.colorProfit,
+                        color: changeRate >= 0
+                            ? AppColors.colorExpense
+                            : AppColors.colorProfit,
                       ),
                       Text(
                         '${(changeRate.abs() * 100).toStringAsFixed(1)}%',
                         style: AppTextStyles.textBodySm.copyWith(
-                          color: changeRate >= 0 ? AppColors.colorExpense : AppColors.colorProfit,
+                          color: changeRate >= 0
+                              ? AppColors.colorExpense
+                              : AppColors.colorProfit,
                         ),
                       ),
                     ],
@@ -188,8 +200,9 @@ class _CategorySeqRow extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   '₩${FormatUtil.formatPrice(item.amount)}',
-                  style: AppTextStyles.textBodySm
-                      .copyWith(color: AppColors.colorTextPrimary, fontWeight: FontWeight.w600),
+                  style: AppTextStyles.textBodySm.copyWith(
+                      color: AppColors.colorTextPrimary,
+                      fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -199,7 +212,8 @@ class _CategorySeqRow extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: item.ratio.clamp(0.0, 1.0),
                 backgroundColor: AppColors.colorBgElevated,
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.colorExpense),
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(AppColors.colorExpense),
                 minHeight: 4,
               ),
             ),
@@ -219,12 +233,12 @@ class _MemberRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = AppColors.memberColors[colorIndex % AppColors.memberColors.length];
-    final memberIndex =
-        item.memberId.codeUnits.fold(0, (a, b) => a + b) % AppColors.memberColors.length;
+    final color =
+        AppColors.memberColors[colorIndex % AppColors.memberColors.length];
+    final memberIndex = item.memberId.codeUnits.fold(0, (a, b) => a + b) %
+        AppColors.memberColors.length;
     return InkWell(
       onTap: onTap == null ? null : () => onTap!(item),
-      borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
@@ -233,15 +247,43 @@ class _MemberRow extends StatelessWidget {
               memberIndex: memberIndex,
               imagePath: Member.images[item.memberId],
               name: item.memberNm,
-              size: 40,
+              size: 28,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             Expanded(
-              child: ProgressRow(
-                label: item.memberNm,
-                value: '₩${FormatUtil.formatPrice(item.amount)} (${(item.ratio * 100).toStringAsFixed(1)}%)',
-                percentage: item.ratio,
-                color: color,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.memberNm,
+                          style: AppTextStyles.textBodySm
+                              .copyWith(color: AppColors.colorTextPrimary),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '₩${FormatUtil.formatPrice(item.amount)} (${(item.ratio * 100).toStringAsFixed(1)}%)',
+                        style: AppTextStyles.textBodySm.copyWith(
+                          color: AppColors.colorTextPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: LinearProgressIndicator(
+                      value: item.ratio.clamp(0.0, 1.0),
+                      backgroundColor: AppColors.colorBgElevated,
+                      valueColor: AlwaysStoppedAnimation<Color>(color),
+                      minHeight: 4,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -260,11 +302,17 @@ class _SectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppColors.colorBgCard, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: AppColors.colorBgCard,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: AppShadows.card,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTextStyles.textBodySm.copyWith(color: AppColors.colorTextSecondary)),
+          Text(title,
+              style: AppTextStyles.textBodySm
+                  .copyWith(color: AppColors.colorTextSecondary)),
           const SizedBox(height: 12),
           child,
         ],

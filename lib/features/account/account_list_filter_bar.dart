@@ -53,7 +53,7 @@ class _AccountListFilterBarState extends State<AccountListFilterBar> {
         final isActive = filterState.isActive;
         final activeCount = filterState.activeCount;
         final filterColor =
-            isActive ? AppColors.colorAccentTeal : AppColors.colorTextDisabled;
+            isActive ? AppColors.colorAccentTeal : AppColors.colorTextSecondary;
 
         return Container(
           color: AppColors.colorBgSub,
@@ -116,13 +116,13 @@ class _AccountListFilterBarState extends State<AccountListFilterBar> {
                       ? Icons.arrow_downward
                       : Icons.arrow_upward,
                   size: 14,
-                  color: AppColors.colorTextDisabled,
+                  color: AppColors.colorTextSecondary,
                 ),
                 const SizedBox(width: 2),
                 Text(
                   widget.sortDescending ? '최신순' : '오래된순',
                   style: AppTextStyles.textCaption.copyWith(
-                    color: AppColors.colorTextDisabled,
+                    color: AppColors.colorTextSecondary,
                   ),
                 ),
               ],

@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/app_shadows.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/constants/asset_colors.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
@@ -601,6 +602,7 @@ class _SectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.colorBgCard,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: AppShadows.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -754,58 +756,64 @@ class _HistoryCardState extends State<_HistoryCard> {
   Widget build(BuildContext context) {
     if (widget.rows.isEmpty) return const SizedBox.shrink();
     final latest = widget.rows.last;
-    return Card(
-      color: AppColors.colorBgSub,
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      child: InkWell(
-        onTap: () => setState(() => _expanded = !_expanded),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.colorBgSub,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: widget.dotColor,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    widget.label,
-                    style: AppTextStyles.textTitleSm.copyWith(
-                      color: AppColors.colorTextPrimary,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (!_expanded)
-                    Text(
-                      '${FormatUtil.formatPrice(latest.amount)}원',
-                      style: AppTextStyles.textBodyMd.copyWith(
-                        color: AppColors.colorTextPrimary,
-                        fontWeight: FontWeight.w600,
+        boxShadow: AppShadows.card,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: () => setState(() => _expanded = !_expanded),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: widget.dotColor,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    _expanded ? Icons.expand_less : Icons.expand_more,
-                    size: 18,
-                    color: AppColors.colorTextSecondary,
-                  ),
+                    const SizedBox(width: 6),
+                    Text(
+                      widget.label,
+                      style: AppTextStyles.textTitleSm.copyWith(
+                        color: AppColors.colorTextPrimary,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (!_expanded)
+                      Text(
+                        '${FormatUtil.formatPrice(latest.amount)}원',
+                        style: AppTextStyles.textBodyMd.copyWith(
+                          color: AppColors.colorTextPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      _expanded ? Icons.expand_less : Icons.expand_more,
+                      size: 18,
+                      color: AppColors.colorTextSecondary,
+                    ),
+                  ],
+                ),
+                if (_expanded) ...[
+                  const SizedBox(height: 8),
+                  const Divider(height: 1, color: AppColors.colorDivider),
+                  ...widget.rows.map(_buildRow),
                 ],
-              ),
-              if (_expanded) ...[
-                const SizedBox(height: 8),
-                const Divider(height: 1, color: AppColors.colorDivider),
-                ...widget.rows.map(_buildRow),
               ],
-            ],
+            ),
           ),
         ),
       ),

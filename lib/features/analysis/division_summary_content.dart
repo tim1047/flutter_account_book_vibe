@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/app_shadows.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/constants/category_colors.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
@@ -30,7 +31,11 @@ class DivisionSummaryContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _HeroCard(data: data, title: title, gradient: heroGradient, accentColor: accentColor),
+        _HeroCard(
+            data: data,
+            title: title,
+            gradient: heroGradient,
+            accentColor: accentColor),
         const SizedBox(height: 12),
         _SectionCard(
           title: '카테고리별 비중',
@@ -85,7 +90,8 @@ class _HeroCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: AppTextStyles.textBodySm.copyWith(color: AppColors.colorTextSecondary),
+            style: AppTextStyles.textBodySm
+                .copyWith(color: AppColors.colorTextSecondary),
           ),
           const SizedBox(height: 6),
           Text(
@@ -133,7 +139,8 @@ class _CategoryShareSection extends StatelessWidget {
       children: [
         CategoryShareBar(
           segments: data.categoryBreakdown
-              .map((e) => (color: CategoryColors.of(e.categoryId), ratio: e.ratio))
+              .map((e) =>
+                  (color: CategoryColors.of(e.categoryId), ratio: e.ratio))
               .toList(),
         ),
         const SizedBox(height: 12),
@@ -166,11 +173,14 @@ class _SectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.colorBgCard,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: AppShadows.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTextStyles.textBodySm.copyWith(color: AppColors.colorTextSecondary)),
+          Text(title,
+              style: AppTextStyles.textBodySm
+                  .copyWith(color: AppColors.colorTextSecondary)),
           const SizedBox(height: 12),
           child,
         ],

@@ -1,4 +1,5 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
+import 'package:account_book_vibe/core/constants/app_shadows.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/features/account/account_list_extra.dart';
@@ -38,7 +39,8 @@ class _CalendarSummaryCardState extends State<CalendarSummaryCard> {
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    final date = '${selectedDay.year}${_pad(selectedDay.month)}${_pad(selectedDay.day)}';
+    final date =
+        '${selectedDay.year}${_pad(selectedDay.month)}${_pad(selectedDay.day)}';
     context.push('/accountList', extra: AccountListExtra(date: date));
   }
 
@@ -72,6 +74,7 @@ class _CalendarSummaryCardState extends State<CalendarSummaryCard> {
       decoration: BoxDecoration(
         color: AppColors.colorBgCard,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: AppShadows.card,
       ),
       child: ListenableBuilder(
         listenable: widget.vm,
@@ -170,11 +173,20 @@ class _DayCell extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           if (summary.income != 0)
-            _AmountLine(amount: summary.income, color: AppColors.colorIncome, sign: '+'),
+            _AmountLine(
+                amount: summary.income,
+                color: AppColors.colorIncome,
+                sign: '+'),
           if (summary.expense != 0)
-            _AmountLine(amount: summary.expense, color: AppColors.colorExpense, sign: '-'),
+            _AmountLine(
+                amount: summary.expense,
+                color: AppColors.colorExpense,
+                sign: '-'),
           if (summary.invest != 0)
-            _AmountLine(amount: summary.invest, color: AppColors.colorInvest, sign: '+'),
+            _AmountLine(
+                amount: summary.invest,
+                color: AppColors.colorInvest,
+                sign: '+'),
         ],
       ),
     );
@@ -259,8 +271,7 @@ class _YearMonthPickerDialog extends StatefulWidget {
   final int initialMonth;
 
   @override
-  State<_YearMonthPickerDialog> createState() =>
-      _YearMonthPickerDialogState();
+  State<_YearMonthPickerDialog> createState() => _YearMonthPickerDialogState();
 }
 
 class _YearMonthPickerDialogState extends State<_YearMonthPickerDialog> {
@@ -280,12 +291,14 @@ class _YearMonthPickerDialogState extends State<_YearMonthPickerDialog> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(Icons.chevron_left, color: AppColors.colorAccentTeal),
+            icon: const Icon(Icons.chevron_left,
+                color: AppColors.colorAccentTeal),
             onPressed: () => setState(() => _year--),
           ),
           Text('$_year년', style: AppTextStyles.textHeadlineSm),
           IconButton(
-            icon: const Icon(Icons.chevron_right, color: AppColors.colorAccentTeal),
+            icon: const Icon(Icons.chevron_right,
+                color: AppColors.colorAccentTeal),
             onPressed: () => setState(() => _year++),
           ),
         ],

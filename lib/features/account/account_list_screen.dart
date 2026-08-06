@@ -296,7 +296,7 @@ class _AccountCard extends StatelessWidget {
         memberIndex: _memberIndex,
         imagePath: _memberImagePath,
         name: item.memberNm,
-        size: 44,
+        size: 28,
       ),
       title: _buildPriceRow(),
       subtitle: _buildCategoryRow(),
