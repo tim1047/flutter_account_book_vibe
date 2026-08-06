@@ -37,6 +37,15 @@ class _AccountListScreenState extends State<AccountListScreen> {
   final _scrollController = ScrollController();
   bool _sortDescending = true;
 
+  // The list branch's root AccountListScreen stays mounted forever (the app
+  // uses StatefulShellRoute.indexedStack, which never disposes branches),
+  // and this same screen is also pushed on top of OTHER branches (e.g. from
+  // AnalysisScreen's category/member rows or a calendar day tap). That means
+  // multiple AccountListScreen instances can be alive simultaneously, so
+  // hero tags must be unique per instance rather than constant literals —
+  // otherwise Flutter throws "multiple heroes that share the same tag".
+  late final String _heroSuffix = identityHashCode(this).toString();
+
   @override
   void initState() {
     super.initState();
@@ -127,7 +136,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SmallFAB(
-            heroTag: 'scrollTop',
+            heroTag: 'scrollTop_$_heroSuffix',
             icon: Icons.keyboard_arrow_up,
             onPressed: () => _scrollController.animateTo(
               0,
@@ -137,7 +146,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
           ),
           const SizedBox(height: 8),
           GradientFAB(
-            heroTag: 'addAccount',
+            heroTag: 'addAccount_$_heroSuffix',
             icon: Icons.add,
             onPressed: () async {
               final result = await context.push<String>('/account');
