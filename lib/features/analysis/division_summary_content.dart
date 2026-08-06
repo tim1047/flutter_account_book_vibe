@@ -43,7 +43,7 @@ class DivisionSummaryContent extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _SectionCard(
-          title: '월별 추이',
+          title: '월별 추이 (단위: 만원)',
           child: MonthlyBarChart(
             data: data.monthlyAmounts,
             barColor: accentColor,

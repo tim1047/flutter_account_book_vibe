@@ -1,5 +1,6 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:account_book_vibe/core/constants/app_text_styles.dart';
+import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +9,7 @@ class MonthlyBarChart extends StatelessWidget {
     super.key,
     required this.data,
     required this.barColor,
-    this.height = 120,
+    this.height = 140,
     this.highlightMonth,
   });
 
@@ -34,19 +35,24 @@ class MonthlyBarChart extends StatelessWidget {
     }
 
     final maxAmount = data.map((e) => e.amount).reduce((a, b) => a > b ? a : b);
+    final maxY = maxAmount == 0 ? 1000000.0 : maxAmount * 1.25;
+    final minBarY = maxY * 0.02;
+    final highlightIdx = highlightMonth == null
+        ? -1
+        : data.indexWhere((e) => e.month == highlightMonth);
     final barGroups = data.asMap().entries.map((entry) {
       final i = entry.key;
       final e = entry.value;
-      final isDimmed =
-          highlightMonth != null && e.month != highlightMonth;
+      final isDimmed = highlightMonth != null && e.month != highlightMonth;
       final rodColors = isDimmed
           ? [barColor.withValues(alpha: 0.18), barColor.withValues(alpha: 0.3)]
           : [barColor.withValues(alpha: 0.6), barColor];
       return BarChartGroupData(
         x: i,
+        showingTooltipIndicators: i == highlightIdx ? const [0] : const [],
         barRods: [
           BarChartRodData(
-            toY: maxAmount == 0 ? 0 : e.amount / maxAmount,
+            toY: e.amount == 0 ? minBarY : e.amount.toDouble(),
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
@@ -63,11 +69,38 @@ class MonthlyBarChart extends StatelessWidget {
       height: height,
       child: BarChart(
         BarChartData(
+          maxY: maxY,
           barGroups: barGroups,
           borderData: FlBorderData(show: false),
-          gridData: const FlGridData(show: false),
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            getDrawingHorizontalLine: (_) => const FlLine(
+              color: AppColors.colorTextDisabled,
+              strokeWidth: 0.5,
+              dashArray: [4, 4],
+            ),
+          ),
           titlesData: FlTitlesData(
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 28,
+                getTitlesWidget: (value, meta) {
+                  if (value == 0 || value == meta.max) {
+                    return const SizedBox.shrink();
+                  }
+                  return Text(
+                    '${(value / 10000).round()}',
+                    textAlign: TextAlign.right,
+                    style: AppTextStyles.textBodyXs.copyWith(
+                      color: AppColors.colorTextSecondary,
+                      fontSize: 9,
+                    ),
+                  );
+                },
+              ),
+            ),
             rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
@@ -89,7 +122,23 @@ class MonthlyBarChart extends StatelessWidget {
               ),
             ),
           ),
-          barTouchData: BarTouchData(enabled: false),
+          barTouchData: BarTouchData(
+            touchTooltipData: BarTouchTooltipData(
+              tooltipBgColor: AppColors.colorBgSub,
+              tooltipPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              tooltipMargin: 4,
+              getTooltipItem: (group, _, __, ___) {
+                final e = data[group.x];
+                return BarTooltipItem(
+                  '${FormatUtil.formatPrice(e.amount)}원',
+                  const TextStyle(
+                    color: AppColors.colorTextPrimary,
+                    fontSize: 10,
+                  ),
+                );
+              },
+            ),
+          ),
         ),
       ),
     );
