@@ -45,6 +45,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
   void initState() {
     super.initState();
     _period = DashboardPeriodViewModel();
+    _period.addListener(_onPeriodChanged);
     _expenseVm = ExpenseSummaryViewModel(_period)..load();
     _incomeVm = DivisionSummaryViewModel(Division.income, _period)..load();
     _investVm = DivisionSummaryViewModel(Division.invest, _period)..load();
@@ -53,6 +54,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
 
   @override
   void dispose() {
+    _period.removeListener(_onPeriodChanged);
     _period.dispose();
     _expenseVm.dispose();
     _incomeVm.dispose();
@@ -70,6 +72,10 @@ class _AnalysisScreenState extends State<AnalysisScreen> with SingleTickerProvid
       _period.period == DashboardPeriod.singleMonth ? _period.selectedYear : DateTime.now().year;
   int get _navMonth =>
       _period.period == DashboardPeriod.singleMonth ? _period.selectedMonth : DateTime.now().month;
+
+  void _onPeriodChanged() {
+    setState(() {});
+  }
 
   void _goToAccountList(AccountListExtra extra) {
     context.push('/accountList', extra: extra);
