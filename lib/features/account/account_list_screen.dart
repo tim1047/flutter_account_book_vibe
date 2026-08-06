@@ -11,7 +11,6 @@ import 'package:account_book_vibe/features/account/account_list_viewmodel.dart';
 import 'package:account_book_vibe/shared/viewmodels/date_filter_viewmodel.dart';
 import 'package:account_book_vibe/shared/widgets/app_badge.dart';
 import 'package:account_book_vibe/shared/widgets/app_dialogs.dart';
-import 'package:account_book_vibe/shared/widgets/app_drawer.dart';
 import 'package:account_book_vibe/shared/widgets/app_list_card.dart';
 import 'package:account_book_vibe/shared/widgets/app_toast.dart';
 import 'package:account_book_vibe/shared/widgets/date_filter_bar.dart';
@@ -83,8 +82,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const MainAppBar(),
-      drawer: const AppDrawer(),
+      appBar: const MainAppBar(showMenuButton: false),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
