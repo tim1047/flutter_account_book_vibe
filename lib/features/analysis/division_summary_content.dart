@@ -39,7 +39,11 @@ class DivisionSummaryContent extends StatelessWidget {
         const SizedBox(height: 12),
         _SectionCard(
           title: '카테고리별 비중',
-          child: _CategoryShareSection(data: data, onTap: onCategoryTap),
+          child: _CategoryShareSection(
+            data: data,
+            accentColor: accentColor,
+            onTap: onCategoryTap,
+          ),
         ),
         const SizedBox(height: 12),
         _SectionCard(
@@ -124,9 +128,14 @@ class _HeroCard extends StatelessWidget {
 }
 
 class _CategoryShareSection extends StatelessWidget {
-  const _CategoryShareSection({required this.data, this.onTap});
+  const _CategoryShareSection({
+    required this.data,
+    required this.accentColor,
+    this.onTap,
+  });
 
   final DivisionSummaryData data;
+  final Color accentColor;
   final void Function(DivisionCategoryItem item)? onTap;
 
   @override
@@ -151,12 +160,53 @@ class _CategoryShareSection extends StatelessWidget {
               label: e.categoryNm,
               amount: e.amount,
               ratio: e.ratio,
+              trailing: e.prevPeriodAmount > 0
+                  ? _ChangeIndicator(
+                      changeRate: e.changeRate, accentColor: accentColor)
+                  : null,
             );
             if (onTap == null) return row;
             return InkWell(onTap: () => onTap!(e), child: row);
           }).toList(),
         ),
       ],
+    );
+  }
+}
+
+class _ChangeIndicator extends StatelessWidget {
+  const _ChangeIndicator({required this.changeRate, required this.accentColor});
+
+  final double changeRate;
+  final Color accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final isIncrease = changeRate >= 0;
+    final color = isIncrease ? accentColor : AppColors.colorProfit;
+    return SizedBox(
+      width: 60,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerRight,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isIncrease ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+              size: 16,
+              color: color,
+            ),
+            Text(
+              '${(changeRate.abs() * 100).toStringAsFixed(1)}%',
+              style: AppTextStyles.textBodySm.copyWith(
+                color: color,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
