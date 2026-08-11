@@ -7,6 +7,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     super.key,
     this.bottom,
     this.showMenuButton = true,
+    this.actions,
   });
 
   final PreferredSizeWidget? bottom;
@@ -14,6 +15,9 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// false면 좌측 햄버거(드로어 열기) 버튼을 렌더하지 않는다.
   /// 바텀 네비게이션 셸 화면들(목록/분석/홈/자산)에서 사용.
   final bool showMenuButton;
+
+  /// 우측 액션 버튼들. 지정하지 않으면 기존처럼 비어 있다.
+  final List<Widget>? actions;
 
   @override
   Size get preferredSize => Size.fromHeight(56 + (bottom?.preferredSize.height ?? 0));
@@ -45,6 +49,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             )
           : null,
+      actions: actions,
       bottom: bottom,
     );
   }

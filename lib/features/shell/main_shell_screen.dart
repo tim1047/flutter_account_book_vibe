@@ -13,6 +13,7 @@ class MainShellScreen extends StatelessWidget {
     (emoji: '📊', label: '분석'),
     (emoji: '🏠', label: '홈'),
     (emoji: '🏢', label: '자산'),
+    (emoji: '🤖', label: 'AI'),
   ];
 
   @override

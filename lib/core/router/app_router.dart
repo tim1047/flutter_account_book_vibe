@@ -1,6 +1,9 @@
 import 'package:account_book_vibe/features/account/account_form_screen.dart';
 import 'package:account_book_vibe/features/account/account_list_extra.dart';
 import 'package:account_book_vibe/features/account/account_list_screen.dart';
+import 'package:account_book_vibe/features/ai_report/ai_profile_screen.dart';
+import 'package:account_book_vibe/features/ai_report/ai_report_detail_screen.dart';
+import 'package:account_book_vibe/features/ai_report/ai_report_home_screen.dart';
 import 'package:account_book_vibe/features/analysis/analysis_screen.dart';
 import 'package:account_book_vibe/features/asset/asset_hub_screen.dart';
 import 'package:account_book_vibe/features/asset/my_asset_form_screen.dart';
@@ -59,6 +62,12 @@ final appRouter = GoRouter(
             pageBuilder: (c, s) => _slidePage(const AssetHubScreen(), s),
           ),
         ]),
+        StatefulShellBranch(routes: [
+          GoRoute(
+            path: '/aiReport',
+            pageBuilder: (c, s) => _slidePage(const AiReportHomeScreen(), s),
+          ),
+        ]),
       ],
     ),
     GoRoute(
@@ -68,6 +77,17 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/myAsset',
       pageBuilder: (c, s) => _slidePage(MyAssetFormScreen(extra: s.extra), s),
+    ),
+    GoRoute(
+      path: '/aiReportDetail/:period',
+      pageBuilder: (c, s) => _slidePage(
+        AiReportDetailScreen(period: s.pathParameters['period']!),
+        s,
+      ),
+    ),
+    GoRoute(
+      path: '/aiProfile',
+      pageBuilder: (c, s) => _slidePage(const AiProfileScreen(), s),
     ),
   ],
 );
