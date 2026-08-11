@@ -173,6 +173,7 @@ class _AiProfileScreenState extends State<AiProfileScreen> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: _controller,
+                  enabled: !_vm.isSaving,
                   maxLines: null,
                   minLines: 10,
                   style: AppTextStyles.textBodyMd.copyWith(
