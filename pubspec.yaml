@@ -31,6 +31,9 @@ dependencies:
   intl: ^0.20.2
   table_calendar: ^3.2.0
 
+  # 마크다운 렌더링 (AI 리포트 본문)
+  flutter_markdown_plus: ^1.0.12
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
