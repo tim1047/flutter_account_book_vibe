@@ -64,7 +64,7 @@ class _AiReportHomeScreenState extends State<AiReportHomeScreen> {
       body: ListenableBuilder(
         listenable: _vm,
         builder: (context, _) {
-          if (_vm.isLoading) {
+          if (_vm.isLoading && _vm.status == null) {
             return const Center(
               child: CircularProgressIndicator(color: AppColors.colorAccentTeal),
             );
@@ -83,6 +83,7 @@ class _AiReportHomeScreenState extends State<AiReportHomeScreen> {
             backgroundColor: AppColors.colorBgSub,
             onRefresh: _vm.load,
             child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.only(bottom: 24),
               children: [
                 PublishCard(
