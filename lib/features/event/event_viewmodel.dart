@@ -63,6 +63,7 @@ class EventViewModel extends ChangeNotifier {
 
   Map<int, int> lanes = <int, int>{};
 
+  /// 최신순(날짜 내림차순). 서버 목록은 오름차순으로 오므로 뒤집어 쓴다.
   List<EventDayGroup> timelineGroups = <EventDayGroup>[];
 
   DateTime get monthStart => DateTime(year, month, 1);
@@ -115,9 +116,12 @@ class EventViewModel extends ChangeNotifier {
           event.startDate.isBefore(monthStart) ? monthStart : event.startDate;
       (groups[key] ??= <EventListResponse>[]).add(event);
     }
-    final keys = groups.keys.toList()..sort();
+    // 최신순: 날짜는 내림차순, 같은 날 안에서도 늦은 시각이 위로 온다.
+    // 서버가 `strtDt → strtTm → eventId` 오름차순으로 주므로 뒤집기만 하면 된다.
+    final keys = groups.keys.toList()..sort((a, b) => b.compareTo(a));
     timelineGroups = <EventDayGroup>[
-      for (final key in keys) EventDayGroup(key, groups[key]!),
+      for (final key in keys)
+        EventDayGroup(key, groups[key]!.reversed.toList()),
     ];
   }
 }

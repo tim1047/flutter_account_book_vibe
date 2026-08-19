@@ -103,6 +103,7 @@ void main() {
   });
 
   _memberOptionsTests();
+  _timelineGroupTests();
 
   group('formatApiDate / parseApiDate', () {
     test('왕복 변환', () {
@@ -141,6 +142,53 @@ void _memberOptionsTests() {
 
     test('이름을 모르면 id로 표기한다', () {
       expect(memberOptions(const [], '9', '').last.name, '9');
+    });
+  });
+}
+
+// ── timelineGroups ───────────────────────────────────────────────────────────
+
+void _timelineGroupTests() {
+  group('timelineGroups — 최신순', () {
+    test('날짜가 내림차순으로 온다', () {
+      final vm = EventViewModel(initialMonth: DateTime(2026, 8))
+        ..applyEvents([
+          _event(1, '20260810', '20260810'),
+          _event(2, '20260812', '20260812'),
+          _event(3, '20260815', '20260815'),
+        ]);
+
+      expect(
+        vm.timelineGroups.map((group) => group.day),
+        [DateTime(2026, 8, 15), DateTime(2026, 8, 12), DateTime(2026, 8, 10)],
+      );
+    });
+
+    test('같은 날 안에서는 늦은 시각이 위로 온다', () {
+      // 서버 정렬(종일 → 이른 시각 → 늦은 시각)을 뒤집은 순서.
+      final vm = EventViewModel(initialMonth: DateTime(2026, 8))
+        ..applyEvents([
+          _event(1, '20260810', '20260810'),
+          _event(2, '20260810', '20260810', strtTm: '09:00', endTm: '10:00'),
+          _event(3, '20260810', '20260810', strtTm: '14:00', endTm: '15:30'),
+        ]);
+
+      expect(
+        vm.timelineGroups.single.events.map((event) => event.eventId),
+        [3, 2, 1],
+      );
+    });
+
+    test('지난달에 시작해 이어지는 일정은 조회 첫 날 묶음의 맨 아래', () {
+      final vm = EventViewModel(initialMonth: DateTime(2026, 8))
+        ..applyEvents([
+          _event(1, '20260728', '20260803'),
+          _event(2, '20260801', '20260801'),
+        ]);
+
+      final firstDay = vm.timelineGroups.last;
+      expect(firstDay.day, DateTime(2026, 8, 1));
+      expect(firstDay.events.map((event) => event.eventId), [2, 1]);
     });
   });
 }
