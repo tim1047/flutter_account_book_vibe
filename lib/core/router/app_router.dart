@@ -7,6 +7,8 @@ import 'package:account_book_vibe/features/ai_report/ai_report_home_screen.dart'
 import 'package:account_book_vibe/features/analysis/analysis_screen.dart';
 import 'package:account_book_vibe/features/asset/asset_hub_screen.dart';
 import 'package:account_book_vibe/features/asset/my_asset_form_screen.dart';
+import 'package:account_book_vibe/features/event/event_form_screen.dart';
+import 'package:account_book_vibe/features/event/event_screen.dart';
 import 'package:account_book_vibe/features/home/home_screen.dart';
 import 'package:account_book_vibe/features/shell/main_shell_screen.dart';
 import 'package:flutter/material.dart';
@@ -68,11 +70,21 @@ final appRouter = GoRouter(
             pageBuilder: (c, s) => _slidePage(const AiReportHomeScreen(), s),
           ),
         ]),
+        StatefulShellBranch(routes: [
+          GoRoute(
+            path: '/eventList',
+            pageBuilder: (c, s) => _slidePage(const EventScreen(), s),
+          ),
+        ]),
       ],
     ),
     GoRoute(
       path: '/account',
       pageBuilder: (c, s) => _slidePage(AccountFormScreen(extra: s.extra), s),
+    ),
+    GoRoute(
+      path: '/event',
+      pageBuilder: (c, s) => _slidePage(EventFormScreen(extra: s.extra), s),
     ),
     GoRoute(
       path: '/myAsset',

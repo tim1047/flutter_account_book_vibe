@@ -4,6 +4,7 @@ import 'package:account_book_vibe/core/constants/app_text_styles.dart';
 import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:account_book_vibe/features/account/account_list_extra.dart';
 import 'package:account_book_vibe/features/dashboard/viewmodels/calendar_summary_viewmodel.dart';
+import 'package:account_book_vibe/shared/widgets/year_month_picker_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -45,12 +46,10 @@ class _CalendarSummaryCardState extends State<CalendarSummaryCard> {
   }
 
   Future<void> _onHeaderTapped(DateTime focusedDay) async {
-    final selected = await showDialog<DateTime>(
-      context: context,
-      builder: (context) => _YearMonthPickerDialog(
-        initialYear: widget.vm.year,
-        initialMonth: widget.vm.month,
-      ),
+    final selected = await YearMonthPickerDialog.show(
+      context,
+      year: widget.vm.year,
+      month: widget.vm.month,
     );
     if (selected == null) return;
     setState(() => _focusedDay = selected);
@@ -257,86 +256,6 @@ class _LegendItem extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _YearMonthPickerDialog extends StatefulWidget {
-  const _YearMonthPickerDialog({
-    required this.initialYear,
-    required this.initialMonth,
-  });
-
-  final int initialYear;
-  final int initialMonth;
-
-  @override
-  State<_YearMonthPickerDialog> createState() => _YearMonthPickerDialogState();
-}
-
-class _YearMonthPickerDialogState extends State<_YearMonthPickerDialog> {
-  late int _year;
-
-  @override
-  void initState() {
-    super.initState();
-    _year = widget.initialYear;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: AppColors.colorBgCard,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left,
-                color: AppColors.colorAccentTeal),
-            onPressed: () => setState(() => _year--),
-          ),
-          Text('$_year년', style: AppTextStyles.textHeadlineSm),
-          IconButton(
-            icon: const Icon(Icons.chevron_right,
-                color: AppColors.colorAccentTeal),
-            onPressed: () => setState(() => _year++),
-          ),
-        ],
-      ),
-      content: SizedBox(
-        width: 280,
-        child: GridView.count(
-          crossAxisCount: 4,
-          shrinkWrap: true,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          children: List.generate(12, (i) {
-            final month = i + 1;
-            final isSelected =
-                _year == widget.initialYear && month == widget.initialMonth;
-            return GestureDetector(
-              onTap: () => Navigator.of(context).pop(DateTime(_year, month)),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.colorAccentTeal
-                      : AppColors.colorBgMain,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  '$month월',
-                  style: AppTextStyles.textBodySm.copyWith(
-                    color: isSelected
-                        ? AppColors.colorBgMain
-                        : AppColors.colorTextPrimary,
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
-      ),
     );
   }
 }
