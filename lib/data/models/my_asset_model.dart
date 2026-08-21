@@ -58,8 +58,8 @@ class MyAssetItemResponse {
         assetNm: json['assetNm'] as String,
         priceDivCd: json['priceDivCd'] as String,
         exchangeRateYn: json['exchangeRateYn'] as String,
-        sumPrice: json['sumPrice'] as int,
-        netSumPrice: json['netSumPrice'] as int,
+        sumPrice: _parseToInt(json['sumPrice']),
+        netSumPrice: _parseToInt(json['netSumPrice']),
         myAssetGroupId: json['myAssetGroupId'] as String?,
         cashableYn: json['cashableYn'] as String,
         myAssetAccumDts: json['myAssetAccumDts'] as String,
@@ -127,8 +127,8 @@ class MyAssetGroupResponse {
 
     return MyAssetGroupResponse(
       assetNm: json['assetNm'] as String,
-      assetTotSumPrice: json['assetTotSumPrice'] as int,
-      netAssetTotSumPrice: json['netAssetTotSumPrice'] as int,
+      assetTotSumPrice: _parseToInt(json['assetTotSumPrice']),
+      netAssetTotSumPrice: _parseToInt(json['netAssetTotSumPrice']),
       items: directItems,
       subGroups: subGroupsList,
     );
@@ -156,11 +156,11 @@ class MyAssetListResponse {
 
   factory MyAssetListResponse.fromJson(Map<String, dynamic> json) =>
       MyAssetListResponse(
-        totNetAssetSumPrice: json['totNetAssetSumPrice'] as int,
-        totNetWorthSumPrice: json['totNetWorthSumPrice'] as int,
-        totCashableSumPrice: json['totCashableSumPrice'] as int,
-        usdKrwRate: json['usdKrwRate'] as int,
-        jpyKrwRate: json['jpyKrwRate'] as int,
+        totNetAssetSumPrice: _parseToInt(json['totNetAssetSumPrice']),
+        totNetWorthSumPrice: _parseToInt(json['totNetWorthSumPrice']),
+        totCashableSumPrice: _parseToInt(json['totCashableSumPrice']),
+        usdKrwRate: _parseToInt(json['usdKrwRate']),
+        jpyKrwRate: _parseToInt(json['jpyKrwRate']),
         myAssetAccumDts: json['myAssetAccumDts'] as String,
         data: (json['data'] as Map<String, dynamic>).map(
           (k, v) => MapEntry(
