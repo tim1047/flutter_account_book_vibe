@@ -9,9 +9,9 @@ class MainShellScreen extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   static const _items = <({String emoji, String label})>[
+    (emoji: '🏠', label: '홈'),
     (emoji: '📋', label: '목록'),
     (emoji: '📊', label: '분석'),
-    (emoji: '🏠', label: '홈'),
     (emoji: '🏢', label: '자산'),
     (emoji: '🤖', label: 'AI'),
     (emoji: '📅', label: '일정'),
@@ -67,7 +67,8 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isActive ? AppColors.colorAccentTeal : AppColors.colorTextSecondary;
+    final color =
+        isActive ? AppColors.colorAccentTeal : AppColors.colorTextSecondary;
     return InkWell(
       onTap: onTap,
       child: Column(
