@@ -41,6 +41,12 @@ final appRouter = GoRouter(
       branches: [
         StatefulShellBranch(routes: [
           GoRoute(
+            path: '/',
+            pageBuilder: (c, s) => _slidePage(const HomeScreen(), s),
+          ),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(
             path: '/accountList',
             pageBuilder: (c, s) => _slidePage(
                 AccountListScreen(extra: s.extra as AccountListExtra?), s),
@@ -50,12 +56,6 @@ final appRouter = GoRouter(
           GoRoute(
             path: '/analysis',
             pageBuilder: (c, s) => _slidePage(const AnalysisScreen(), s),
-          ),
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: '/',
-            pageBuilder: (c, s) => _slidePage(const HomeScreen(), s),
           ),
         ]),
         StatefulShellBranch(routes: [
