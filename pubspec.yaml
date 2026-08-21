@@ -43,6 +43,17 @@ dev_dependencies:
   # JSON 코드 생성
   json_serializable: ^6.8.0
   build_runner: ^2.4.9
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  image_path: 'assets/icons/app_icon_source.png'
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  macos:
+    generate: true
+  web:
+    generate: true
 
 flutter:
   uses-material-design: true
