@@ -13,6 +13,7 @@ class HeroMetricCard extends StatelessWidget {
     this.gradient,
     this.subtitle,
     this.averageAmount,
+    this.ratioPercent,
     this.onTap,
   });
 
@@ -23,6 +24,9 @@ class HeroMetricCard extends StatelessWidget {
   final LinearGradient? gradient;
   final String? subtitle;
   final int? averageAmount;
+
+  /// Optional ratio shown after the amount, e.g. "( 65.78% )".
+  final double? ratioPercent;
   final VoidCallback? onTap;
 
   @override
@@ -62,8 +66,21 @@ class HeroMetricCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          Text(
-            '₩ ${FormatUtil.formatPrice(amount)}',
+          Text.rich(
+            TextSpan(
+              text: '₩ ${FormatUtil.formatPrice(amount)}',
+              children: [
+                if (ratioPercent != null)
+                  TextSpan(
+                    text: '  ( ${ratioPercent!.toStringAsFixed(2)}% )',
+                    style: AppTextStyles.textBodySm.copyWith(
+                      color: AppColors.colorTextSecondary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+              ],
+            ),
             style: AppTextStyles.textHeadingLg.copyWith(
               color: AppColors.colorTextPrimary,
               fontWeight: FontWeight.w700,

@@ -142,6 +142,9 @@ class _OverviewContent extends StatelessWidget {
           changeAmount: data.investChange,
           changeLabel: data.changeLabel,
           averageAmount: data.showAverage ? data.avgInvest : null,
+          ratioPercent: data.totalIncome > 0
+              ? data.totalInvest / data.totalIncome * 100
+              : null,
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
