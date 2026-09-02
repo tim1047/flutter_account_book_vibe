@@ -171,6 +171,8 @@ class _DayCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final events = vm.eventsOn(day);
+    final isHoliday =
+        events.any((event) => event.eventTypeCd == EventType.holiday);
     final byLane = <int, EventListResponse>{
       for (final event in events) vm.laneOf(event): event,
     };
@@ -191,7 +193,10 @@ class _DayCell extends StatelessWidget {
             style: AppTextStyles.textCaption.copyWith(
               color: isToday
                   ? AppColors.colorAccentTeal
-                  : _weekdayColor(day.weekday) ?? AppColors.colorTextPrimary,
+                  : isHoliday
+                      ? AppColors.colorError
+                      : _weekdayColor(day.weekday) ??
+                          AppColors.colorTextPrimary,
               fontWeight: isToday ? FontWeight.w700 : FontWeight.w400,
             ),
           ),
