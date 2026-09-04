@@ -183,31 +183,37 @@ class _DayCell extends StatelessWidget {
         events.where((event) => vm.laneOf(event) >= visibleLanes).length;
 
     return SizedBox.expand(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 2),
-          Text(
-            '${day.day}',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.textCaption.copyWith(
-              color: isToday
-                  ? AppColors.colorAccentTeal
-                  : isHoliday
-                      ? AppColors.colorError
-                      : _weekdayColor(day.weekday) ??
-                          AppColors.colorTextPrimary,
-              fontWeight: isToday ? FontWeight.w700 : FontWeight.w400,
+      child: LayoutBuilder(
+        builder: (context, constraints) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 2),
+            Text(
+              '${day.day}',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.textCaption.copyWith(
+                color: isToday
+                    ? AppColors.colorAccentTeal
+                    : isHoliday
+                        ? AppColors.colorError
+                        : _weekdayColor(day.weekday) ??
+                            AppColors.colorTextPrimary,
+                fontWeight: isToday ? FontWeight.w700 : FontWeight.w400,
+              ),
             ),
-          ),
-          const SizedBox(height: 3),
-          for (var lane = 0; lane < visibleLanes; lane++)
-            if (byLane[lane] != null)
-              _EventBar(event: byLane[lane]!, day: day)
-            else
-              const SizedBox(height: _barHeight + _barGap),
-          if (hiddenCount > 0) _MoreLabel(count: hiddenCount),
-        ],
+            const SizedBox(height: 3),
+            for (var lane = 0; lane < visibleLanes; lane++)
+              if (byLane[lane] != null)
+                _EventBar(
+                  event: byLane[lane]!,
+                  day: day,
+                  cellWidth: constraints.maxWidth,
+                )
+              else
+                const SizedBox(height: _barHeight + _barGap),
+            if (hiddenCount > 0) _MoreLabel(count: hiddenCount),
+          ],
+        ),
       ),
     );
   }
@@ -215,11 +221,21 @@ class _DayCell extends StatelessWidget {
 
 /// 하루치 막대 조각. 일정의 시작·끝이거나 주가 바뀌는 자리에서만 모서리를
 /// 둥글리고 안쪽 여백을 준다. 중간 날짜는 각져 있어 옆 칸과 붙는다.
+///
+/// 일정명은 구간(이번 주에서 이 일정이 차지하는 연속된 칸들) 전체를 가로지르는
+/// 한 줄로 보인다. 칸마다 독립 셀이라 텍스트가 칸 경계를 넘어갈 수 없으므로,
+/// 모든 칸이 같은 이름을 그리되 자기 순번만큼 왼쪽으로 밀고 막대 밖은 잘라낸다.
+/// 잘린 조각들이 이어 붙어 한 줄처럼 읽힌다.
 class _EventBar extends StatelessWidget {
-  const _EventBar({required this.event, required this.day});
+  const _EventBar({
+    required this.event,
+    required this.day,
+    required this.cellWidth,
+  });
 
   final EventListResponse event;
   final DateTime day;
+  final double cellWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -228,16 +244,18 @@ class _EventBar extends StatelessWidget {
     final isSegmentEnd =
         isSameDay(day, event.endDate) || day.weekday == DateTime.saturday;
     final color = EventType.colorOf(event.eventTypeCd);
+    final marginLeft = isSegmentStart ? 2.0 : 0.0;
 
     return Container(
       height: _barHeight,
       margin: EdgeInsets.only(
         bottom: _barGap,
-        left: isSegmentStart ? 2 : 0,
+        left: marginLeft,
         right: isSegmentEnd ? 2 : 0,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 3),
       alignment: Alignment.centerLeft,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.horizontal(
@@ -245,22 +263,45 @@ class _EventBar extends StatelessWidget {
           right: Radius.circular(isSegmentEnd ? 4 : 0),
         ),
       ),
-      // 칸을 넘어가는 텍스트는 그릴 수 없다(칸마다 독립 셀). 이어지는 날은
-      // 색 막대만 두고 이름은 구간 시작 칸에서만 잘라 보여준다.
-      child: isSegmentStart
-          ? Text(
-              event.eventNm,
-              maxLines: 1,
-              overflow: TextOverflow.clip,
-              softWrap: false,
-              style: AppTextStyles.textCaption.copyWith(
-                color: AppColors.colorBgMain,
-                fontWeight: FontWeight.w600,
-              ),
-            )
-          : null,
+      child: OverflowBox(
+        alignment: Alignment.centerLeft,
+        // 한 구간은 길어야 7칸이라 이만큼이면 이름이 미리 잘리지 않는다.
+        maxWidth: cellWidth * 7,
+        child: Transform.translate(
+          // 구간 첫 칸의 글자 시작점(칸 왼쪽 + margin 2 + padding 3)에 맞춰
+          // 이 칸 몫만큼 왼쪽으로 민다.
+          offset: Offset(
+            2 - marginLeft - segmentIndexOf(event, day) * cellWidth,
+            0,
+          ),
+          child: Text(
+            event.eventNm,
+            maxLines: 1,
+            overflow: TextOverflow.clip,
+            softWrap: false,
+            style: AppTextStyles.textCaption.copyWith(
+              color: AppColors.colorBgMain,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
     );
   }
+}
+
+/// `day`가 이번 주 구간의 몇 번째 칸인지(구간 시작 칸이 0). 구간은 일요일이나
+/// 일정 시작일 중 늦은 쪽에서 시작한다.
+///
+/// `table_calendar`가 넘겨주는 `day`는 UTC 자정이고 `event.startDate`는 로컬
+/// 자정이라 그대로 빼면 시차만큼 어긋난다. 로컬 자정으로 맞춘 뒤 센다.
+@visibleForTesting
+int segmentIndexOf(EventListResponse event, DateTime day) {
+  final localDay = DateTime(day.year, day.month, day.day);
+  final weekStart = DateTime(day.year, day.month, day.day - day.weekday % 7);
+  final segmentStart =
+      event.startDate.isAfter(weekStart) ? event.startDate : weekStart;
+  return (localDay.difference(segmentStart).inHours / 24).round();
 }
 
 class _MoreLabel extends StatelessWidget {
