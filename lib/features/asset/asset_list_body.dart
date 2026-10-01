@@ -317,7 +317,7 @@ class _AssetItemTile extends StatelessWidget {
     final isCashable = item.cashableYn == 'Y';
     final qtyStr = item.qty == item.qty.roundToDouble()
         ? item.qty.toInt().toString()
-        : item.qty.toStringAsFixed(4);
+        : item.qty.toString();
     final hasLogo = (item.logoUrl != null && item.logoUrl!.isNotEmpty) ||
         AssetAvatar.isSupported(item.logoKey);
 
