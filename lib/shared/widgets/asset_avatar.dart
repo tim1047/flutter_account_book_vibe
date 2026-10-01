@@ -1,5 +1,6 @@
 import 'package:account_book_vibe/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// 자산 로고/아이콘 아바타 위젯.
 ///
@@ -32,7 +33,8 @@ class AssetAvatar extends StatelessWidget {
 
   /// [logoKey]가 아이콘/글리프로 표현 가능한지 여부.
   static bool isSupported(String? logoKey) =>
-      logoKey != null && (_icons.containsKey(logoKey) || logoKey == _wonGlyphKey);
+      logoKey != null &&
+      (_icons.containsKey(logoKey) || logoKey == _wonGlyphKey);
 
   Color get _backgroundColor =>
       AppColors.assetLogoBackgroundColors[logoKey] ?? Colors.transparent;
@@ -45,16 +47,31 @@ class AssetAvatar extends StatelessWidget {
       decoration: const BoxDecoration(shape: BoxShape.circle),
       clipBehavior: Clip.antiAlias,
       child: (logoUrl != null && logoUrl!.isNotEmpty)
-          ? Image.network(
-              logoUrl!,
-              width: size,
-              height: size,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _buildFallback(),
-              loadingBuilder: (context, child, progress) =>
-                  progress == null ? child : _buildFallback(),
-            )
+          ? _buildNetworkImage(logoUrl!)
           : _buildFallback(),
+    );
+  }
+
+  // Image.network는 SVG를 디코딩하지 못해 확장자로 분기.
+  Widget _buildNetworkImage(String url) {
+    if (Uri.tryParse(url)?.path.toLowerCase().endsWith('.svg') ?? false) {
+      return SvgPicture.network(
+        url,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        placeholderBuilder: (_) => _buildFallback(),
+        errorBuilder: (_, __, ___) => _buildFallback(),
+      );
+    }
+    return Image.network(
+      url,
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => _buildFallback(),
+      loadingBuilder: (context, child, progress) =>
+          progress == null ? child : _buildFallback(),
     );
   }
 

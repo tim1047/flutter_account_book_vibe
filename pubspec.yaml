@@ -33,6 +33,7 @@ dependencies:
 
   # 마크다운 렌더링 (AI 리포트 본문)
   flutter_markdown_plus: ^1.0.12
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:
