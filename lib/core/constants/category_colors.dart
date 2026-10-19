@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// categoryId(1~26) 별 고정 차트 컬러.
+/// categoryId(1~27) 별 고정 차트 컬러.
 ///
 /// 도넛/범례 등에서 인덱스 기반 색상 배정 대신 categoryId로 직접 조회해
 /// 정렬 순서가 바뀌어도 같은 카테고리는 항상 같은 색을 유지한다.
@@ -37,6 +37,7 @@ class CategoryColors {
     '24': Color(0xFFA8E055),
     '25': Color(0xFFE055D0),
     '26': Color(0xFF55E0C8),
+    '27': Color(0xFFC08A4E),
   };
 
   static Color of(String categoryId) => _colors[categoryId] ?? _fallback;
