@@ -2,11 +2,7 @@ import 'package:account_book_vibe/core/utils/format_util.dart';
 import 'package:flutter/foundation.dart';
 
 class DateFilterViewModel extends ChangeNotifier {
-  static final DateFilterViewModel instance = DateFilterViewModel._();
-
-  factory DateFilterViewModel() => instance;
-
-  DateFilterViewModel._()
+  DateFilterViewModel()
       : _year = DateTime.now().year,
         _month = DateTime.now().month;
 
@@ -59,7 +55,4 @@ class DateFilterViewModel extends ChangeNotifier {
     _month = now.month;
     notifyListeners();
   }
-
-  @override
-  void dispose() {} // ignore: must_call_super
 }
